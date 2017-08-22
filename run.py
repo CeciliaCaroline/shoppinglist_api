@@ -1,10 +1,4 @@
-import os
-
-from app import app_init
-
-config_name = os.getenv('APP_SETTINGS', 'development')
-app = app_init(config_name)
-
+from app import app
 
 if __name__ == '__main__':
     app.run()
