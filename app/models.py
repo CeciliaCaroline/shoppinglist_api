@@ -28,7 +28,7 @@ class User(db.Model):
         """
         try:
             payload = {
-                'exp': datetime.datetime.now() + datetime.timedelta(days=0, seconds=10),
+                'exp': datetime.datetime.utcnow() + datetime.timedelta(days=0, seconds=10),
                 'iat': datetime.datetime.now(),
                 'sub': user_id
             }
@@ -48,7 +48,7 @@ class User(db.Model):
         :return:
         """
         try:
-            payload = jwt.decode(token, app.config['SECRET_KEY'])
+            payload = jwt.decode(token, app.config['SECRET_KEY'], algorithms='HS256')
             return payload['sub']
         except jwt.ExpiredSignatureError:
             return 'Signature expired, Please sign in again'
