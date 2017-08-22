@@ -38,7 +38,7 @@ class TestTestingConfig(TestCase):
         self.assertTrue(app.config['BCRYPT_HASH_PREFIX'] == 3)
         self.assertFalse(current_app is None)
         self.assertTrue(
-            app.config['SQLALCHEMY_DATABASE_URI'] == "postgresql://postgres:ceciliacaroline20@localhost/test_db")
+            app.config['SQLALCHEMY_DATABASE_URI'] == "postgresql://postgres:ceciliacaroline20@localhost/tests")
 
 
 if __name__ == '__main__':
