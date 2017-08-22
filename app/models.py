@@ -7,7 +7,7 @@ class User(db.Model):
     """
     Users table
     """
-    
+
     __tablename__ = "users"
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     email = db.Column(db.String(255), unique=True, nullable=False)
@@ -19,7 +19,6 @@ class User(db.Model):
         self.password = bcrypt.generate_password_hash(password, app.config.get('BCRYPT_LOG_ROUNDS')) \
             .decode('utf-8')
         self.registered_on = datetime.datetime.now()
-
 
     def encode_auth_token(self, user_id):
         """
@@ -55,3 +54,21 @@ class User(db.Model):
             return 'Signature expired, Please sign in again'
         except jwt.InvalidTokenError:
             return 'Invalid token. Please sign in again'
+
+
+class BlackListToken(db.Model):
+    """
+    Table to store blacklisted/invalid auth tokens
+    """
+    __tablename__ = 'blacklist_token'
+
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    token = db.Column(db.String(255), unique=True, nullable=False)
+    blacklisted_on = db.Column(db.DateTime, nullable=False)
+
+    def __init__(self, token):
+        self.token = token
+        self.blacklisted_on = datetime.datetime.now()
+
+
+

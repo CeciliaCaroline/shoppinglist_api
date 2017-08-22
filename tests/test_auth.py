@@ -3,6 +3,7 @@ import unittest
 from app.models import User
 from app import db
 import json
+import time
 
 
 class TestAuth(BaseTestCase):
@@ -27,6 +28,44 @@ class TestAuth(BaseTestCase):
             '/auth/login',
             content_type='application/json',
             data=json.dumps(dict(email=email, password=password)))
+
+    def logout_user(self, token):
+        """
+        Helper method to log out a user
+        :param token: Auth token
+        :return:
+        """
+        logout_response = self.client.post(
+            'auth/logout',
+            headers=dict(Authorization='Bearer ' + token)
+        )
+        return logout_response
+
+    def register_and_login_in_user(self):
+        """
+        Helper method to sign up and login a user
+        :return:
+        """
+        reg_response = self.register_user('caroline@gmail.com', '123456')
+        data = json.loads(reg_response.data.decode())
+        self.assertTrue(data['status'] == 'success')
+        self.assertTrue(data['message'] == 'Successfully registered')
+        self.assertTrue(data['auth_token'])
+        self.assertTrue(reg_response.content_type == 'application/json')
+        self.assertEqual(reg_response.status_code, 201)
+        # Login the user
+        login_response = self.client.post(
+            'auth/login',
+            data=json.dumps(dict(email='caroline@gmail.com', password='123456')),
+            content_type='application/json'
+        )
+        login_data = json.loads(login_response.data.decode())
+        self.assertEqual(login_response.status_code, 200)
+        self.assertTrue(login_data['auth_token'])
+        self.assertTrue(login_data['status'] == 'success')
+        self.assertTrue(login_data['message'] == 'Successfully logged In')
+        self.assertTrue(login_response.content_type == 'application/json')
+        return login_data
 
     def test_user_registration(self):
         """
@@ -177,6 +216,37 @@ class TestAuth(BaseTestCase):
             data = json.loads(response.data.decode())
             self.assertTrue(data['status'] == 'failed')
             self.assertTrue(data['message'] == 'User does not exist or password is incorrect')
+
+    def test_valid_user_log_out(self):
+        """
+        Test that s user is logged out with a valid auth token
+        :return:
+        """
+        with self.client:
+            # Register and login user
+            login_data = self.register_and_login_in_user()
+            # Logout user
+            logout_response = self.logout_user(json.loads(login_data['auth_token']))
+            logout_data = json.loads(logout_response.data.decode())
+            self.assertEqual(logout_response.status_code, 200)
+            self.assertTrue(logout_data['status'] == 'success')
+            self.assertTrue(logout_data['message'] == 'Successfully logged out')
+
+    def test_invalid_user_log_out(self):
+        """
+        Try to log out a user whose auth token has expired.
+        :return:
+        """
+        with self.client:
+            login_data = self.register_and_login_in_user()
+            # Pause for 10 seconds
+            time.sleep(10)
+            # Logout user
+            logout_response = self.logout_user(json.loads(login_data['auth_token']))
+            logout_data = json.loads(logout_response.data.decode())
+            self.assertEqual(logout_response.status_code, 200)
+            self.assertTrue(logout_data['status'] == 'failed')
+            self.assertTrue(logout_data['message'] == 'Signature expired. Please log in again.')
 
 
 if __name__ == '__main__':
