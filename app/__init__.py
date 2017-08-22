@@ -22,3 +22,8 @@ migrate = Migrate(app, db)
 
 # Inirialize Flask Bcrypt
 bcrypt = Bcrypt(app)
+
+# Register blue prints
+from app.authenticate.views import auth
+
+app.register_blueprint(auth)
