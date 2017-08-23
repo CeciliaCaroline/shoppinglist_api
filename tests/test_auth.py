@@ -141,7 +141,7 @@ class TestAuthBluePrint(BaseTestCase):
             self.assertTrue(logout_data['status'] == 'success')
             self.assertTrue(logout_data['message'] == 'Successfully logged out')
 
-    def test_log_out_request_contains_an_authorization_header(self):
+    def test_log_out_request_contains_no_authorization_header(self):
         """
         Test that the authorization header is set
         :return:

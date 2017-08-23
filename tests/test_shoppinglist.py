@@ -34,6 +34,9 @@ class TestShoppingList(BaseTestCase):
 
         with self.client:
             res = self.create_list('travel', 'Go to Kenya')
+            data = json.loads(res.data.decode())
+            self.assertTrue(data['name'], 'travel')
+            self.assertTrue(data['description'], 'Go to Kenya')
             self.assertEqual(res.status_code, 201)
             self.assertIn('Go to Kenya', str(res.data))
 
@@ -57,8 +60,20 @@ class TestShoppingList(BaseTestCase):
         """
         with self.client:
             response = self.create_list_with_wrong_request_content_type('travel', 'Go to Kenya')
-            print(response.data)
             self.assertEqual(response.status_code, 202)
+
+    def test_get_shopping_list(self):
+        """"
+        Test API can get all shopping lists
+        """
+        with self.client:
+            response = self.client.get(
+                '/shoppinglist',
+                headers=dict(Authorization="Bearer " + self.token()),
+            )
+            data = json.loads(response.data.decode())
+            self.assertEqual(response.status_code, 200)
+            self.assertEqual(data['status'], 'success')
 
 
 if __name__ == '__main__':
