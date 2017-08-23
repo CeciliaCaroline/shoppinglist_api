@@ -230,16 +230,6 @@ class TestAuthBluePrint(BaseTestCase):
         self.assertTrue(login_response.content_type == 'application/json')
         return login_data
 
-    def register_user(self, email, password):
-        """
-        Helper method for registering a user with dummy data
-        :return:
-        """
-        return self.client.post(
-            '/auth/register',
-            content_type='application/json',
-            data=json.dumps(dict(email=email, password=password)))
-
     def register_user_with_wrong_request_content_type(self, email, password):
         """
         Helper method to register a user using a wrong content-type

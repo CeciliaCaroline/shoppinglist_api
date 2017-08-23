@@ -2,6 +2,7 @@ from app import db, bcrypt
 from flask import Blueprint, request, make_response, jsonify
 from flask.views import MethodView
 from app.models import User, BlackListToken
+
 import re
 
 auth = Blueprint('auth', __name__)

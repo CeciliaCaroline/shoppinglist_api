@@ -2,6 +2,7 @@ from app import db
 from flask import Blueprint, request, make_response, jsonify
 from flask.views import MethodView
 from app.models import Shoppinglist, User
+from app.authenticate.token import token_required
 import re
 
 shop_list = Blueprint('shop_list', __name__)
@@ -11,92 +12,61 @@ class ShoppingLists(MethodView):
     """"
     Method to create a shopping list and view all the shopping lists for a user
     """
+    decorators = [token_required]
 
-    def post(self):
+    def post(self, current_user):
         """"
         Method to create a shopping list
         """
         if request.content_type == 'application/json':
-            auth_header = request.headers.get('Authorization')
-            auth_token = auth_header.split(" ")[1]
 
-            if auth_token:
-                # Decode the token and get the User ID
-                user_id = User.decode_auth_token(auth_token)
-                if not isinstance(user_id, str):
-                    # Go ahead and handle the request, the user is authenticated
-                    data = request.get_json()
-                    name = data.get('name')
-                    description = data.get('description')
+            # Go ahead and handle the request, the user is authenticated
+            data = request.get_json()
+            name = data.get('name')
+            description = data.get('description')
 
-                    if name and description:
-                        if re.match("^[a-zA-Z0-9]*$", name):
-                            shoplist = Shoppinglist(name=name, description=description, user_id=user_id)
-                            db.session.add(shoplist)
-                            db.session.commit()
-                            response = jsonify({
-                                'id': shoplist.id,
-                                'name': shoplist.name,
-                                'description': shoplist.description,
-                                'user_id': user_id,
-                                'message': 'Shopping list has been created'
-                            })
-                            return make_response(response), 201
-                        return make_response(
-                            jsonify({
-                                'status': 'failed',
-                                'message': 'Invalid name format. Name can only contain numbers and letters'
-                            })
-                        ), 400
+            if name and description:
+                if re.match("^[a-zA-Z0-9]*$", name):
+                    shoplist = Shoppinglist(name=name, description=description, user_id=current_user.id)
+                    db.session.add(shoplist)
+                    db.session.commit()
+                    response = jsonify({
+                        'id': shoplist.id,
+                        'name': shoplist.name,
+                        'description': shoplist.description,
+                        'user_id': current_user.id,
+                        'message': 'Shopping list has been created'
+                    })
+                    return make_response(response), 201
+                return make_response(
+                    jsonify({
+                        'status': 'failed',
+                        'message': 'Invalid name format. Name can only contain numbers and letters'
+                    })
+                ), 400
 
-                    return make_response(
-                        jsonify({'status': 'failed',
-                                 'message': 'No imput given. Try again'})), 400
+            return make_response(
+                jsonify({'status': 'failed',
+                         'message': 'No input given. Try again'})), 400
 
-                else:
-                    # user is not legit, so the payload is an error message
-                    message = user_id
-                    response = {
-                        'message': message
-                    }
-                    return make_response(jsonify(response)), 401
-            return make_response(jsonify({"message": "Token is invalid"})), 400
         return make_response(
             jsonify({'status': 'failed', 'message': 'Content-type must be json'})), 202
 
-    def get(self):
+    def get(self, current_user):
         """"
         Method to view all shopping lists belonging to the specified user
         """
 
-        auth_header = request.headers.get('Authorization')
-        auth_token = auth_header.split(" ")[1]
+        shoplists = Shoppinglist.query.filter_by(user_id=current_user.id)
 
-        if auth_token:
-            # Decode the token and get the User ID
-            user_id = User.decode_auth_token(auth_token)
-            if not isinstance(user_id, str):
-                # GET all the shoplists created by this user
-                shoplists = Shoppinglist.query.filter_by(user_id=user_id)
-
-                for shoplist in shoplists:
-                    return make_response(jsonify({
-                        'id': shoplist.id,
-                        'name': shoplist.name,
-                        'description': shoplist.description,
-                        'user_id': user_id,
-                        'status': 'success'
-                    })), 200
-
-            else:
-                # user is not legit, so the payload is an error message
-                message = user_id
-                response = {
-                    'message': message
-                }
-                return make_response(jsonify(response)), 401
-
-        return make_response(jsonify({"message": "Token is invalid"}))
+        for shoplist in shoplists:
+            return make_response(jsonify({
+                'id': shoplist.id,
+                'name': shoplist.name,
+                'description': shoplist.description,
+                'user_id': current_user.id,
+                'status': 'success'
+            })), 200
 
 
 class ListMethods(MethodView):
