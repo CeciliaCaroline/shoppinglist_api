@@ -56,17 +56,20 @@ class ShoppingLists(MethodView):
         """"
         Method to view all shopping lists belonging to the specified user
         """
+        if request.content_type == 'application/json':
+            shoplists = Shoppinglist.query.filter_by(user_id=current_user.id)
 
-        shoplists = Shoppinglist.query.filter_by(user_id=current_user.id)
+            result = []
+            for shoplist in shoplists:
+                result.append(shoplist.json())
 
-        result = []
-        for shoplist in shoplists:
-            result.append(shoplist.json())
+            return make_response(jsonify({
+                'shoppingLists': result,
+                'status': 'success'
+            })), 200
 
-        return make_response(jsonify({
-            'shoppingLists': result,
-            'status': 'success'
-        })), 200
+        return make_response(
+            jsonify({'status': 'failed', 'message': 'Content-type must be json'})), 202
 
 
 class ListMethods(MethodView):
@@ -74,129 +77,83 @@ class ListMethods(MethodView):
     Method to view, update and delete a single shopping list
     """
 
-    def get(self, id):
+    decorators = [token_required]
+
+    def get(self, current_user, id):
         """"
         Method to view a single shopping list
         """
-        auth_header = request.headers.get('Authorization')
-        auth_token = auth_header.split(" ")[1]
+        if request.content_type == 'application/json':
+            shoplist = Shoppinglist.query.filter_by(user_id=current_user.id, id=id).first()
 
-        if auth_token:
-            # Decode the token and get the User ID
-            user_id = User.decode_auth_token(auth_token)
-            if not isinstance(user_id, str):
-                # Get one shoplist created by this user
-                shoplist = Shoppinglist.query.filter_by(user_id=user_id, id=id).first()
-
-                if shoplist is not None:
-                    return make_response(jsonify({
-                        'id': shoplist.id,
-                        'name': shoplist.name,
-                        'description': shoplist.description,
-                        'user_id': user_id,
-                        'status': 'success'
-                    }
-
-                    )), 200
-
-            else:
-                # user is not legit, so the payload is an error message
-                message = user_id
-                response = {
-                    'message': message
+            if shoplist is not None:
+                return make_response(jsonify({
+                    'id': shoplist.id,
+                    'name': shoplist.name,
+                    'description': shoplist.description,
+                    'user_id': current_user.id,
+                    'status': 'success'
                 }
-                return make_response(jsonify(response)), 401
 
-        return make_response(jsonify({"message": "Token is invalid"}))
+                )), 200
+            return make_response(jsonify({'message': 'Shopping list not found'}))
+        return make_response(
+            jsonify({'status': 'failed', 'message': 'Content-type must be json'})), 202
 
-    def put(self, id):
+    def put(self, current_user, id):
         """"
         Method to update a single shopping list
         """
         if request.content_type == 'application/json':
-            auth_header = request.headers.get('Authorization')
-            auth_token = auth_header.split(" ")[1]
 
-            if auth_token:
-                # Decode the token and get the User ID
-                user_id = User.decode_auth_token(auth_token)
-                if not isinstance(user_id, str):
-                    # Get one shoplist created by this user
-                    shoplist = Shoppinglist.query.filter_by(user_id=user_id, id=id).first()
-                    if shoplist is not None:
-                        data = request.get_json()
-                        name = data.get('name')
-                        description = data.get('description')
-                        if re.match("^[a-zA-Z0-9\s]*$", name) and description:
-                            shoplist.name = name
-                            shoplist.description = description
-                            db.session.commit()
-                            return make_response(jsonify({
-                                'name': shoplist.name,
-                                'description': shoplist.description,
-                                'message': 'Shopping list has been updated'
-
-                            })), 200
-                        return make_response(jsonify({
-                            'status': 'failed',
-                            'message': 'Invalid list name format. Name can only contain letters and numbers'
-                        })), 400
+            shoplist = Shoppinglist.query.filter_by(user_id=current_user.id, id=id).first()
+            if shoplist is not None:
+                data = request.get_json()
+                name = data.get('name')
+                description = data.get('description')
+                if re.match("^[a-zA-Z0-9\s]*$", name) and description:
+                    shoplist.name = name
+                    shoplist.description = description
+                    db.session.commit()
                     return make_response(jsonify({
-                        'status': 'failed',
-                        'message': 'Shopping list does not exist. Please try again'
-                    })), 404
+                        'name': shoplist.name,
+                        'description': shoplist.description,
+                        'message': 'Shopping list has been updated'
 
-                else:
-                    # user is not legit, so the payload is an error message
-                    message = user_id
-                    response = {
-                        'message': message
-                    }
-                    return make_response(jsonify(response)), 401
-
-            return make_response(jsonify({"message": "Token is invalid"}))
+                    })), 200
+                return make_response(jsonify({
+                    'status': 'failed',
+                    'message': 'Invalid list name format. Name can only contain letters and numbers'
+                })), 400
+            return make_response(jsonify({
+                'status': 'failed',
+                'message': 'Shopping list does not exist. Please try again'
+            })), 404
 
         return make_response(
             jsonify({'status': 'failed', 'message': 'Content-type must be json'})), 202
 
-    def delete(self, id):
+    def delete(self, current_user, id):
         """"
         Method to delete a shopping list
         """
         if request.content_type == 'application/json':
-            auth_header = request.headers.get('Authorization')
-            auth_token = auth_header.split(" ")[1]
 
-            if auth_token:
-                # Decode the token and get the User ID
-                user_id = User.decode_auth_token(auth_token)
-                if not isinstance(user_id, str):
-                    # Get one shoplist created by this user
-                    shoplist = Shoppinglist.query.filter_by(user_id=user_id, id=id).first()
-                    if shoplist is not None:
-                        db.session.delete(shoplist)
-                        db.session.commit()
-                        return make_response(jsonify({
+            shoplist = Shoppinglist.query.filter_by(user_id=current_user.id, id=id).first()
+            if shoplist is not None:
+                db.session.delete(shoplist)
+                db.session.commit()
+                return make_response(jsonify({
 
-                            'message': 'Shopping list has been deleted'
+                    'message': 'Shopping list has been deleted'
 
-                        })), 200
-                    return make_response(jsonify({"message": "List not found"})), 404
-
-                else:
-                    # user is not legit, so the payload is an error message
-                    message = user_id
-                    response = {
-                        'message': message
-                    }
-                    return make_response(jsonify(response)), 401
-            return make_response(jsonify({"message": "Token is invalid"}))
+                })), 200
+            return make_response(jsonify({"message": "List not found"})), 404
 
         return make_response(
-            jsonify({'status': 'failed', 'message': 'Content-type must be json'})), 202
+            jsonify({'status': 'failed', 'message': 'Content-type must be json'})), 202  # Register classes as views
 
 
-# Register classes as views
 shoppinglist_view = ShoppingLists.as_view('shop_list')
 singlelist_view = ListMethods.as_view('single_list')
 
