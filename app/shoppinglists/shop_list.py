@@ -53,7 +53,7 @@ class ShoppingLists(MethodView):
                         'message': message
                     }
                     return make_response(jsonify(response)), 401
-            return make_response(jsonify({"message": "Token is invalid"}))
+            return make_response(jsonify({"message": "Token is invalid"})), 400
         return make_response(
             jsonify({'status': 'failed', 'message': 'Content-type must be json'})), 202
 

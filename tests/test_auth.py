@@ -211,7 +211,6 @@ class TestAuthBluePrint(BaseTestCase):
         :return:
         """
         reg_response = self.register_user('caroline@gmail.com', '123456')
-        print(reg_response.data)
         data = json.loads(reg_response.data.decode())
         self.assertTrue(data['status'] == 'success')
         self.assertTrue(data['message'] == 'Successfully registered')

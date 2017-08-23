@@ -33,7 +33,6 @@ class TestShoppingList(BaseTestCase):
         """Test API can create a shoppinglist """
 
         with self.client:
-
             result = self.register_user('example@gmail.com', '123456')
             auth_token = json.loads(result.data.decode())['auth_token']
 
@@ -41,6 +40,7 @@ class TestShoppingList(BaseTestCase):
             res = self.client.post(
                 '/shoppinglist',
                 headers=dict(Authorization='Bearer ' + auth_token),
+                content_type='application/json',
                 data=json.dumps(dict(name='travel', description='Go to Kenya')))
             self.assertEqual(res.status_code, 201)
             self.assertIn('Go to Kenya', str(res.data))
