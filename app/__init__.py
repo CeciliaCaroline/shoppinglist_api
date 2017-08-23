@@ -25,5 +25,7 @@ bcrypt = Bcrypt(app)
 
 # Register blue prints
 from app.authenticate.views import auth
+from app.shoppinglists.shop_list import shop_list
 
 app.register_blueprint(auth)
+app.register_blueprint(shop_list)
