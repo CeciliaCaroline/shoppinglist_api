@@ -29,22 +29,29 @@ class ShoppingLists(MethodView):
                     name = data.get('name')
                     description = data.get('description')
 
-                    if re.match("^[a-zA-Z0-9\s]*$", name) and description:
-                        shoplist = Shoppinglist(name=name, description=description, user_id=user_id)
-                        db.session.add(shoplist)
-                        db.session.commit()
-                        response = jsonify({
-                            'id': shoplist.id,
-                            'name': shoplist.name,
-                            'description': shoplist.description,
-                            'user_id': user_id,
-                            'message': 'Shopping list has been created'
-                        })
-                        return make_response(response), 201
+                    if name and description:
+                        if re.match("^[a-zA-Z0-9]*$", name):
+                            shoplist = Shoppinglist(name=name, description=description, user_id=user_id)
+                            db.session.add(shoplist)
+                            db.session.commit()
+                            response = jsonify({
+                                'id': shoplist.id,
+                                'name': shoplist.name,
+                                'description': shoplist.description,
+                                'user_id': user_id,
+                                'message': 'Shopping list has been created'
+                            })
+                            return make_response(response), 201
+                        return make_response(
+                            jsonify({
+                                'status': 'failed',
+                                'message': 'Invalid name format. Name can only contain numbers and letters'
+                            })
+                        ), 400
 
                     return make_response(
                         jsonify({'status': 'failed',
-                                 'message': 'Wrong name format. Name can only contain letters and numbers'})), 200
+                                 'message': 'No imput given. Try again'})), 400
 
                 else:
                     # user is not legit, so the payload is an error message
@@ -96,6 +103,7 @@ class ListMethods(MethodView):
     """"
     Method to view, update and delete a single shopping list
     """
+
     def get(self, id):
         """"
         Method to view a single shopping list
