@@ -113,7 +113,7 @@ class Items(db.Model):
     __tablename__ = 'items'
 
     # define the columns of the table, starting with its primary key
-    id = db.Column(db.Integer, primary_key=True)
+    item_id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(255))
     price = db.Column(db.String(250))
     list_id = db.Column(db.Integer, db.ForeignKey(Shoppinglist.id))

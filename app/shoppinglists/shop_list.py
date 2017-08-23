@@ -220,8 +220,8 @@ class ListMethods(MethodView):
 
 # Register classes as views
 shoppinglist_view = ShoppingLists.as_view('shop_list')
-singlelist_view = ListMethods.as_view('single_list')
+list_view = ListMethods.as_view('list_methods')
 
 # Add rules for the api Endpoints
 shop_list.add_url_rule('/shoppinglist', view_func=shoppinglist_view, methods=['POST', 'GET'])
-shop_list.add_url_rule('/shoppinglist/<id>', view_func=singlelist_view, methods=['GET', 'PUT', 'DELETE'])
+shop_list.add_url_rule('/shoppinglist/<id>', view_func=list_view, methods=['GET', 'PUT', 'DELETE'])
