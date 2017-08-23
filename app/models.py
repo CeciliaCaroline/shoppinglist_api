@@ -30,7 +30,9 @@ class User(db.Model):
         """
         try:
             payload = {
-                'exp': datetime.datetime.utcnow() + datetime.timedelta(days=1, seconds=10),
+                'exp': datetime.datetime.utcnow() + datetime.timedelta(days=app.config.get('AUTH_TOKEN_EXPIRY_DAYS'),
+                                                                       seconds=app.config.get(
+                                                                           'AUTH_TOKEN_EXPIRY_SECONDS')),
                 'iat': datetime.datetime.now(),
                 'sub': user_id
             }
@@ -98,6 +100,7 @@ class Shoppinglist(db.Model):
     name = db.Column(db.String(255))
     description = db.Column(db.String(250))
     user_id = db.Column(db.Integer, db.ForeignKey(User.id))
+
     # items = db.relationship('Items', backref='shop_list', lazy='dynamic')
 
     def __init__(self, name, description, user_id):
