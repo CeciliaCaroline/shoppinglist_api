@@ -29,31 +29,27 @@ class TestShoppingList(BaseTestCase):
             content_type='application/json',
             data=json.dumps(dict(email=email, password=password)))
 
-    def test_create_shoppinglist(self):
-        """Test API can create a shoppinglist """
-
-        with self.client:
-            result = self.register_user('example@gmail.com', '123456')
-            auth_token = json.loads(result.data.decode())['auth_token']
-
-            # create a shoppinglist by making a POST request
-            res = self.client.post(
-                '/shoppinglist',
-                headers=dict(Authorization='Bearer ' + auth_token),
-                content_type='application/json',
-                data=json.dumps(dict(name='travel', description='Go to Kenya')))
-            self.assertEqual(res.status_code, 201)
-            self.assertIn('Go to Kenya', str(res.data))
-
     def create_list(self, name, description):
         """
         Helper method for creating a list with dummy data
         :return:
         """
+        result = self.register_user('example@gmail.com', '123456')
+        auth_token = json.loads(result.data.decode())['auth_token']
         return self.client.post(
             '/shoppinglist',
+            headers=dict(Authorization='Bearer ' + auth_token),
             content_type='application/json',
             data=json.dumps(dict(name=name, description=description)))
+
+    def test_create_shoppinglist(self):
+        """Test API can create a shoppinglist """
+
+        with self.client:
+            res = self.create_list('travel', 'Go to Kenya')
+            print(res.data)
+            self.assertEqual(res.status_code, 201)
+            self.assertIn('Go to Kenya', str(res.data))
 
 
 if __name__ == '__main__':

@@ -3,7 +3,6 @@ from app.models import User
 from app import db
 import unittest
 import json
-import time
 
 
 class TestAuthBluePrint(BaseTestCase):
