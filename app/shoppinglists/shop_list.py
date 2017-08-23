@@ -8,7 +8,14 @@ shop_list = Blueprint('shop_list', __name__)
 
 
 class ShoppingLists(MethodView):
+    """"
+    Method to create a shopping list and view all the shopping lists for a user
+    """
+
     def post(self):
+        """"
+        Method to create a shopping list
+        """
         if request.content_type == 'application/json':
             auth_header = request.headers.get('Authorization')
             auth_token = auth_header.split(" ")[1]
@@ -30,7 +37,8 @@ class ShoppingLists(MethodView):
                             'id': shoplist.id,
                             'name': shoplist.name,
                             'description': shoplist.description,
-                            'user_id': user_id
+                            'user_id': user_id,
+                            'message': 'Shopping list has been created'
                         })
                         return make_response(response), 201
 
@@ -50,6 +58,9 @@ class ShoppingLists(MethodView):
             jsonify({'status': 'failed', 'message': 'Content-type must be json'})), 202
 
     def get(self):
+        """"
+        Method to view all shopping lists belonging to the specified user
+        """
 
         auth_header = request.headers.get('Authorization')
         auth_token = auth_header.split(" ")[1]
@@ -60,19 +71,15 @@ class ShoppingLists(MethodView):
             if not isinstance(user_id, str):
                 # GET all the shoplists created by this user
                 shoplists = Shoppinglist.query.filter_by(user_id=user_id)
-                results = []
 
                 for shoplist in shoplists:
-                    obj = {
+                    return make_response(jsonify({
                         'id': shoplist.id,
                         'name': shoplist.name,
                         'description': shoplist.description,
                         'user_id': user_id,
                         'status': 'success'
-                    }
-                    results.append(obj)
-
-                return make_response(jsonify(results)), 200
+                    })), 200
 
             else:
                 # user is not legit, so the payload is an error message
@@ -86,8 +93,13 @@ class ShoppingLists(MethodView):
 
 
 class ListMethods(MethodView):
+    """"
+    Method to view, update and delete a single shopping list
+    """
     def get(self, id):
-
+        """"
+        Method to view a single shopping list
+        """
         auth_header = request.headers.get('Authorization')
         auth_token = auth_header.split(" ")[1]
 
@@ -97,9 +109,9 @@ class ListMethods(MethodView):
             if not isinstance(user_id, str):
                 # Get one shoplist created by this user
                 shoplist = Shoppinglist.query.filter_by(user_id=user_id, id=id).first()
-                results = []
+
                 if shoplist is not None:
-                    obj = {
+                    return make_response(jsonify({
                         'id': shoplist.id,
                         'name': shoplist.name,
                         'description': shoplist.description,
@@ -107,9 +119,7 @@ class ListMethods(MethodView):
                         'status': 'success'
                     }
 
-                    results.append(obj)
-
-                return make_response(jsonify(results)), 200
+                    )), 200
 
             else:
                 # user is not legit, so the payload is an error message
@@ -122,6 +132,9 @@ class ListMethods(MethodView):
         return make_response(jsonify({"message": "Token is invalid"}))
 
     def put(self, id):
+        """"
+        Method to update a single shopping list
+        """
         if request.content_type == 'application/json':
             auth_header = request.headers.get('Authorization')
             auth_token = auth_header.split(" ")[1]
@@ -169,6 +182,9 @@ class ListMethods(MethodView):
             jsonify({'status': 'failed', 'message': 'Content-type must be json'})), 202
 
     def delete(self, id):
+        """"
+        Method to delete a shopping list
+        """
         if request.content_type == 'application/json':
             auth_header = request.headers.get('Authorization')
             auth_token = auth_header.split(" ")[1]
@@ -207,6 +223,5 @@ shoppinglist_view = ShoppingLists.as_view('shop_list')
 singlelist_view = ListMethods.as_view('single_list')
 
 # Add rules for the api Endpoints
-shop_list.add_url_rule('/shoppinglist', view_func=shoppinglist_view, methods=['POST'])
-shop_list.add_url_rule('/shoppinglist', view_func=shoppinglist_view, methods=['GET'])
+shop_list.add_url_rule('/shoppinglist', view_func=shoppinglist_view, methods=['POST', 'GET'])
 shop_list.add_url_rule('/shoppinglist/<id>', view_func=singlelist_view, methods=['GET', 'PUT', 'DELETE'])
