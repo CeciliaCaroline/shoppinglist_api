@@ -30,5 +30,5 @@ class TestingConfig(BaseConfig):
     """
     DEBUG = True
     TESTING = True
-    SQLALCHEMY_DATABASE_URI = postgres_local_base + "tests"
+    SQLALCHEMY_DATABASE_URI = postgres_local_base + "test_api"
     BCRYPT_HASH_PREFIX = 3

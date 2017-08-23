@@ -142,22 +142,6 @@ class TestAuthBluePrint(BaseTestCase):
             self.assertTrue(logout_data['status'] == 'success')
             self.assertTrue(logout_data['message'] == 'Successfully logged out')
 
-    def test_expired_user_token_user_log_out(self):
-        """
-        Try to log out a user whose auth token has expired.
-        :return:
-        """
-        with self.client:
-            login_data = self.register_and_login_in_user()
-            # Pause for 10 seconds
-            time.sleep(15)
-            # Logout user
-            logout_response = self.logout_user(login_data['auth_token'])
-            logout_data = json.loads(logout_response.data.decode())
-            self.assertTrue(logout_data['status'] == 'failed')
-            self.assertTrue(logout_data['message'] == 'Signature expired, Please sign in again')
-            self.assertEqual(logout_response.status_code, 401)
-
     def test_log_out_request_contains_an_authorization_header(self):
         """
         Test that the authorization header is set
@@ -227,6 +211,7 @@ class TestAuthBluePrint(BaseTestCase):
         :return:
         """
         reg_response = self.register_user('caroline@gmail.com', '123456')
+        print(reg_response.data)
         data = json.loads(reg_response.data.decode())
         self.assertTrue(data['status'] == 'success')
         self.assertTrue(data['message'] == 'Successfully registered')
@@ -280,6 +265,7 @@ class TestAuthBluePrint(BaseTestCase):
             '/auth/login',
             content_type='application/json',
             data=json.dumps(dict(email=email, password=password)))
+
 
 if __name__ == '__main__':
     unittest.main()
