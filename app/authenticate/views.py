@@ -44,6 +44,10 @@ class RegisterUser(MethodView):
 
 
 class LoginUser(MethodView):
+    """"
+    View function to log in user
+    """
+
     def post(self):
         if request.content_type == 'application/json':
             post_data = request.get_json()
@@ -68,6 +72,10 @@ class LoginUser(MethodView):
 
 
 class LogOutUser(MethodView):
+    """"
+    Method to log out user
+    """
+
     def post(self):
         auth_header = request.headers.get('Authorization')
         if auth_header:
@@ -104,13 +112,53 @@ class LogOutUser(MethodView):
         })), 403
 
 
+class Reset(MethodView):
+    """
+    Method to reset user password
+    """
+
+    def post(self):
+        if request.content_type == 'application/json':
+            post_data = request.get_json()
+            email = post_data.get('email')
+            new_password = post_data.get('newpassword')
+            confirm_password = post_data.get('confirmpassword')
+            if re.match(r"[^@]+@[^@]+\.[^@]+", email) and len(new_password) > 4:
+                user = User.query.filter_by(email=email).first()
+                if user:
+                    if new_password == confirm_password:
+                        user.password = new_password
+                        db.session.commit()
+                        return make_response(jsonify({
+                            'email': user.email,
+                            'password': user.password,
+                            'message': 'Password has been reset'
+
+                        })), 200
+                    return make_response(jsonify({
+                        'status': 'failed',
+                        'message': 'Password confirm does not match password. Please try again'
+                    })), 400
+                return make_response(jsonify({
+                    'status': 'failed',
+                    'message': 'User does not exist. Please login or register'
+                })), 404
+
+            return make_response(
+                jsonify({'status': 'failed',
+                         'message': 'Missing or wrong email format or password is less than four characters'})), 200
+        return make_response(
+            jsonify({'status': 'failed', 'message': 'Content-type must be json'})), 202
+
+
 # Register classes as views
 registration_view = RegisterUser.as_view('register')
 login_view = LoginUser.as_view('login')
 logout_view = LogOutUser.as_view('logout')
+reset_view = Reset.as_view('reset')
 
 # Add rules for the api Endpoints
 auth.add_url_rule('/auth/register', view_func=registration_view, methods=['POST'])
 auth.add_url_rule('/auth/login', view_func=login_view, methods=['POST'])
 auth.add_url_rule('/auth/logout', view_func=logout_view, methods=['POST'])
-
+auth.add_url_rule('/auth/reset_password', view_func=reset_view, methods=['POST'])
