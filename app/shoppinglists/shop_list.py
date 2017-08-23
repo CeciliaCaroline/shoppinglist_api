@@ -59,14 +59,14 @@ class ShoppingLists(MethodView):
 
         shoplists = Shoppinglist.query.filter_by(user_id=current_user.id)
 
+        result = []
         for shoplist in shoplists:
-            return make_response(jsonify({
-                'id': shoplist.id,
-                'name': shoplist.name,
-                'description': shoplist.description,
-                'user_id': current_user.id,
-                'status': 'success'
-            })), 200
+            result.append(shoplist.json())
+
+        return make_response(jsonify({
+            'shoppingLists': result,
+            'status': 'success'
+        })), 200
 
 
 class ListMethods(MethodView):

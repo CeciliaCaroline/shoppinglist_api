@@ -108,3 +108,13 @@ class Shoppinglist(db.Model):
         self.name = name
         self.description = description
         self.user_id = user_id
+
+    def json(self):
+        """"
+        Get Json representation of the model
+        """
+        return {
+            'id': self.id,
+            'name': self.name,
+            'description': self.description
+        }
