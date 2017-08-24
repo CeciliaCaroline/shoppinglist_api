@@ -1,8 +1,8 @@
-
 from app import db
 from flask import Blueprint, request, make_response, jsonify
 from flask.views import MethodView
 from app.models import User, Shoppinglist, Items
+from app.authenticate.token import token_required
 import re
 
 items = Blueprint('items', __name__)
@@ -12,54 +12,41 @@ class NewItems(MethodView):
     """"
     Method to create and view list items
     """
+    decorators = [token_required]
 
-    def post(self, list_id):
+    def post(self, current_user, list_id):
         """"
         Methods to create list items
         """
         if request.content_type == 'application/json':
-            auth_header = request.headers.get('Authorization')
-            auth_token = auth_header.split(" ")[1]
 
-            if auth_token:
-                # Decode the token and get the User ID
-                user_id = User.decode_auth_token(auth_token)
-                if not isinstance(user_id, str):
-                    # Go ahead and handle the request, the user is authenticated
-                    data = request.get_json()
-                    name = data.get('name')
-                    price = data.get('price')
+            # Go ahead and handle the request, the user is authenticated
+            data = request.get_json()
+            name = data.get('name')
+            price = data.get('price')
 
-                    if re.match("^[a-zA-Z0-9\s]*$", name) and price:
-                        item = Items(name=name, price=price, list_id=list_id)
-                        db.session.add(item)
-                        db.session.commit()
-                        response = jsonify({
-                            'id': item.list_id,
-                            'name': item.name,
-                            'price': item.price,
-                            'user_id': user_id,
-                            'list_id': list_id,
-                            'message': 'Shopping list item has been created'
-                        })
-                        return make_response(response), 201
+            if re.match("^[a-zA-Z0-9\s]*$", name) and price:
+                item = Items(name=name, price=price, list_id=list_id)
+                db.session.add(item)
+                db.session.commit()
+                response = jsonify({
+                    'id': item.list_id,
+                    'name': item.name,
+                    'price': item.price,
+                    'user_id': current_user.id,
+                    'list_id': list_id,
+                    'message': 'Shopping list item has been created'
+                })
+                return make_response(response), 201
 
-                    return make_response(
-                        jsonify({'status': 'failed',
-                                 'message': 'Wrong name format. Name can only contain letters and numbers'})), 200
+            return make_response(
+                jsonify({'status': 'failed',
+                         'message': 'Wrong name format. Name can only contain letters and numbers'})), 200
 
-                else:
-                    # user is not legit, so the payload is an error message
-                    message = user_id
-                    response = {
-                        'message': message
-                    }
-                    return make_response(jsonify(response)), 401
-            return make_response(jsonify({"message": "Token is invalid"}))
         return make_response(
             jsonify({'status': 'failed', 'message': 'Content-type must be json'})), 202
 
-    def get(self, list_id):
+    def get(self, current_user, list_id):
         """"
         Method to view all shopping list items belonging to the specified user
         """
@@ -102,8 +89,9 @@ class ItemMethods(MethodView):
     """"
     Method to view, update and delete a  shopping list item
     """
+    decorators = [token_required]
 
-    def get(self, list_id, item_id):
+    def get(self, current_user, list_id, item_id):
         """"
         Method to view a shopping list item
         """
@@ -140,7 +128,7 @@ class ItemMethods(MethodView):
 
         return make_response(jsonify({"message": "Token is invalid"}))
 
-    def put(self, list_id, item_id):
+    def put(self, current_user, list_id, item_id):
         """"
         Method to update a shopping list item
         """
@@ -194,7 +182,7 @@ class ItemMethods(MethodView):
         return make_response(
             jsonify({'status': 'failed', 'message': 'Content-type must be json'})), 202
 
-    def delete(self, list_id, item_id):
+    def delete(self, current_user, list_id, item_id):
         """"
         Method to delete a shopping list item
         """

@@ -96,6 +96,7 @@ class ListMethods(MethodView):
     """"
     Method to view, update and delete a single shopping list
     """
+
     def get(self, id):
         """"
         Method to view a single shopping list
