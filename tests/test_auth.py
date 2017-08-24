@@ -192,6 +192,29 @@ class TestAuthBluePrint(BaseTestCase):
             self.assertTrue(logout_again_data['status'] == 'failed')
             self.assertTrue(logout_again_data['message'] == 'Token was Blacklisted, Please login In')
 
+    def test_password_reset(self):
+        with self.client:
+            self.register_user('caroline@gmail.com', '123456')
+            response = self.client.post(
+                '/auth/reset_password',
+                content_type='application/json',
+                data=json.dumps(dict(email='caroline@gmail.com', newpassword='123456789')))
+            data = json.loads(response.data.decode())
+            self.assertEqual(data['password'], '123456789')
+            self.assertEqual(response.status_code, 200)
+
+    def test_password_reset_non_user(self):
+        with self.client:
+            self.register_user('caroline@gmail.com', '123456')
+            response = self.client.post(
+                '/auth/reset_password',
+                content_type='application/json',
+                data=json.dumps(dict(email='caroline12@gmail.com', newpassword='123456789')))
+            data = json.loads(response.data.decode())
+            self.assertEqual(data['status'], 'failed')
+            self.assertEqual(data['message'], 'User does not exist. Please login or register')
+            self.assertEqual(response.status_code, 404)
+
     def logout_user(self, token):
         """
         Helper method to log out a user
