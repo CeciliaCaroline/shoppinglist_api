@@ -88,10 +88,36 @@ class TestShoppingList(BaseTestCase):
                 content_type='application/json',
                 headers=dict(Authorization="Bearer " + token)
             )
-            print(response.data)
             data = json.loads(response.data.decode())
             self.assertEqual(response.status_code, 200)
+            self.assertEqual(data['status'], 'failed')
+
+    def test_get_list_doesnt_exist(self):
+        with self.client:
+            token = self.token()
+            response = self.client.get(
+                '/shoppinglist/32',
+                content_type='application/json',
+                headers=dict(Authorization="Bearer " + token)
+            )
+            data = json.loads(response.data.decode())
+            self.assertEqual(response.status_code, 404)
             self.assertEqual(data['status'], 'success')
+            self.assertEqual(data['message'], 'Shopping list not found')
+
+    def test_edit_list_that_doesnt_exist(self):
+        with self.client:
+            token = self.token()
+            response = self.client.put(
+                '/shoppinglist/32',
+                content_type='application/json',
+                headers=dict(Authorization="Bearer " + token),
+                data=json.dumps(dict(name='traveling', description='traveling to different places')))
+
+            data = json.loads(response.data.decode())
+            self.assertEqual(response.status_code, 404)
+            self.assertEqual(data['status'], 'failed')
+            self.assertEqual(data['message'], 'Shopping list does not exist. Please try again')
 
     def test_shoppinglist_can_be_edited(self):
         """Test API can edit an existing shoppinglist. (PUT request)"""
@@ -108,7 +134,7 @@ class TestShoppingList(BaseTestCase):
                 headers=dict(Authorization="Bearer " + token),
                 content_type='application/json',
                 data=json.dumps(dict(name='traveling', description='traveling to different places')))
-            print(rv.data)
+            # print(rv.data)
             self.assertEqual(rv.status_code, 200)
 
             # finally, we get the edited shoppinglist to see if it is actually edited.
@@ -119,6 +145,9 @@ class TestShoppingList(BaseTestCase):
             self.assertIn('traveling to different places', str(results.data))
 
     def test_shoppinglist_delete(self):
+        """"
+        Test API can delete shopping list using a DELETE request
+        """
         with self.client:
             token = self.token()
             res = self.create_list('eat', 'eatpraylove', token)
@@ -132,6 +161,7 @@ class TestShoppingList(BaseTestCase):
                 headers=dict(Authorization="Bearer " + token),
                 content_type='application/json')
             self.assertEqual(rv.status_code, 200)
+
 
 
 if __name__ == '__main__':

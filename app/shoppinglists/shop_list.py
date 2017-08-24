@@ -96,7 +96,7 @@ class ListMethods(MethodView):
                 }
 
                 )), 200
-            return make_response(jsonify({'message': 'Shopping list not found'}))
+            return make_response(jsonify({'status': 'failed', 'message': 'Shopping list not found'})), 404
         return make_response(
             jsonify({'status': 'failed', 'message': 'Content-type must be json'})), 202
 
