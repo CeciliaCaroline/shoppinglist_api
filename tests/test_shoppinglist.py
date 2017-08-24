@@ -61,7 +61,7 @@ class TestShoppingList(BaseTestCase):
         """
         with self.client:
             response = self.create_list_with_wrong_request_content_type('travel', 'Go to Kenya')
-            self.assertEqual(response.status_code, 202)
+            self.assertEqual(response.status_code, 401)
 
     def test_get_shopping_list(self):
         """"
