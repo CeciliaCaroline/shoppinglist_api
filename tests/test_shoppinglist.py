@@ -118,6 +118,21 @@ class TestShoppingList(BaseTestCase):
                 headers=dict(Authorization="Bearer " + token))
             self.assertIn('traveling to different places', str(results.data))
 
+    def test_shoppinglist_delete(self):
+        with self.client:
+            token = self.token()
+            res = self.create_list('eat', 'eatpraylove', token)
+            self.assertEqual(res.status_code, 201)
+            # get the json with the shoppinglist
+            results = json.loads(res.data.decode())
+
+            # then, we delete the created shoppinglist by making a DELETE request
+            rv = self.client.delete(
+                '/shoppinglist/{}'.format(results['id']),
+                headers=dict(Authorization="Bearer " + token),
+                content_type='application/json')
+            self.assertEqual(rv.status_code, 200)
+
 
 if __name__ == '__main__':
     unittest.main()
