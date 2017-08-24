@@ -34,7 +34,7 @@ class ShoppingLists(MethodView):
                         db.session.add(shoplist)
                         db.session.commit()
                         response = jsonify({
-                            'id': shoplist.id,
+                            'id': shoplist.list_id,
                             'name': shoplist.name,
                             'description': shoplist.description,
                             'user_id': user_id,
