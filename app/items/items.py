@@ -50,19 +50,19 @@ class NewItems(MethodView):
         """"
         Method to view all shopping list items belonging to the specified user
         """
+        user = User.query.filter_by(id=current_user.id).first()
+        shoppinglist = user.shoppinglists.filter_by(id=list_id).first()
+        items = Items.query.filter_by(list_id=shoppinglist.id)
 
-        items = Items.query.filter_by(list_id=list_id)
         if items:
-
+            results = []
             for item in items:
-                return make_response(jsonify({
-                    'id': item.list_id,
-                    'name': item.name,
-                    'price': item.price,
-                    'user_id': current_user.id,
-                    'list_id': list_id,
-                    'status': 'success'
-                })), 200
+                results.append(item.json())
+            return make_response(jsonify({
+                'shoppingList_items': results,
+                'status': 'success'
+
+            })), 200
 
         return make_response(jsonify({'message': 'Items not found'}))
 
@@ -77,8 +77,9 @@ class ItemMethods(MethodView):
         """"
         Method to view a shopping list item
         """
-
-        item = Items.query.filter_by(list_id=list_id, item_id=item_id).first()
+        user = User.query.filter_by(id=current_user.id).first()
+        shoppinglist = user.shoppinglists.filter_by(id=list_id).first()
+        item = Items.query.filter_by(list_id=shoppinglist.id, item_id=item_id).first()
 
         if item is not None:
             return make_response(jsonify({
@@ -91,13 +92,18 @@ class ItemMethods(MethodView):
             }
 
             )), 200
+        return make_response(jsonify({
+            'message': 'Item not found'
+        }))
 
     def put(self, current_user, list_id, item_id):
         """"
         Method to update a shopping list item
         """
         if request.content_type == 'application/json':
-            item = Items.query.filter_by(list_id=list_id, item_id=item_id).first()
+            user = User.query.filter_by(id=current_user.id).first()
+            shoppinglist = user.shoppinglists.filter_by(id=list_id).first()
+            item = Items.query.filter_by(list_id=shoppinglist.id, item_id=item_id).first()
             if item is not None:
                 data = request.get_json()
                 name = data.get('name')
@@ -135,8 +141,9 @@ class ItemMethods(MethodView):
         Method to delete a shopping list item
         """
         if request.content_type == 'application/json':
-
-            item = Items.query.filter_by(list_id=list_id, item_id=item_id).first()
+            user = User.query.filter_by(id=current_user.id).first()
+            shoppinglist = user.shoppinglists.filter_by(id=list_id).first()
+            item = Items.query.filter_by(list_id=shoppinglist.id, item_id=item_id).first()
             if item is not None:
                 db.session.delete(item)
                 db.session.commit()
