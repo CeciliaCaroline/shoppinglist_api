@@ -111,20 +111,22 @@ class ListMethods(MethodView):
                 data = request.get_json()
                 name = data.get('name')
                 description = data.get('description')
-                if re.match("^[a-zA-Z0-9\s]*$", name) and description:
-                    shoplist.name = name
-                    shoplist.description = description
-                    db.session.commit()
-                    return make_response(jsonify({
-                        'name': shoplist.name,
-                        'description': shoplist.description,
-                        'message': 'Shopping list has been updated'
+                if name and description:
+                    if re.match("^[a-zA-Z0-9\s]*$", name):
+                        shoplist.name = name
+                        shoplist.description = description
+                        db.session.commit()
+                        return make_response(jsonify({
+                            'name': shoplist.name,
+                            'description': shoplist.description,
+                            'message': 'Shopping list has been updated'
 
-                    })), 200
-                return make_response(jsonify({
-                    'status': 'failed',
-                    'message': 'Invalid list name format. Name can only contain letters and numbers'
-                })), 400
+                        })), 200
+                    return make_response(jsonify({
+                        'status': 'failed',
+                        'message': 'Invalid list name format. Name can only contain letters and numbers'
+                    })), 400
+                return make_response(jsonify({"message": "No input"})), 404
             return make_response(jsonify({
                 'status': 'failed',
                 'message': 'Shopping list does not exist. Please try again'
