@@ -25,7 +25,7 @@ class TestShoppingList(BaseTestCase):
         :return:
         """
         return self.client.post(
-            '/auth/register',
+            '/shoppinglist',
             content_type='application/javascript',
             data=json.dumps(dict(name=name, description=description)))
 
