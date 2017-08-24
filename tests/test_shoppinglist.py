@@ -90,7 +90,7 @@ class TestShoppingList(BaseTestCase):
             )
             data = json.loads(response.data.decode())
             self.assertEqual(response.status_code, 200)
-            self.assertEqual(data['status'], 'failed')
+            self.assertEqual(data['status'], 'success')
 
     def test_get_list_doesnt_exist(self):
         with self.client:
@@ -102,7 +102,7 @@ class TestShoppingList(BaseTestCase):
             )
             data = json.loads(response.data.decode())
             self.assertEqual(response.status_code, 404)
-            self.assertEqual(data['status'], 'success')
+            self.assertEqual(data['status'], 'failed')
             self.assertEqual(data['message'], 'Shopping list not found')
 
     def test_edit_list_that_doesnt_exist(self):
@@ -118,6 +118,18 @@ class TestShoppingList(BaseTestCase):
             self.assertEqual(response.status_code, 404)
             self.assertEqual(data['status'], 'failed')
             self.assertEqual(data['message'], 'Shopping list does not exist. Please try again')
+
+    def test_delete_list_that_doesnt_exist(self):
+        with self.client:
+            token = self.token()
+            rv = self.client.delete(
+                '/shoppinglist/25',
+                headers=dict(Authorization="Bearer " + token),
+                content_type='application/json')
+
+            self.assertEqual(rv.status_code, 404)
+            data = json.loads(rv.data.decode())
+            self.assertEqual(data['message'], 'List not found')
 
     def test_shoppinglist_can_be_edited(self):
         """Test API can edit an existing shoppinglist. (PUT request)"""
