@@ -94,7 +94,7 @@ class Shoppinglist(db.Model):
     __tablename__ = 'shoppinglists'
 
     # define the columns of the table, starting with its primary key
-    list_id = db.Column(db.Integer, primary_key=True)
+    id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(255))
     description = db.Column(db.String(250))
     user_id = db.Column(db.Integer, db.ForeignKey(User.id))
@@ -116,7 +116,7 @@ class Items(db.Model):
     item_id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(255))
     price = db.Column(db.String(250))
-    list_id = db.Column(db.Integer, db.ForeignKey(Shoppinglist.list_id))
+    list_id = db.Column(db.Integer, db.ForeignKey(Shoppinglist.id))
 
     def __init__(self, name, price, list_id):
         """Initialize the item with a name and description."""

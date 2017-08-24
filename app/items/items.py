@@ -11,6 +11,7 @@ class NewItems(MethodView):
     """"
     Method to create and view list items
     """
+
     def post(self, list_id):
         """"
         Methods to create list items
@@ -33,7 +34,7 @@ class NewItems(MethodView):
                         db.session.add(item)
                         db.session.commit()
                         response = jsonify({
-                            'id': item.id,
+                            'id': item.list_id,
                             'name': item.name,
                             'price': item.price,
                             'user_id': user_id,
@@ -70,17 +71,20 @@ class NewItems(MethodView):
             user_id = User.decode_auth_token(auth_token)
             if not isinstance(user_id, str):
                 # GET all the shoplists created by this user
-                shoplists = Shoppinglist.query.filter_by(list_id=list_id)
+                shoplists = Items.query.filter_by(list_id=list_id)
+                if shoplists:
 
-                for shoplist in shoplists:
-                    return make_response(jsonify({
-                        'id': shoplist.id,
-                        'name': shoplist.name,
-                        'price': shoplist.price,
-                        'user_id': user_id,
-                        'list_id': list_id,
-                        'status': 'success'
-                    })), 200
+                    for shoplist in shoplists:
+                        return make_response(jsonify({
+                            'id': shoplist.list_id,
+                            'name': shoplist.name,
+                            'price': shoplist.price,
+                            'user_id': user_id,
+                            'list_id': list_id,
+                            'status': 'success'
+                        })), 200
+
+                return make_response(jsonify({'message': 'Items not found'}))
 
             else:
                 # user is not legit, so the payload is an error message
@@ -110,7 +114,7 @@ class ItemMethods(MethodView):
             user_id = User.decode_auth_token(auth_token)
             if not isinstance(user_id, str):
                 # Get one shoplist created by this user
-                item = Items.query.filter_by(user_id=user_id, list_id=list_id, item_id=item_id).first()
+                item = Items.query.filter_by(list_id=list_id, item_id=item_id).first()
 
                 if item is not None:
                     return make_response(jsonify({
@@ -148,25 +152,29 @@ class ItemMethods(MethodView):
                 user_id = User.decode_auth_token(auth_token)
                 if not isinstance(user_id, str):
                     # Get one shoplist created by this user
-                    item = Shoppinglist.query.filter_by(user_id=user_id, list_id=list_id, item_id=item_id).first()
+                    item = Items.query.filter_by(list_id=list_id, item_id=item_id).first()
                     if item is not None:
                         data = request.get_json()
                         name = data.get('name')
                         price = data.get('description')
-                        if re.match("^[a-zA-Z0-9\s]*$", name) and price:
-                            item.name = name
-                            item.price = price
-                            db.session.commit()
-                            return make_response(jsonify({
-                                'name': item.name,
-                                'description': item.price,
-                                'message': 'Shopping list item has been updated'
+                        if name:
+                            if re.match("^[a-zA-Z0-9\s]*$", name):
+                                item.name = name
+                                item.price = price
+                                db.session.commit()
+                                return make_response(jsonify({
+                                    'name': item.name,
+                                    'description': item.price,
+                                    'message': 'Shopping list item has been updated'
 
-                            })), 200
+                                })), 200
+                            return make_response(jsonify({
+                                'status': 'failed',
+                                'message': 'Invalid list name format. Name can only contain letters and numbers'
+                            })), 400
                         return make_response(jsonify({
-                            'status': 'failed',
-                            'message': 'Invalid list name format. Name can only contain letters and numbers'
-                        })), 400
+                            'message': 'No input. Try again'
+                        }))
                     return make_response(jsonify({
                         'status': 'failed',
                         'message': 'Shopping list item does not exist. Please try again'
@@ -198,7 +206,7 @@ class ItemMethods(MethodView):
                 user_id = User.decode_auth_token(auth_token)
                 if not isinstance(user_id, str):
                     # Get one shoplist created by this user
-                    item = Shoppinglist.query.filter_by(user_id=user_id, list_id=list_id, item_id=item_id).first()
+                    item = Items.query.filter_by(list_id=list_id, item_id=item_id).first()
                     if item is not None:
                         db.session.delete(item)
                         db.session.commit()
