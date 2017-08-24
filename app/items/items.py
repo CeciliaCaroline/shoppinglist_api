@@ -71,14 +71,14 @@ class NewItems(MethodView):
             user_id = User.decode_auth_token(auth_token)
             if not isinstance(user_id, str):
                 # GET all the shoplists created by this user
-                shoplists = Items.query.filter_by(list_id=list_id)
-                if shoplists:
+                items = Items.query.filter_by(list_id=list_id)
+                if items:
 
-                    for shoplist in shoplists:
+                    for item in items:
                         return make_response(jsonify({
-                            'id': shoplist.list_id,
-                            'name': shoplist.name,
-                            'price': shoplist.price,
+                            'id': item.list_id,
+                            'name': item.name,
+                            'price': item.price,
                             'user_id': user_id,
                             'list_id': list_id,
                             'status': 'success'
