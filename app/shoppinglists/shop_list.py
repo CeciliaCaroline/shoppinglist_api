@@ -1,7 +1,7 @@
 from app import db
 from flask import Blueprint, request, make_response, jsonify
 from flask.views import MethodView
-from app.models import Shoppinglist, User
+from app.models import Shoppinglist
 from app.authenticate.token import token_required
 import re
 
@@ -98,7 +98,7 @@ class ListMethods(MethodView):
                 )), 200
             return make_response(jsonify({'status': 'failed', 'message': 'Shopping list not found'})), 404
         return make_response(
-            jsonify({'status': 'failed', 'message': 'Content-type must be json'})), 202
+            jsonify({'status': 'failed', 'message': 'Content-type must be json'})), 401
 
     def put(self, current_user, id):
         """"
