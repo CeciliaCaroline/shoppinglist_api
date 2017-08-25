@@ -25,23 +25,27 @@ class NewItems(MethodView):
             name = data.get('name')
             price = data.get('price')
 
-            if re.match("^[a-zA-Z0-9\s]*$", name) and price:
-                item = Items(name=name, price=price, list_id=list_id)
-                db.session.add(item)
-                db.session.commit()
-                response = jsonify({
-                    'id': item.list_id,
-                    'name': item.name,
-                    'price': item.price,
-                    'user_id': current_user.id,
-                    'list_id': list_id,
-                    'message': 'Shopping list item has been created'
-                })
-                return make_response(response), 201
+            if name:
+                if re.match("^[a-zA-Z0-9\s]*$", name):
+                    item = Items(name=name, price=price, list_id=list_id)
+                    db.session.add(item)
+                    db.session.commit()
+                    response = jsonify({
+                        'id': item.list_id,
+                        'name': item.name,
+                        'price': item.price,
+                        'user_id': current_user.id,
+                        'list_id': list_id,
+                        'message': 'Shopping list item has been created'
+                    })
+                    return make_response(response), 201
 
+                return make_response(
+                    jsonify({'status': 'failed',
+                             'message': 'Wrong name format. Name can only contain letters and numbers'})), 200
             return make_response(
                 jsonify({'status': 'failed',
-                         'message': 'Wrong name format. Name can only contain letters and numbers'})), 200
+                         'message': 'No name has been input'})), 200
 
         return make_response(
             jsonify({'status': 'failed', 'message': 'Content-type must be json'})), 202
@@ -107,7 +111,7 @@ class ItemMethods(MethodView):
             if item is not None:
                 data = request.get_json()
                 name = data.get('name')
-                price = data.get('description')
+                price = data.get('price')
                 if name:
                     if re.match("^[a-zA-Z0-9\s]*$", name):
                         item.name = name
@@ -115,7 +119,7 @@ class ItemMethods(MethodView):
                         db.session.commit()
                         return make_response(jsonify({
                             'name': item.name,
-                            'description': item.price,
+                            'price': item.price,
                             'user_id': current_user.id,
                             'list_id': list_id,
                             'message': 'Shopping list item has been updated'
