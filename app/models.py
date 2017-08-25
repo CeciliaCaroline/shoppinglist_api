@@ -14,7 +14,7 @@ class User(db.Model):
     password = db.Column(db.String(255), nullable=False)
     registered_on = db.Column(db.DateTime, nullable=False)
     shoppinglists = db.relationship(
-        'Shoppinglist', backref='user', lazy='dynamic')
+        'Shoppinglist', order_by='Shoppinglist.id', lazy='dynamic')
 
     def __init__(self, email, password):
         self.email = email
@@ -98,7 +98,7 @@ class Shoppinglist(db.Model):
     name = db.Column(db.String(255))
     description = db.Column(db.String(250))
     user_id = db.Column(db.Integer, db.ForeignKey(User.id))
-    items = db.relationship('Items', backref='shop_list', lazy='dynamic')
+    items = db.relationship('Items',  order_by='Items.item_id',  lazy='dynamic')
 
     def __init__(self, name, description, user_id):
         """Initialize the shoppinglist with a name and description."""
@@ -117,6 +117,7 @@ class Items(db.Model):
     name = db.Column(db.String(255))
     price = db.Column(db.String(250))
     list_id = db.Column(db.Integer, db.ForeignKey(Shoppinglist.id))
+
 
     def __init__(self, name, price, list_id):
         """Initialize the item with a name and description."""
