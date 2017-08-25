@@ -78,8 +78,8 @@ class ItemsTestCase(BaseTestCase):
 
             item = json.dumps({'name': 'Go to Nairobi', 'price': '5000kshs'})
             self.client.post('/shoppinglist/1/items', data=item,
-                                        content_type='application/json',
-                                        headers=dict(Authorization='Bearer ' + token))
+                             content_type='application/json',
+                             headers=dict(Authorization='Bearer ' + token))
 
             response = self.client.delete('/shoppinglist/1/items/1',
                                           content_type='application/json',
@@ -87,6 +87,34 @@ class ItemsTestCase(BaseTestCase):
             print(response.data)
             self.assertEqual(response.status_code, 200)
             self.assertIn('Shopping list item has been deleted', response.data.decode())
+
+    def test_edit_item_(self):
+        """Should return 200 for success"""
+        with self.client:
+            token = self.token()
+            shop = json.dumps({
+                'name': 'Travel',
+                'description': 'Visit places'
+            })
+            self.client.post('/shoppinglist', data=shop, content_type='application/json',
+                             headers=dict(Authorization='Bearer ' + token))
+
+            item = json.dumps({'name': 'Go to Nairobi', 'price': '5000kshs'})
+            self.client.post('/shoppinglist/1/items', data=item,
+                             content_type='application/json',
+                             headers=dict(Authorization='Bearer ' + token))
+            new_item = json.dumps({
+                'name': 'Travelling bag',
+                'price': '5000ugx'
+            })
+
+            response = self.client.put('/shoppinglist/1/items/1', data=new_item,
+                                       content_type='application/json',
+                                       headers=dict(Authorization='Bearer ' + token))
+
+            print(response.data)
+            self.assertEqual(response.status_code, 200)
+            self.assertIn('Shopping list item has been updated', response.data.decode())
 
 
 if __name__ == '__main__':
