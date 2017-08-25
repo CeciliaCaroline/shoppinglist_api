@@ -141,7 +141,7 @@ class TestAuthBluePrint(BaseTestCase):
             self.assertTrue(logout_data['status'] == 'success')
             self.assertTrue(logout_data['message'] == 'Successfully logged out')
 
-    def test_log_out_request_contains_an_authorization_header(self):
+    def test_log_out_request_contains_no_authorization_header(self):
         """
         Test that the authorization header is set
         :return:
@@ -192,6 +192,29 @@ class TestAuthBluePrint(BaseTestCase):
             self.assertTrue(logout_again_data['status'] == 'failed')
             self.assertTrue(logout_again_data['message'] == 'Token was Blacklisted, Please login In')
 
+    def test_password_reset(self):
+        with self.client:
+            self.register_user('caroline@gmail.com', '123456')
+            response = self.client.post(
+                '/auth/reset_password',
+                content_type='application/json',
+                data=json.dumps(dict(email='caroline@gmail.com', newpassword='123456789')))
+            data = json.loads(response.data.decode())
+            self.assertEqual(data['password'], '123456789')
+            self.assertEqual(response.status_code, 200)
+
+    def test_password_reset_non_user(self):
+        with self.client:
+            self.register_user('caroline@gmail.com', '123456')
+            response = self.client.post(
+                '/auth/reset_password',
+                content_type='application/json',
+                data=json.dumps(dict(email='caroline12@gmail.com', newpassword='123456789')))
+            data = json.loads(response.data.decode())
+            self.assertEqual(data['status'], 'failed')
+            self.assertEqual(data['message'], 'User does not exist. Please login or register')
+            self.assertEqual(response.status_code, 404)
+
     def logout_user(self, token):
         """
         Helper method to log out a user
@@ -229,16 +252,6 @@ class TestAuthBluePrint(BaseTestCase):
         self.assertTrue(login_data['message'] == 'Successfully logged In')
         self.assertTrue(login_response.content_type == 'application/json')
         return login_data
-
-    def register_user(self, email, password):
-        """
-        Helper method for registering a user with dummy data
-        :return:
-        """
-        return self.client.post(
-            '/auth/register',
-            content_type='application/json',
-            data=json.dumps(dict(email=email, password=password)))
 
     def register_user_with_wrong_request_content_type(self, email, password):
         """
