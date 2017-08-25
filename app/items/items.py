@@ -155,9 +155,10 @@ class ItemMethods(MethodView):
             return make_response(jsonify({"message": "Item not found"})), 404
 
         return make_response(
-            jsonify({'status': 'failed', 'message': 'Content-type must be json'})), 202  # Register classes as views
+            jsonify({'status': 'failed', 'message': 'Content-type must be json'})), 202
 
 
+# Register classes as views
 new_item_view = NewItems.as_view('new_items')
 items_view = ItemMethods.as_view('items')
 
