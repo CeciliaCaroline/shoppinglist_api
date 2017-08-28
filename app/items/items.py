@@ -140,7 +140,7 @@ class ItemMethods(MethodView):
                         except ValueError:
                             return make_response(jsonify({
                                 'status': 'failed',
-                                'message': 'Item price should be an integer'}))
+                                'message': 'Item price should be an integer'})), 400
 
                     return make_response(jsonify({
                         'status': 'failed',
@@ -157,27 +157,26 @@ class ItemMethods(MethodView):
         return make_response(
             jsonify({'status': 'failed', 'message': 'Content-type must be json'})), 202
 
+    def delete(self, current_user, list_id, item_id):
+        """"
+        Method to delete a shopping list item
+        """
+        if request.content_type == 'application/json':
+            user = User.query.filter_by(id=current_user.id).first()
+            shoppinglist = user.shoppinglists.filter_by(id=list_id).first()
+            item = Items.query.filter_by(list_id=list_id, item_id=item_id).first()
+            if item is not None:
+                db.session.delete(item)
+                db.session.commit()
+                return make_response(jsonify({
 
-def delete(self, current_user, list_id, item_id):
-    """"
-    Method to delete a shopping list item
-    """
-    if request.content_type == 'application/json':
-        user = User.query.filter_by(id=current_user.id).first()
-        shoppinglist = user.shoppinglists.filter_by(id=list_id).first()
-        item = Items.query.filter_by(list_id=list_id, item_id=item_id).first()
-        if item is not None:
-            db.session.delete(item)
-            db.session.commit()
-            return make_response(jsonify({
+                    'message': 'Shopping list item has been deleted'
 
-                'message': 'Shopping list item has been deleted'
+                })), 200
+            return make_response(jsonify({"message": "Item not found"})), 404
 
-            })), 200
-        return make_response(jsonify({"message": "Item not found"})), 404
-
-    return make_response(
-        jsonify({'status': 'failed', 'message': 'Content-type must be json'})), 202  # Register classes as views
+        return make_response(
+            jsonify({'status': 'failed', 'message': 'Content-type must be json'})), 202  # Register classes as views
 
 
 new_item_view = NewItems.as_view('new_items')
