@@ -10,7 +10,7 @@ service:
 cache: pip
 
 before_install:
-  - export DATABASE_URL_TEST="postgresql://postgres@localhost/tests"
+  - export DATABASE_URL_TEST="postgresql://postgres@localhost/test_api"
   - export APP_SETTINGS="app.config.TestingConfig"
 
 
