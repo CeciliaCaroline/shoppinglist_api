@@ -138,7 +138,9 @@ class ItemMethods(MethodView):
                                 })), 200
 
                         except ValueError:
-                            print('Item price should be an integer')
+                            return make_response(jsonify({
+                                'status': 'failed',
+                                'message': 'Item price should be an integer'}))
 
                     return make_response(jsonify({
                         'status': 'failed',
