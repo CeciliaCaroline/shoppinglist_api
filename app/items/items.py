@@ -26,7 +26,7 @@ class NewItems(MethodView):
             price = data.get('price')
 
             if name:
-                if re.match("^[a-zA-Z0-9\s]*$", name):
+                if re.match("^([a-zA-Z0-9]+[_-])*[a-zA-Z0-9]+$", name):
                     item = Items(name=name, price=price, list_id=list_id)
                     db.session.add(item)
                     db.session.commit()
@@ -113,7 +113,7 @@ class ItemMethods(MethodView):
                 name = data.get('name')
                 price = data.get('price')
                 if name:
-                    if re.match("^[a-zA-Z0-9\s]*$", name):
+                    if re.match("^([a-zA-Z0-9]+[_-])*[a-zA-Z0-9]+$", name):
                         item.name = name
                         item.price = price
                         db.session.commit()
