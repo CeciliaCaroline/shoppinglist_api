@@ -1,41 +1,9 @@
 from tests.base_test import BaseTestCase
-from app.models import Items
-from app import db
 import unittest
 import json
 
 
 class ItemsTestCase(BaseTestCase):
-    # def create_list(self, name, description, token):
-    #     """
-    #     Helper method for creating a list with dummy data
-    #     :return:
-    #     """
-    #     return self.client.post(
-    #         '/shoppinglist',
-    #         headers=dict(Authorization='Bearer ' + token),
-    #         content_type='application/json',
-    #         data=json.dumps(dict(name=name, description=description)))
-    #
-    # def create_item(self, name, price, token):
-    #     """"
-    #     Helper method to create a shopping list item with dummy data
-    #     :return:
-    #     """
-    #     token = self.token()
-    #     res = self.create_list('travel', 'Go to Kenya', token)
-    #     results = json.loads(res.data.decode())
-    #     response = self.client.get(
-    #         '/shoppinglist/{}'.format(results['id']),
-    #         content_type='application/json',
-    #         headers=dict(Authorization="Bearer " + token)
-    #     )
-    #     return self.client.post('/shoppinglist/{}/items'.format(results['id']),
-    #                             content_type='application/json',
-    #                             headers=dict(Authorization='Bearer ' + token),
-    #                             data=(dict(name=name, price=price)),
-    #                             )
-
     def test_create_item(self):
         with self.client:
             token = self.token()
@@ -47,13 +15,146 @@ class ItemsTestCase(BaseTestCase):
             self.client.post('/shoppinglist', data=shop, content_type='application/json',
                              headers=dict(Authorization='Bearer ' + token))
 
-            item = json.dumps({'name': 'Go to Nairobi', 'price': '5000kshs'})
+            item = json.dumps({'name': 'Go_to_Nairobi', 'price': '5000'})
             response = self.client.post('/shoppinglist/1/items', data=item,
                                         content_type='application/json',
                                         headers=dict(Authorization='Bearer ' + token))
-            print(response.data)
+
             self.assertEqual(response.status_code, 201)
-            self.assertIn('Go to Nairobi', response.data.decode())
+            self.assertIn('Go_to_Nairobi', response.data.decode())
+
+    def test_create_item_with_wrong_content_type(self):
+        with self.client:
+            token = self.token()
+
+            shop = json.dumps({
+                'name': 'Travel',
+                'description': 'Visit places'
+            })
+            self.client.post('/shoppinglist', data=shop, content_type='application/json',
+                             headers=dict(Authorization='Bearer ' + token))
+
+            item = json.dumps({'name': 'Go_to_Nairobi', 'price': '5000'})
+            response = self.client.post('/shoppinglist/1/items', data=item,
+                                        content_type='application/javascript',
+                                        headers=dict(Authorization='Bearer ' + token))
+
+            self.assertEqual(response.status_code, 202)
+            self.assertIn('Content-type must be json', response.data.decode())
+
+    def test_create_item_with_empty_name(self):
+        with self.client:
+            token = self.token()
+
+            shop = json.dumps({
+                'name': 'Travel',
+                'description': 'Visit places'
+            })
+            self.client.post('/shoppinglist', data=shop, content_type='application/json',
+                             headers=dict(Authorization='Bearer ' + token))
+
+            item = json.dumps({'name': '', 'price': '5000'})
+            response = self.client.post('/shoppinglist/1/items', data=item,
+                                        content_type='application/json',
+                                        headers=dict(Authorization='Bearer ' + token))
+
+            self.assertEqual(response.status_code, 202)
+            self.assertIn('No name has been input', response.data.decode())
+
+    def test_create_item_with_invalid_name_format(self):
+        with self.client:
+            token = self.token()
+
+            shop = json.dumps({
+                'name': 'Travel',
+                'description': 'Visit places'
+            })
+            self.client.post('/shoppinglist', data=shop, content_type='application/json',
+                             headers=dict(Authorization='Bearer ' + token))
+
+            item = json.dumps({'name': 'Go to Nairobi', 'price': '5000'})
+            response = self.client.post('/shoppinglist/1/items', data=item,
+                                        content_type='application/json',
+                                        headers=dict(Authorization='Bearer ' + token))
+
+            self.assertEqual(response.status_code, 200)
+            self.assertIn('Wrong name format. Name can only contain letters and numbers', response.data.decode())
+
+    def test_create_item_with_string_price(self):
+        with self.client:
+            token = self.token()
+
+            shop = json.dumps({
+                'name': 'Travel',
+                'description': 'Visit places'
+            })
+            self.client.post('/shoppinglist', data=shop, content_type='application/json',
+                             headers=dict(Authorization='Bearer ' + token))
+
+            item = json.dumps({'name': 'Go_to_Nairobi', 'price': '5000ugx'})
+            response = self.client.post('/shoppinglist/1/items', data=item,
+                                        content_type='application/json',
+                                        headers=dict(Authorization='Bearer ' + token))
+
+            self.assertEqual(response.status_code, 400)
+            self.assertIn('Item price should be an integer', response.data.decode())
+
+    def test_get_items(self):
+        with self.client:
+            token = self.token()
+
+            shop = json.dumps({
+                'name': 'Travel',
+                'description': 'Visit places'
+            })
+            self.client.post('/shoppinglist', data=shop, content_type='application/json',
+                             headers=dict(Authorization='Bearer ' + token))
+
+            response = self.client.get('/shoppinglist/1/items',
+                                       content_type='application/json',
+                                       headers=dict(Authorization='Bearer ' + token))
+
+            self.assertEqual(response.status_code, 200)
+
+    def test_get_item(self):
+        with self.client:
+            token = self.token()
+
+            shop = json.dumps({
+                'name': 'Travel',
+                'description': 'Visit places'
+            })
+            self.client.post('/shoppinglist', data=shop, content_type='application/json',
+                             headers=dict(Authorization='Bearer ' + token))
+
+            item = json.dumps({'name': 'Go_to_Nairobi', 'price': '5000'})
+            self.client.post('/shoppinglist/1/items', data=item,
+                             content_type='application/json',
+                             headers=dict(Authorization='Bearer ' + token))
+
+            response = self.client.get('/shoppinglist/1/items/1',
+                                       content_type='application/json',
+                                       headers=dict(Authorization='Bearer ' + token))
+
+            self.assertEqual(response.status_code, 200)
+
+    def test_get_nonexistent_item(self):
+        with self.client:
+            token = self.token()
+
+            shop = json.dumps({
+                'name': 'Travel',
+                'description': 'Visit places'
+            })
+            self.client.post('/shoppinglist', data=shop, content_type='application/json',
+                             headers=dict(Authorization='Bearer ' + token))
+
+            response = self.client.get('/shoppinglist/1/items/45',
+                                       content_type='application/json',
+                                       headers=dict(Authorization='Bearer ' + token))
+
+            self.assertEqual(response.status_code, 404)
+            self.assertIn('Item not found', response.data.decode())
 
     def test_delete_item_that_doesnt_exist(self):
         """Should return 404 for missing item"""
@@ -76,7 +177,7 @@ class ItemsTestCase(BaseTestCase):
             self.client.post('/shoppinglist', data=shop, content_type='application/json',
                              headers=dict(Authorization='Bearer ' + token))
 
-            item = json.dumps({'name': 'Go to Nairobi', 'price': '5000kshs'})
+            item = json.dumps({'name': 'Go_to_Nairobi', 'price': '5000'})
             self.client.post('/shoppinglist/1/items', data=item,
                              content_type='application/json',
                              headers=dict(Authorization='Bearer ' + token))
@@ -84,9 +185,32 @@ class ItemsTestCase(BaseTestCase):
             response = self.client.delete('/shoppinglist/1/items/1',
                                           content_type='application/json',
                                           headers=dict(Authorization='Bearer ' + token))
-            print(response.data)
+
             self.assertEqual(response.status_code, 200)
             self.assertIn('Shopping list item has been deleted', response.data.decode())
+
+    def test_delete_item_with_wrong_content_type(self):
+        """Should return 200 for success"""
+        with self.client:
+            token = self.token()
+            shop = json.dumps({
+                'name': 'Travel',
+                'description': 'Visit places'
+            })
+            self.client.post('/shoppinglist', data=shop, content_type='application/json',
+                             headers=dict(Authorization='Bearer ' + token))
+
+            item = json.dumps({'name': 'Go_to_Nairobi', 'price': '5000'})
+            self.client.post('/shoppinglist/1/items', data=item,
+                             content_type='application/json',
+                             headers=dict(Authorization='Bearer ' + token))
+
+            response = self.client.delete('/shoppinglist/1/items/1',
+                                          content_type='application/javascript',
+                                          headers=dict(Authorization='Bearer ' + token))
+
+            self.assertEqual(response.status_code, 202)
+            self.assertIn('Content-type must be json', response.data.decode())
 
     def test_edit_item_(self):
         """Should return 200 for success"""
@@ -99,12 +223,120 @@ class ItemsTestCase(BaseTestCase):
             self.client.post('/shoppinglist', data=shop, content_type='application/json',
                              headers=dict(Authorization='Bearer ' + token))
 
-            item = json.dumps({'name': 'Go to Nairobi', 'price': '5000kshs'})
+            item = json.dumps({'name': 'Go_to_Nairobi', 'price': '5000'})
             self.client.post('/shoppinglist/1/items', data=item,
                              content_type='application/json',
                              headers=dict(Authorization='Bearer ' + token))
             new_item = json.dumps({
-                'name': 'Travelling bag',
+                'name': 'Travelling_bag',
+                'price': '5000'
+            })
+
+            response = self.client.put('/shoppinglist/1/items/1', data=new_item,
+                                       content_type='application/json',
+                                       headers=dict(Authorization='Bearer ' + token))
+
+            self.assertEqual(response.status_code, 200)
+            self.assertIn('Shopping list item has been updated', response.data.decode())
+
+    def test_edit_non_existent_item(self):
+        """Should return 200 for success"""
+        with self.client:
+            token = self.token()
+            shop = json.dumps({
+                'name': 'Travel',
+                'description': 'Visit places'
+            })
+            self.client.post('/shoppinglist', data=shop, content_type='application/json',
+                             headers=dict(Authorization='Bearer ' + token))
+
+            item = json.dumps({'name': 'Go_to_Nairobi', 'price': '5000'})
+            self.client.post('/shoppinglist/1/items', data=item,
+                             content_type='application/json',
+                             headers=dict(Authorization='Bearer ' + token))
+            new_item = json.dumps({
+                'name': 'Travelling_bag',
+                'price': '5000'
+            })
+
+            response = self.client.put('/shoppinglist/1/items/56', data=new_item,
+                                       content_type='application/json',
+                                       headers=dict(Authorization='Bearer ' + token))
+
+            self.assertEqual(response.status_code, 404)
+            self.assertIn('Shopping list item does not exist. Please try again', response.data.decode())
+
+    def test_edit_item_with_wrong_content_type(self):
+        """Should return 200 for success"""
+        with self.client:
+            token = self.token()
+            shop = json.dumps({
+                'name': 'Travel',
+                'description': 'Visit places'
+            })
+            self.client.post('/shoppinglist', data=shop, content_type='application/json',
+                             headers=dict(Authorization='Bearer ' + token))
+
+            item = json.dumps({'name': 'Go_to_Nairobi', 'price': '5000'})
+            self.client.post('/shoppinglist/1/items', data=item,
+                             content_type='application/json',
+                             headers=dict(Authorization='Bearer ' + token))
+            new_item = json.dumps({
+                'name': 'Travelling_bag',
+                'price': '5000'
+            })
+
+            response = self.client.put('/shoppinglist/1/items/1', data=new_item,
+                                       content_type='application/javascript',
+                                       headers=dict(Authorization='Bearer ' + token))
+
+            self.assertEqual(response.status_code, 202)
+            self.assertIn('Content-type must be json', response.data.decode())
+
+    def test_edit_item_with_empty_name(self):
+        """Should return 200 for success"""
+        with self.client:
+            token = self.token()
+            shop = json.dumps({
+                'name': 'Travel',
+                'description': 'Visit places'
+            })
+            self.client.post('/shoppinglist', data=shop, content_type='application/json',
+                             headers=dict(Authorization='Bearer ' + token))
+
+            item = json.dumps({'name': 'Go_to_Nairobi', 'price': '5000'})
+            self.client.post('/shoppinglist/1/items', data=item,
+                             content_type='application/json',
+                             headers=dict(Authorization='Bearer ' + token))
+            new_item = json.dumps({
+                'name': '',
+                'price': '5000'
+            })
+
+            response = self.client.put('/shoppinglist/1/items/1', data=new_item,
+                                       content_type='application/json',
+                                       headers=dict(Authorization='Bearer ' + token))
+
+            self.assertEqual(response.status_code, 400)
+            self.assertIn('No input. Try again', response.data.decode())
+
+    def test_edit_item_with_string_price(self):
+        """Should return 200 for success"""
+        with self.client:
+            token = self.token()
+            shop = json.dumps({
+                'name': 'Travel',
+                'description': 'Visit places'
+            })
+            self.client.post('/shoppinglist', data=shop, content_type='application/json',
+                             headers=dict(Authorization='Bearer ' + token))
+
+            item = json.dumps({'name': 'Go_to_Nairobi', 'price': '5000'})
+            self.client.post('/shoppinglist/1/items', data=item,
+                             content_type='application/json',
+                             headers=dict(Authorization='Bearer ' + token))
+            new_item = json.dumps({
+                'name': 'Travelling_bag',
                 'price': '5000ugx'
             })
 
@@ -112,9 +344,8 @@ class ItemsTestCase(BaseTestCase):
                                        content_type='application/json',
                                        headers=dict(Authorization='Bearer ' + token))
 
-            print(response.data)
-            self.assertEqual(response.status_code, 200)
-            self.assertIn('Shopping list item has been updated', response.data.decode())
+            self.assertEqual(response.status_code, 400)
+            self.assertIn('Item price should be an integer', response.data.decode())
 
 
 if __name__ == '__main__':

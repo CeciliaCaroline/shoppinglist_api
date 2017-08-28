@@ -45,14 +45,16 @@ class NewItems(MethodView):
                             return make_response(response), 201
 
                     except ValueError:
-                        print('Item price should be an integer')
+                        return make_response(jsonify({
+                            'status': 'failed',
+                            'message': 'Item price should be an integer'})), 400
 
                 return make_response(
                     jsonify({'status': 'failed',
                              'message': 'Wrong name format. Name can only contain letters and numbers'})), 200
             return make_response(
                 jsonify({'status': 'failed',
-                         'message': 'No name has been input'})), 200
+                         'message': 'No name has been input'})), 202
 
         return make_response(
             jsonify({'status': 'failed', 'message': 'Content-type must be json'})), 202
@@ -105,7 +107,7 @@ class ItemMethods(MethodView):
             )), 200
         return make_response(jsonify({
             'message': 'Item not found'
-        }))
+        })), 404
 
     def put(self, current_user, list_id, item_id):
         """"
@@ -148,7 +150,7 @@ class ItemMethods(MethodView):
                     })), 400
                 return make_response(jsonify({
                     'message': 'No input. Try again'
-                })), 404
+                })), 400
             return make_response(jsonify({
                 'status': 'failed',
                 'message': 'Shopping list item does not exist. Please try again'
