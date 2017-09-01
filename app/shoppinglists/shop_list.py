@@ -57,7 +57,8 @@ class ShoppingLists(MethodView):
         Method to view all shopping lists belonging to the specified user
         """
         if request.content_type == 'application/json':
-            shoplists = Shoppinglist.query.filter_by(user_id=current_user.id)
+            limit = request.args.get('limit', 10, type=int)
+            shoplists = Shoppinglist.query.filter_by(user_id=current_user.id).paginate(page=1, per_page=int(limit), error_out=False).items
 
             result = []
             for shoplist in shoplists:
@@ -161,4 +162,5 @@ list_view = ListMethods.as_view('list_methods')
 
 # Add rules for the api Endpoints
 shop_list.add_url_rule('/shoppinglist', view_func=shoppinglist_view, methods=['POST', 'GET'])
+shop_list.add_url_rule('/shoppinglist/limit/<int:limit>', view_func=shoppinglist_view, methods=['POST', 'GET'])
 shop_list.add_url_rule('/shoppinglist/<id>', view_func=list_view, methods=['GET', 'PUT', 'DELETE'])

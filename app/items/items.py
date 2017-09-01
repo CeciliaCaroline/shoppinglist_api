@@ -65,11 +65,13 @@ class NewItems(MethodView):
         """
         user = User.query.filter_by(id=current_user.id).first()
         shoppinglist = user.shoppinglists.filter_by(id=list_id).first()
-        items = Items.query.filter_by(list_id=shoppinglist.id)
+        limit = request.args.get('limit', 10, type=int)
+        shop_items = Items.query.filter_by(list_id=shoppinglist.id).paginate(page=1, per_page=int(limit),
+                                                                             error_out=False).items
 
-        if items:
+        if shop_items:
             results = []
-            for item in items:
+            for item in shop_items:
                 results.append(item.json())
             return make_response(jsonify({
                 'shoppingList_items': results,
