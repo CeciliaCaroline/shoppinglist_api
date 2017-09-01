@@ -56,21 +56,45 @@ class ShoppingLists(MethodView):
         """"
         Method to view all shopping lists belonging to the specified user
         """
-        if request.content_type == 'application/json':
-            limit = request.args.get('limit', 10, type=int)
-            shoplists = Shoppinglist.query.filter_by(user_id=current_user.id).paginate(page=1, per_page=int(limit), error_out=False).items
 
-            result = []
-            for shoplist in shoplists:
+        limit = request.args.get('limit', '')
+        search_name = request.args.get('q', None)
+        result = []
+        if limit:
+
+            limit_list = Shoppinglist.query.filter_by(user_id=current_user.id).paginate(page=1,
+                                                                                        per_page=int(limit)).items
+            for shoplist in limit_list:
                 result.append(shoplist.json())
-
             return make_response(jsonify({
                 'shoppingLists': result,
                 'status': 'success'
             })), 200
 
-        return make_response(
-            jsonify({'status': 'failed', 'message': 'Content-type must be json'})), 202
+        elif search_name is not None:
+            new = []
+            shoplists = Shoppinglist.query.filter(
+                Shoppinglist.name.like("%" + search_name.strip() + "%")).filter_by(
+                user_id=current_user.id).all()
+            if shoplists:
+                for shoplist in shoplists:
+                    new.append(shoplist.json())
+
+                return make_response(jsonify({
+                    'shoppingLists': new,
+                    'status': 'success'
+                })), 200
+            return make_response(jsonify({
+                'message': 'Shopping list not found',
+                'status': 'failed'
+            })), 200
+        shoplists = Shoppinglist.query.filter_by(user_id=current_user.id)
+        for shoplist in shoplists:
+            result.append(shoplist.json())
+        return make_response(jsonify({
+            'shoppingLists': result,
+            'status': 'success'
+        })), 200
 
 
 class ListMethods(MethodView):

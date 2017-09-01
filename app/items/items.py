@@ -65,13 +65,40 @@ class NewItems(MethodView):
         """
         user = User.query.filter_by(id=current_user.id).first()
         shoppinglist = user.shoppinglists.filter_by(id=list_id).first()
-        limit = request.args.get('limit', 10, type=int)
-        shop_items = Items.query.filter_by(list_id=shoppinglist.id).paginate(page=1, per_page=int(limit),
-                                                                             error_out=False).items
+        limit = request.args.get('limit', '')
+        search_name = request.args.get('q', None)
 
-        if shop_items:
-            results = []
-            for item in shop_items:
+        results = []
+        if limit:
+            list_items = Items.query.filter_by(list_id=shoppinglist.id).paginate(page=1, per_page=int(limit),
+                                                                                 error_out=False).items
+            for item in list_items:
+                results.append(item.json())
+            return make_response(jsonify({
+                'shoppingList_items': results,
+                'status': 'success'
+
+            })), 200
+        elif search_name is not None:
+            new = []
+            shop_items = Items.query.filter(Items.name.like("%" + search_name.strip() + "%")).filter_by(
+                list_id=shoppinglist.id).all()
+            if shop_items:
+                for item in shop_items:
+                    new.append(item.json())
+                return make_response(jsonify({
+                    'shoppingList_items': new,
+                    'status': 'success'
+
+                })), 200
+
+            return make_response(jsonify({'message': 'Items not found',
+                                          'status': 'failed'})), 404
+
+        items = Items.query.filter_by(list_id=shoppinglist.id)
+
+        if items:
+            for item in items:
                 results.append(item.json())
             return make_response(jsonify({
                 'shoppingList_items': results,
