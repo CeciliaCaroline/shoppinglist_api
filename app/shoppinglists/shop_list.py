@@ -56,21 +56,84 @@ class ShoppingLists(MethodView):
         """"
         Method to view all shopping lists belonging to the specified user
         """
-        if request.content_type == 'application/json':
-            limit = request.args.get('limit', 10, type=int)
-            shoplists = Shoppinglist.query.filter_by(user_id=current_user.id).paginate(page=1, per_page=int(limit), error_out=False).items
 
+        limit = request.args.get('limit', 10)
+        q = request.args.get('q', None)
+
+        if q is not None:
             result = []
-            for shoplist in shoplists:
-                result.append(shoplist.json())
+            shoplists = Shoppinglist.query.filter(
+                Shoppinglist.name.like("%" + q.strip() + "%")).filter_by(
+                user_id=current_user.id).all()
+            if shoplists:
+                for shoplist in shoplists:
+                    result.append(shoplist.json())
 
+                return make_response(jsonify({
+                    'shoppingLists': result,
+                    'status': 'success'
+                })), 200
+            return make_response(jsonify({
+                'message': 'Shopping list not found',
+                'status': 'failed'
+            })), 200
+
+        # elif limit and q is not None:
+        #     result = []
+        #     try:
+        #         if int(limit):
+        #             limit_list = Shoppinglist.query.filter(
+        #                 Shoppinglist.name.like("%" + q.strip() + "%")).filter_by(
+        #                 user_id=current_user.id).paginate(page=1,
+        #                                                   per_page=int(
+        #                                                       limit)).items
+        #             if limit_list:
+        #                 for shoplist in limit_list:
+        #                     result.append(shoplist.json())
+        #                 return make_response(jsonify({
+        #                     'shoppingLists': result,
+        #                     'status': 'success'
+        #                 })), 200
+        #             return make_response(jsonify({
+        #                 'message': 'Shopping list not found',
+        #                 'status': 'failed'
+        #             })), 404
+        #
+        #     except ValueError:
+        #         return make_response(jsonify({'message': 'Limit should be an integer'}))
+
+        elif limit:
+            result = []
+            try:
+                if int(limit):
+                    limit_list = Shoppinglist.query.filter_by(
+                        user_id=current_user.id).paginate(page=1,
+                                                          per_page=int(
+                                                              limit)).items
+                    if limit_list:
+                        for shoplist in limit_list:
+                            result.append(shoplist.json())
+                        return make_response(jsonify({
+                            'shoppingLists': result,
+                            'status': 'success'
+                        })), 200
+                    return make_response(jsonify({
+                        'message': 'Shopping list not found',
+                        'status': 'failed'
+                    })), 404
+
+            except ValueError:
+                return make_response(jsonify({'message': 'Limit should be an integer'}))
+
+        else:
+            all_shoplists = Shoppinglist.query.filter_by(user_id=current_user.id)
+            result = []
+            for shoplist in all_shoplists:
+                result.append(shoplist.json())
             return make_response(jsonify({
                 'shoppingLists': result,
                 'status': 'success'
             })), 200
-
-        return make_response(
-            jsonify({'status': 'failed', 'message': 'Content-type must be json'})), 202
 
 
 class ListMethods(MethodView):
