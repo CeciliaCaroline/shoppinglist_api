@@ -79,6 +79,55 @@ class TestShoppingList(BaseTestCase):
             self.assertEqual(response.status_code, 200)
             self.assertEqual(data['status'], 'success')
 
+    def test_search(self):
+        """"
+        test API can search lists
+        """
+        with self.client:
+            token = self.token()
+
+            self.create_list('Travel', 'Visit places', token)
+
+            response = self.client.get('/shoppinglist?q=Travel',
+                                       content_type='application/json',
+                                       headers=dict(Authorization='Bearer ' + token))
+
+            self.assertEqual(response.status_code, 200)
+            self.assertIn('Travel', response.data.decode())
+
+    def test_pagination(self):
+        """"
+        test API can get a specific number of lists
+        """
+        with self.client:
+            token = self.token()
+
+            self.create_list('Travel', 'Visit places', token)
+            self.create_list('Health', 'Excercises', token)
+
+            response = self.client.get('/shoppinglist?limit=1',
+                                       content_type='application/json',
+                                       headers=dict(Authorization='Bearer ' + token))
+
+            self.assertEqual(response.status_code, 200)
+
+    def test_pagination_with_non_integer_input(self):
+        """"
+        test API can get a specific number of lists
+        """
+        with self.client:
+            token = self.token()
+
+            self.create_list('Travel', 'Visit places', token)
+            self.create_list('Health', 'Excercises', token)
+
+            response = self.client.get('/shoppinglist?limit=one',
+                                       content_type='application/json',
+                                       headers=dict(Authorization='Bearer ' + token))
+
+            self.assertEqual(response.status_code, 400)
+            self.assertIn('Limit should be an integer', response.data.decode())
+
     def test_get_single_shopping_list(self):
         with self.client:
             token = self.token()

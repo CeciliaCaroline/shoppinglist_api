@@ -129,6 +129,57 @@ class ItemsTestCase(BaseTestCase):
 
             self.assertEqual(response.status_code, 200)
 
+    def test_search(self):
+        """"
+        test API can search items
+        """
+        with self.client:
+            token = self.token()
+
+            self.create_list('Travel', 'Visit places', token)
+            self.create_item('Go_to_Nairobi', '5000', token)
+
+            response = self.client.get('/shoppinglist/1/items?q=Go_to_Nairobi',
+                                       content_type='application/json',
+                                       headers=dict(Authorization='Bearer ' + token))
+
+            self.assertEqual(response.status_code, 200)
+            self.assertIn('Go_to_Nairobi', response.data.decode())
+
+    def test_pagination(self):
+        """"
+        test API can get a specific number of items
+        """
+        with self.client:
+            token = self.token()
+
+            self.create_list('Travel', 'Visit places', token)
+            self.create_item('Go_to_Nairobi', '5000', token)
+            self.create_item('Shoes', '5000', token)
+
+            response = self.client.get('/shoppinglist/1/items?limit=1',
+                                       content_type='application/json',
+                                       headers=dict(Authorization='Bearer ' + token))
+
+            self.assertEqual(response.status_code, 200)
+
+    def test_pagination_with_non_integer_input(self):
+        """"
+        test API can get a specific number of items
+        """
+        with self.client:
+            token = self.token()
+
+            self.create_list('Travel', 'Visit places', token)
+            self.create_item('Go_to_Nairobi', '5000', token)
+
+            response = self.client.get('/shoppinglist/1/items?limit=one',
+                                       content_type='application/json',
+                                       headers=dict(Authorization='Bearer ' + token))
+
+            self.assertEqual(response.status_code, 400)
+            self.assertIn('Limit should be an integer', response.data.decode())
+
     def test_get_item(self):
         """"
         test API can get single item in a list
