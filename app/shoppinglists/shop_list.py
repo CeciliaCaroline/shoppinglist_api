@@ -78,30 +78,6 @@ class ShoppingLists(MethodView):
                 'status': 'failed'
             })), 200
 
-        # elif limit and q is not None:
-        #     result = []
-        #     try:
-        #         if int(limit):
-        #             limit_list = Shoppinglist.query.filter(
-        #                 Shoppinglist.name.like("%" + q.strip() + "%")).filter_by(
-        #                 user_id=current_user.id).paginate(page=1,
-        #                                                   per_page=int(
-        #                                                       limit)).items
-        #             if limit_list:
-        #                 for shoplist in limit_list:
-        #                     result.append(shoplist.json())
-        #                 return make_response(jsonify({
-        #                     'shoppingLists': result,
-        #                     'status': 'success'
-        #                 })), 200
-        #             return make_response(jsonify({
-        #                 'message': 'Shopping list not found',
-        #                 'status': 'failed'
-        #             })), 404
-        #
-        #     except ValueError:
-        #         return make_response(jsonify({'message': 'Limit should be an integer'}))
-
         elif limit:
             result = []
             try:
