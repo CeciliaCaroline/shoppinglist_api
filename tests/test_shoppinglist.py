@@ -68,10 +68,12 @@ class TestShoppingList(BaseTestCase):
         Test API can get all shopping lists
         """
         with self.client:
+            token = self.token()
+            self.create_list('travel', 'Go to Kenya', token)
             response = self.client.get(
                 '/shoppinglist',
                 content_type='application/json',
-                headers=dict(Authorization="Bearer " + self.token()),
+                headers=dict(Authorization="Bearer " + token),
             )
             data = json.loads(response.data.decode())
             self.assertEqual(response.status_code, 200)
@@ -173,7 +175,6 @@ class TestShoppingList(BaseTestCase):
                 headers=dict(Authorization="Bearer " + token),
                 content_type='application/json')
             self.assertEqual(rv.status_code, 200)
-
 
 
 if __name__ == '__main__':

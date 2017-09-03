@@ -121,7 +121,7 @@ class ItemsTestCase(BaseTestCase):
             token = self.token()
 
             self.create_list('Travel', 'Visit places', token)
-            # self.create_item('Go_to_Nairobi', '5000', token)
+            self.create_item('Go_to_Nairobi', '5000', token)
 
             response = self.client.get('/shoppinglist/1/items',
                                        content_type='application/json',
