@@ -105,7 +105,7 @@ class NewItems(MethodView):
                     })), 404
 
             except ValueError:
-                return make_response(jsonify({'message': 'Limit should be an integer'}))
+                return make_response(jsonify({'message': 'Limit should be an integer'})), 400
 
         else:
             list_items = Items.query.filter_by(list_id=shoppinglist.id)
@@ -119,7 +119,7 @@ class NewItems(MethodView):
 
                 })), 200
 
-            return make_response(jsonify({'message': 'Items not found'}))
+            return make_response(jsonify({'message': 'No items found'})), 404
 
 
 class ItemMethods(MethodView):
