@@ -62,6 +62,7 @@ class NewItems(MethodView):
     def get(self, current_user, list_id):
         """"
         Method to view all shopping list items belonging to the specified user
+        User can limit results returned and search their lists
         """
         user = User.query.filter_by(id=current_user.id).first()
         shoppinglist = user.shoppinglists.filter_by(id=list_id).first()

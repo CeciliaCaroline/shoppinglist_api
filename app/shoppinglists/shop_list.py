@@ -55,6 +55,7 @@ class ShoppingLists(MethodView):
     def get(self, current_user):
         """"
         Method to view all shopping lists belonging to the specified user
+        User can limit the number of results returned and can also do a search on all their lists
         """
 
         limit = request.args.get('limit', 10)
