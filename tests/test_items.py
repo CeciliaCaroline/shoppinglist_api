@@ -162,6 +162,7 @@ class ItemsTestCase(BaseTestCase):
                                        headers=dict(Authorization='Bearer ' + token))
 
             self.assertEqual(response.status_code, 200)
+            self.assertIn('success', response.data.decode())
 
     def test_pagination_with_non_integer_input(self):
         """"
