@@ -60,6 +60,7 @@ class ShoppingLists(MethodView):
 
         limit = request.args.get('limit', 10)
         q = request.args.get('q', None)
+        page = int(request.args.get('page', 1))
 
         if q is not None:
             result = []
@@ -84,9 +85,10 @@ class ShoppingLists(MethodView):
             try:
                 if int(limit):
                     limit_list = Shoppinglist.query.filter_by(
-                        user_id=current_user.id).paginate(page=1,
+                        user_id=current_user.id).paginate(page=page,
                                                           per_page=int(
-                                                              limit)).items
+                                                              limit), error_out=False).items
+
                     if limit_list:
                         for shoplist in limit_list:
                             result.append(shoplist.json())
