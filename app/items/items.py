@@ -4,6 +4,7 @@ from flask.views import MethodView
 from app.models import User, Items
 from app.authenticate.token import token_required
 import re
+from app.helper_functions import response, get_response
 
 items = Blueprint('items', __name__)
 
@@ -32,32 +33,24 @@ class NewItems(MethodView):
                             item = Items(name=name, price=price, list_id=list_id)
                             db.session.add(item)
                             db.session.commit()
-                            db.session.commit()
-
-                            response = jsonify({
-                                'id': item.list_id,
+                            return make_response(jsonify({
+                                'id': item.item_id,
                                 'name': item.name,
-                                'price': item.price,
+                                'price': 'UGX.' + str(item.price),
                                 'user_id': current_user.id,
                                 'list_id': list_id,
                                 'message': 'Shopping list item has been created'
-                            })
-                            return make_response(response), 201
+
+                            })), 201
 
                     except ValueError:
-                        return make_response(jsonify({
-                            'status': 'failed',
-                            'message': 'Item price should be an integer'})), 400
+                        return response('failed', 'Item price should be an integer', 400)
 
-                return make_response(
-                    jsonify({'status': 'failed',
-                             'message': 'Wrong name format. Name can only contain letters and numbers'})), 200
-            return make_response(
-                jsonify({'status': 'failed',
-                         'message': 'No name has been input'})), 202
+                return response('failed', 'Wrong name format. Name can only contain letters and numbers',
+                                200)
+            return response('failed', 'No name has been input', 202)
 
-        return make_response(
-            jsonify({'status': 'failed', 'message': 'Content-type must be json'})), 202
+        return response('failed', 'Content-type must be json', 202)
 
     def get(self, current_user, list_id):
         """"
@@ -71,22 +64,18 @@ class NewItems(MethodView):
         page = int(request.args.get('page', 1))
 
         if q is not None:
-            results = []
+            new = []
             shop_items = Items.query.filter(Items.name.like("%" + q.strip() + "%")).filter_by(
                 list_id=shoppinglist.id).all()
             if shop_items:
                 for item in shop_items:
-                    results.append(item.json())
-                return make_response(jsonify({
-                    'shoppingList_items': results,
-                    'status': 'success'
+                    new.append(item.json())
+                return get_response('shoppinglist_items', results=new)
 
-                })), 200
+            return response('failed', 'Items not found', 404)
 
-            return make_response(jsonify({'message': 'Items not found',
-                                          'status': 'failed'})), 404
         elif limit:
-            result = []
+            new = []
             try:
                 if int(limit):
                     limit_list = Items.query.filter_by(
@@ -94,33 +83,23 @@ class NewItems(MethodView):
                                                           per_page=int(
                                                               limit), error_out=False).items
                     if limit_list:
-                        for iten in limit_list:
-                            result.append(iten.json())
-                        return make_response(jsonify({
-                            'shoppingLists': result,
-                            'status': 'success'
-                        })), 200
-                    return make_response(jsonify({
-                        'message': 'Shopping list not found',
-                        'status': 'failed'
-                    })), 404
+                        for limit_item in limit_list:
+                            new.append(limit_item.json())
+                        return get_response('shoppinglist_items', results=new)
+                    return response('failed', 'Shopping list item not found', 404)
 
             except ValueError:
-                return make_response(jsonify({'message': 'Limit should be an integer'})), 400
+                return response('failed', 'Limit should be an integer', 400)
 
         else:
             list_items = Items.query.filter_by(list_id=shoppinglist.id)
             if list_items:
-                results = []
+                new = []
                 for item in list_items:
-                    results.append(item.json())
-                return make_response(jsonify({
-                    'shoppingList_items': results,
-                    'status': 'success'
+                    new.append(item.json())
+                return get_response('shoppinglist_items', results=new)
 
-                })), 200
-
-            return make_response(jsonify({'message': 'No items found'})), 404
+            return response('failed', 'No items found', 404)
 
 
 class ItemMethods(MethodView):
@@ -141,16 +120,12 @@ class ItemMethods(MethodView):
             return make_response(jsonify({
                 'id': item.item_id,
                 'name': item.name,
-                'price': item.price,
+                'price': 'UGX.' + str(item.price),
                 'user_id': current_user.id,
                 'list_id': list_id,
-                'status': 'success'
-            }
 
-            )), 200
-        return make_response(jsonify({
-            'message': 'Item not found'
-        })), 404
+            })), 200
+        return response('failed', 'Item not found', 404)
 
     def put(self, current_user, list_id, item_id):
         """"
@@ -173,34 +148,15 @@ class ItemMethods(MethodView):
                                 item.price = price
                                 db.session.commit()
 
-                                return make_response(jsonify({
-                                    'name': item.name,
-                                    'price': 'UGX.' + str(item.price),
-                                    'user_id': current_user.id,
-                                    'list_id': list_id,
-                                    'message': 'Shopping list item has been updated'
-
-                                })), 200
+                                return response('success', 'Shopping list item has been edited', 200)
 
                         except ValueError:
-                            return make_response(jsonify({
-                                'status': 'failed',
-                                'message': 'Item price should be an integer'})), 400
-
-                    return make_response(jsonify({
-                        'status': 'failed',
-                        'message': 'Invalid list name format. Name can only contain letters and numbers'
-                    })), 400
-                return make_response(jsonify({
-                    'message': 'No input. Try again'
-                })), 400
-            return make_response(jsonify({
-                'status': 'failed',
-                'message': 'Shopping list item does not exist. Please try again'
-            })), 404
-
-        return make_response(
-            jsonify({'status': 'failed', 'message': 'Content-type must be json'})), 202
+                            return response('failed', 'Item price should be an integer', 400)
+                    return response('failed', 'Wrong name format. Name can only contain letters and numbers',
+                                    200)
+                return response('failed', 'No name input. Try again', 400)
+            return response('failed', 'Shopping list item does not exist. Please try again', 404)
+        return response('failed', 'Content-type must be json', 202)
 
     def delete(self, current_user, list_id, item_id):
         """"
@@ -213,17 +169,12 @@ class ItemMethods(MethodView):
             if item is not None:
                 db.session.delete(item)
                 db.session.commit()
-                return make_response(jsonify({
-
-                    'message': 'Shopping list item has been deleted'
-
-                })), 200
-            return make_response(jsonify({"message": "Item not found"})), 404
-
-        return make_response(
-            jsonify({'status': 'failed', 'message': 'Content-type must be json'})), 202  # Register classes as views
+                return response('success', 'Shopping list item has been deleted', 200)
+            return response('failed', 'Item not found', 404)
+        return response('failed', 'Content-type must be json', 202)
 
 
+# Register classes as views
 new_item_view = NewItems.as_view('new_items')
 items_view = ItemMethods.as_view('items')
 
