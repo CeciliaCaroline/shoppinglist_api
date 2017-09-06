@@ -13,6 +13,8 @@ class User(db.Model):
     email = db.Column(db.String(255), unique=True, nullable=False)
     password = db.Column(db.String(255), nullable=False)
     registered_on = db.Column(db.DateTime, nullable=False)
+    shoppinglists = db.relationship(
+        'Shoppinglist', backref='user', lazy='dynamic')
 
     def __init__(self, email, password):
         self.email = email
@@ -28,7 +30,9 @@ class User(db.Model):
         """
         try:
             payload = {
-                'exp': datetime.datetime.utcnow() + datetime.timedelta(days=0, seconds=10),
+                'exp': datetime.datetime.utcnow() + datetime.timedelta(days=app.config.get('AUTH_TOKEN_EXPIRY_DAYS'),
+                                                                       seconds=app.config.get(
+                                                                           'AUTH_TOKEN_EXPIRY_SECONDS')),
                 'iat': datetime.datetime.now(),
                 'sub': user_id
             }
@@ -84,3 +88,33 @@ class BlackListToken(db.Model):
         if response:
             return True
         return False
+
+
+class Shoppinglist(db.Model):
+    """This class defines the shoppinglist table."""
+
+    __tablename__ = 'shoppinglists'
+
+    # define the columns of the table, starting with its primary key
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(255))
+    description = db.Column(db.String(250))
+    user_id = db.Column(db.Integer, db.ForeignKey(User.id))
+
+    # items = db.relationship('Items', backref='shop_list', lazy='dynamic')
+
+    def __init__(self, name, description, user_id):
+        """Initialize the shoppinglist with a name and description."""
+        self.name = name
+        self.description = description
+        self.user_id = user_id
+
+    def json(self):
+        """"
+        Get Json representation of the model
+        """
+        return {
+            'id': self.id,
+            'name': self.name,
+            'description': self.description
+        }
