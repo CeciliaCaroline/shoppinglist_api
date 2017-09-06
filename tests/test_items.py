@@ -1,6 +1,4 @@
 from tests.base_test import BaseTestCase
-from app.models import Items
-from app import db
 import unittest
 import json
 
