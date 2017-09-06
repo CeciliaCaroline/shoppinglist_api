@@ -45,4 +45,6 @@ class BaseTestCase(TestCase):
         """
         response = self.register_user('example@gmail.com', '123456')
         # print(response.data)
+
         return json.loads(response.data.decode())['auth_token']
+
