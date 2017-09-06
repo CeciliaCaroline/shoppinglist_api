@@ -13,8 +13,6 @@ class BaseConfig:
     DEBUG = False
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     BCRYPT_HASH_PREFIX = 13
-    AUTH_TOKEN_EXPIRY_DAYS = 25
-    AUTH_TOKEN_EXPIRY_SECONDS = 4000
 
 
 class DevelopmentConfig(BaseConfig):
@@ -22,10 +20,8 @@ class DevelopmentConfig(BaseConfig):
     Development application configuration
     """
     DEBUG = True
-    SQLALCHEMY_DATABASE_URI = os.getenv('DATABASE_URL', postgres_local_base + database_name)
+    SQLALCHEMY_DATABASE_URI = postgres_local_base + database_name
     BCRYPT_HASH_PREFIX = 4
-    AUTH_TOKEN_EXPIRY_DAYS = 1
-    AUTH_TOKEN_EXPIRY_SECONDS = 18
 
 
 class TestingConfig(BaseConfig):
@@ -34,8 +30,5 @@ class TestingConfig(BaseConfig):
     """
     DEBUG = True
     TESTING = True
-    SQLALCHEMY_DATABASE_URI = os.getenv('DATABASE_URL_TEST', postgres_local_base + "test_api")
+    SQLALCHEMY_DATABASE_URI = postgres_local_base + "tests"
     BCRYPT_HASH_PREFIX = 3
-    AUTH_TOKEN_EXPIRY_DAYS = 0
-    AUTH_TOKEN_EXPIRY_SECONDS = 2
-    AUTH_TOKEN_EXPIRATION_TIME_DURING_TESTS = 4

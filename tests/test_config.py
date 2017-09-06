@@ -2,7 +2,6 @@ from flask_testing import TestCase
 from app import app
 from flask import current_app
 import unittest
-import os
 
 
 class TestDevelopmentConfig(TestCase):
@@ -39,8 +38,7 @@ class TestTestingConfig(TestCase):
         self.assertTrue(app.config['BCRYPT_HASH_PREFIX'] == 3)
         self.assertFalse(current_app is None)
         self.assertTrue(
-            app.config['SQLALCHEMY_DATABASE_URI'] == os.getenv('DATABASE_URL_TEST',
-                                                               "postgresql://postgres:ceciliacaroline20@localhost/test_api"))
+            app.config['SQLALCHEMY_DATABASE_URI'] == "postgresql://postgres:ceciliacaroline20@localhost/tests")
 
 
 if __name__ == '__main__':
