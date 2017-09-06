@@ -40,7 +40,7 @@ class TestTestingConfig(TestCase):
         self.assertFalse(current_app is None)
         self.assertTrue(
             app.config['SQLALCHEMY_DATABASE_URI'] == os.getenv('DATABASE_URL_TEST',
-                                                               "postgresql://postgres:ceciliacaroline20@localhost/tests"))
+                                                               "postgresql://postgres:ceciliacaroline20@localhost/test_api"))
 
 
 if __name__ == '__main__':
