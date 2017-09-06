@@ -161,4 +161,6 @@ reset_view = Reset.as_view('reset')
 auth.add_url_rule('/auth/register', view_func=registration_view, methods=['POST'])
 auth.add_url_rule('/auth/login', view_func=login_view, methods=['POST'])
 auth.add_url_rule('/auth/logout', view_func=logout_view, methods=['POST'])
+
 auth.add_url_rule('/auth/reset_password', view_func=reset_view, methods=['POST'])
+
