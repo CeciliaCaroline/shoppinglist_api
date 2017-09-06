@@ -136,4 +136,3 @@ class Items(db.Model):
             'list_id': self.list_id,
             'status': 'success'
         }
-
