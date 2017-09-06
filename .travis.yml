@@ -25,7 +25,7 @@ env:
 
 
 before_script:
-  - psql -c 'create database test_api;' -U postgres
+  - psql -c 'create database tests;' -U postgres
   - python manage.py db upgrade
 
 script:
