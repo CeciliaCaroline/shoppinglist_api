@@ -26,7 +26,7 @@ class ShoppingLists(MethodView):
             description = data.get('description')
 
             if name and description:
-                if re.match("^[a-zA-Z0-9]*$", name):
+                if re.match("^([a-zA-Z0-9]+[_-])*[a-zA-Z0-9]+$", name):
                     shoplist = Shoppinglist(name=name, description=description, user_id=current_user.id)
                     db.session.add(shoplist)
                     db.session.commit()
@@ -112,7 +112,7 @@ class ListMethods(MethodView):
                 name = data.get('name')
                 description = data.get('description')
                 if name and description:
-                    if re.match("^[a-zA-Z0-9\s]*$", name):
+                    if re.match("^([a-zA-Z0-9]+[_-])*[a-zA-Z0-9]+$", name):
                         shoplist.name = name
                         shoplist.description = description
                         db.session.commit()
@@ -157,8 +157,8 @@ class ListMethods(MethodView):
 
 
 shoppinglist_view = ShoppingLists.as_view('shop_list')
-singlelist_view = ListMethods.as_view('single_list')
+list_view = ListMethods.as_view('list_methods')
 
 # Add rules for the api Endpoints
 shop_list.add_url_rule('/shoppinglist', view_func=shoppinglist_view, methods=['POST', 'GET'])
-shop_list.add_url_rule('/shoppinglist/<id>', view_func=singlelist_view, methods=['GET', 'PUT', 'DELETE'])
+shop_list.add_url_rule('/shoppinglist/<id>', view_func=list_view, methods=['GET', 'PUT', 'DELETE'])

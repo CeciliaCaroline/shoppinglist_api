@@ -123,10 +123,11 @@ class Reset(MethodView):
             post_data = request.get_json()
             email = post_data.get('email')
             new_password = post_data.get('newpassword')
+            confirm_password = post_data.get('confirmpassword')
             if re.match(r"[^@]+@[^@]+\.[^@]+", email) and len(new_password) > 4:
                 user = User.query.filter_by(email=email).first()
                 if user:
-                    if new_password != user.password:
+                    if new_password == confirm_password:
                         user.password = new_password
                         db.session.commit()
                         return make_response(jsonify({
@@ -137,7 +138,7 @@ class Reset(MethodView):
                         })), 200
                     return make_response(jsonify({
                         'status': 'failed',
-                        'message': 'Password already exists. Please try again'
+                        'message': 'Password confirm does not match password. Please try again'
                     })), 400
                 return make_response(jsonify({
                     'status': 'failed',

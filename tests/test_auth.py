@@ -200,8 +200,9 @@ class TestAuthBluePrint(BaseTestCase):
             response = self.client.post(
                 '/auth/reset_password',
                 content_type='application/json',
-                data=json.dumps(dict(email='caroline@gmail.com', newpassword='123456789')))
+                data=json.dumps(dict(email='caroline@gmail.com', newpassword='123456789', confirmpassword='123456789')))
             data = json.loads(response.data.decode())
+            print(response.data)
             self.assertEqual(data['password'], '123456789')
             self.assertEqual(response.status_code, 200)
 
