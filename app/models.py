@@ -123,3 +123,15 @@ class Items(db.Model):
         self.name = name
         self.price = price
         self.list_id = list_id
+
+    def json(self):
+        """"
+        Get Json representation of the model
+        """
+        return {
+            'id': self.item_id,
+            'name': self.name,
+            'price': self.price,
+            'list_id': self.list_id,
+            'status': 'success'
+        }
