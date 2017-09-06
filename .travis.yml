@@ -15,6 +15,7 @@ before_install:
 
 
 install:
+
   - pip install -r requirements.txt
 
 env:
@@ -26,7 +27,9 @@ before_script:
   - python manage.py db upgrade
 
 script:
+
   -  nosetests --with-coverage
+
 
 after_script:
   - coveralls
