@@ -35,15 +35,19 @@ class TestShoppingList(BaseTestCase):
             data = json.loads(res.data.decode())
             self.assertTrue(data['name'], 'travel')
             self.assertTrue(data['description'], 'Go to Kenya')
+            self.assertTrue(data['message'], 'Shopping list has been created')
             self.assertEqual(res.status_code, 201)
             self.assertIn('Go to Kenya', str(res.data))
-            return data
+            # return data
 
     def test_create_shoppinglist_with_invalid_name(self):
         """Test API can create a shoppinglist """
 
         with self.client:
             res = self.create_list('travel!!!', 'Go to Kenya', self.token())
+            data = json.loads(res.data.decode())
+            self.assertTrue(data['message'], 'Wrong name format. Name can only contain letters and numbers')
+            self.assertTrue(data['status'], 'failed')
             self.assertEqual(res.status_code, 406)
 
     def test_create_shoppinglist_with_empty_name_or_description(self):
@@ -51,6 +55,9 @@ class TestShoppingList(BaseTestCase):
 
         with self.client:
             res = self.create_list(' ', 'Go to Kenya', self.token())
+            data = json.loads(res.data.decode())
+            self.assertTrue(data['message'], 'No name or description input. Try again')
+            self.assertTrue(data['status'], 'failed')
             self.assertEqual(res.status_code, 406)
 
     def test_create_list_with_wrong_content_type(self):
@@ -59,9 +66,12 @@ class TestShoppingList(BaseTestCase):
         """
         with self.client:
             response = self.create_list_with_wrong_request_content_type('travel', 'Go to Kenya')
+            data = json.loads(response.data.decode())
+            self.assertTrue(data['message'], 'Content-type must be json')
+            self.assertTrue(data['status'], 'failed')
             self.assertEqual(response.status_code, 401)
 
-    def test_get_shopping_list(self):
+    def test_get_shopping_lists(self):
         """"
         Test API can get all shopping lists
         """
@@ -76,6 +86,23 @@ class TestShoppingList(BaseTestCase):
             data = json.loads(response.data.decode())
             self.assertEqual(response.status_code, 200)
             self.assertEqual(data['status'], 'success')
+
+    def test_get_shopping_lists_with_wrong_content_type(self):
+        """"
+        Test API can get all shopping lists
+        """
+        with self.client:
+            token = self.token()
+            self.create_list('travel', 'Go to Kenya', token)
+            response = self.client.get(
+                '/shoppinglist',
+                content_type='application/javascript',
+                headers=dict(Authorization="Bearer " + token),
+            )
+            data = json.loads(response.data.decode())
+            self.assertEqual(response.status_code, 202)
+            self.assertEqual(data['status'], 'failed')
+            self.assertTrue(data['message'], 'Content-type must be json')
 
     def test_search(self):
         """"
@@ -197,13 +224,16 @@ class TestShoppingList(BaseTestCase):
                 content_type='application/json',
                 data=json.dumps(dict(name='traveling', description='traveling to different places')))
             # print(rv.data)
+            data = json.loads(rv.data.decode())
             self.assertEqual(rv.status_code, 200)
+            self.assertEqual(data['message'], 'Shopping list has been updated')
 
             # finally, we get the edited shoppinglist to see if it is actually edited.
             results = self.client.get(
                 '/shoppinglist/{}'.format(results['id']),
                 content_type='application/json',
                 headers=dict(Authorization="Bearer " + token))
+
             self.assertIn('traveling to different places', str(results.data))
 
     def test_shoppinglist_delete(self):
@@ -223,6 +253,8 @@ class TestShoppingList(BaseTestCase):
                 headers=dict(Authorization="Bearer " + token),
                 content_type='application/json')
             self.assertEqual(rv.status_code, 200)
+            data = json.loads(rv.data.decode())
+            self.assertEqual(data['message'], 'Shopping list has been deleted')
 
 
 if __name__ == '__main__':

@@ -40,7 +40,7 @@ class ShoppingLists(MethodView):
                     })), 201
                 return response('failed', 'Wrong name format. Name can only contain letters and numbers', 406)
 
-            return response('failed', 'No name input. Try again', 400)
+            return response('failed', 'No name or description input. Try again', 400)
 
         return response('failed', 'Content-type must be json', 202)
 
@@ -172,5 +172,5 @@ list_view = ListMethods.as_view('list_methods')
 
 # Add rules for the api Endpoints
 shop_list.add_url_rule('/shoppinglist', view_func=shoppinglist_view, methods=['POST', 'GET'])
-shop_list.add_url_rule('/shoppinglist/limit/<int:limit>', view_func=shoppinglist_view, methods=['POST', 'GET'])
+# shop_list.add_url_rule('/shoppinglist/limit/<int:limit>', view_func=shoppinglist_view, methods=['POST', 'GET'])
 shop_list.add_url_rule('/shoppinglist/<id>', view_func=list_view, methods=['GET', 'PUT', 'DELETE'])

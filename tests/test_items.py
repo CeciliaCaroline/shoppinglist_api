@@ -56,7 +56,8 @@ class ItemsTestCase(BaseTestCase):
             token = self.token()
             self.create_list('Travel', 'Visit places', token)
             response = self.create_item('Go_to_Nairobi', '5000', token)
-
+            data = json.loads(response.data.decode())
+            self.assertTrue(data['message'], 'Shopping list item has been created')
             self.assertEqual(response.status_code, 201)
             self.assertIn('Go_to_Nairobi', response.data.decode())
 
@@ -70,7 +71,8 @@ class ItemsTestCase(BaseTestCase):
             self.create_list('Travel', 'Visit places', token)
             self.create_item('Go_to_Nairobi', '5000', token)
             response = self.create_item_with_wrong_content_type('Go_to_Nairobi', '5000', token)
-
+            data = json.loads(response.data.decode())
+            self.assertTrue(data['message'], 'Content-type must be json')
             self.assertEqual(response.status_code, 202)
             self.assertIn('Content-type must be json', response.data.decode())
 
@@ -83,7 +85,8 @@ class ItemsTestCase(BaseTestCase):
 
             self.create_list('Travel', 'Visit places', token)
             response = self.create_item('', '5000', token)
-
+            data = json.loads(response.data.decode())
+            self.assertTrue(data['message'], 'No name has been input')
             self.assertEqual(response.status_code, 400)
             self.assertIn('No name has been input', response.data.decode())
 
@@ -96,7 +99,8 @@ class ItemsTestCase(BaseTestCase):
 
             self.create_list('Travel', 'Visit places', token)
             response = self.create_item('Go to Nairobi', '5000', token)
-
+            data = json.loads(response.data.decode())
+            self.assertTrue(data['message'], 'Wrong name format. Name can only contain letters and number')
             self.assertEqual(response.status_code, 406)
             self.assertIn('Wrong name format. Name can only contain letters and numbers', response.data.decode())
 
@@ -109,7 +113,8 @@ class ItemsTestCase(BaseTestCase):
 
             self.create_list('Travel', 'Visit places', token)
             response = self.create_item('Go_to_Nairobi', '5000ugx', token)
-
+            data = json.loads(response.data.decode())
+            self.assertTrue(data['message'], 'Item price should be an integer')
             self.assertEqual(response.status_code, 400)
             self.assertIn('Item price should be an integer', response.data.decode())
 
@@ -126,7 +131,8 @@ class ItemsTestCase(BaseTestCase):
             response = self.client.get('/shoppinglist/1/items',
                                        content_type='application/json',
                                        headers=dict(Authorization='Bearer ' + token))
-
+            data = json.loads(response.data.decode())
+            self.assertTrue(data['status'], 'success')
             self.assertEqual(response.status_code, 200)
 
     def test_search(self):
@@ -211,6 +217,8 @@ class ItemsTestCase(BaseTestCase):
                                        headers=dict(Authorization='Bearer ' + token))
 
             self.assertEqual(response.status_code, 404)
+            data = json.loads(response.data.decode())
+            self.assertTrue(data['message'], 'Item not found')
             self.assertIn('Item not found', response.data.decode())
 
     def test_delete_item_that_doesnt_exist(self):
@@ -221,6 +229,9 @@ class ItemsTestCase(BaseTestCase):
                                           content_type='application/json',
                                           headers=dict(Authorization='Bearer ' + token))
             self.assertEqual(response.status_code, 404)
+            data = json.loads(response.data.decode())
+            self.assertTrue(data['message'], 'Item not found')
+            self.assertTrue(data['status'], 'failed')
             self.assertIn('Item not found', response.data.decode())
 
     def test_delete_item(self):
@@ -235,6 +246,9 @@ class ItemsTestCase(BaseTestCase):
                                           headers=dict(Authorization='Bearer ' + token))
 
             self.assertEqual(response.status_code, 200)
+            data = json.loads(response.data.decode())
+            self.assertTrue(data['message'], 'Shopping list item has been deleted')
+            self.assertTrue(data['status'], 'success')
             self.assertIn('Shopping list item has been deleted', response.data.decode())
 
     def test_delete_item_with_wrong_content_type(self):
