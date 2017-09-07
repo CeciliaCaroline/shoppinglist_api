@@ -38,7 +38,7 @@ class ShoppingLists(MethodView):
                         'user_id': current_user.id,
                         'message': 'Shopping list has been created'
                     })), 201
-                return response('failed', 'Wrong name format. Name can only contain letters and numbers', 400)
+                return response('failed', 'Wrong name format. Name can only contain letters and numbers', 406)
 
             return response('failed', 'No name input. Try again', 400)
 
@@ -49,49 +49,50 @@ class ShoppingLists(MethodView):
         Method to view all shopping lists belonging to the specified user
         User can limit the number of results returned and can also do a search on all their lists
         """
+        if request.content_type == 'application/json':
+            limit = request.args.get('limit', 10)
+            q = request.args.get('q', None)
+            page = int(request.args.get('page', 1))
 
-        limit = request.args.get('limit', 10)
-        q = request.args.get('q', None)
-        page = int(request.args.get('page', 1))
-
-        if q is not None:
-            results = []
-            shoplists = Shoppinglist.query.filter(
-                Shoppinglist.name.like("%" + q.strip() + "%")).filter_by(
-                user_id=current_user.id).all()
-            if shoplists:
-                for shoplist in shoplists:
-                    results.append(shoplist.json())
-
-                return get_response('Shoppinglists', results)
-            return response('failed', 'Shopping list not found', 404)
-
-        elif limit:
-            results = []
-            try:
-                if int(limit):
-                    limit_list = Shoppinglist.query.filter_by(
-                        user_id=current_user.id).paginate(page=page,
-                                                          per_page=int(
-                                                              limit), error_out=False).items
-
-                    if limit_list:
-                        for shoplist in limit_list:
-                            results.append(shoplist.json())
-                        return get_response('Shoppinglists', results)
-                    return response('failed', 'Shopping list not found', 404)
-
-            except ValueError:
-                return response('failed', 'Limit should be an integer', 400)
-
-        else:
-            all_shoplists = Shoppinglist.query.filter_by(user_id=current_user.id)
-            if all_shoplists:
+            if q is not None:
                 results = []
-                for shoplist in all_shoplists:
-                    results.append(shoplist.json())
-                return get_response('Shoppinglists', results)
-            return response('failed', 'Shopping list not found', 404)
+                shoplists = Shoppinglist.query.filter(
+                    Shoppinglist.name.like("%" + q.strip() + "%")).filter_by(
+                    user_id=current_user.id).all()
+                if shoplists:
+                    for shoplist in shoplists:
+                        results.append(shoplist.json())
+
+                    return get_response('Shoppinglists', results)
+                return response('failed', 'Shopping list not found', 404)
+
+            elif limit:
+                results = []
+                try:
+                    if int(limit):
+                        limit_list = Shoppinglist.query.filter_by(
+                            user_id=current_user.id).paginate(page=page,
+                                                              per_page=int(
+                                                                  limit), error_out=False).items
+
+                        if limit_list:
+                            for shoplist in limit_list:
+                                results.append(shoplist.json())
+                            return get_response('Shoppinglists', results)
+                        return response('failed', 'Shopping list not found', 404)
+
+                except ValueError:
+                    return response('failed', 'Limit should be an integer', 400)
+
+            else:
+                all_shoplists = Shoppinglist.query.filter_by(user_id=current_user.id)
+                if all_shoplists:
+                    results = []
+                    for shoplist in all_shoplists:
+                        results.append(shoplist.json())
+                    return get_response('Shoppinglists', results)
+                return response('failed', 'Shopping list not found', 404)
+        return response('failed', 'Content-type must be json', 202)
 
 
 class ListMethods(MethodView):
@@ -160,13 +161,10 @@ class ListMethods(MethodView):
             if shoplist is not None:
                 db.session.delete(shoplist)
                 db.session.commit()
-                return make_response(jsonify({
-
-                    'message': 'Shopping list has been deleted'
-
-                })), 200
+                return response('success', 'Shopping list has been deleted', 200)
             return response('failed', 'Shopping list not found', 404)
         return response('failed', 'Content-type must be json', 202)
+
 
 # Register classes as views
 shoppinglist_view = ShoppingLists.as_view('shop_list')
