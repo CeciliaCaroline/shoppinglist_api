@@ -1,6 +1,4 @@
 from tests.base_test import BaseTestCase
-from app.models import Shoppinglist
-from app import db
 import unittest
 import json
 
