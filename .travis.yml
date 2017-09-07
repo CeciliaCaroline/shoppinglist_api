@@ -29,7 +29,7 @@ before_script:
   - python manage.py db upgrade
 
 script:
-  - python manage.py cov
+  - nosetests --with-coverage
 
 after_script:
   - coveralls
