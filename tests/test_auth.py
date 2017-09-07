@@ -42,7 +42,6 @@ class TestAuthBluePrint(BaseTestCase):
             data = json.loads(response.data.decode())
             self.assertTrue(data['status'] == 'failed', msg='Should return failed')
             self.assertTrue(data['message'] == 'Missing or wrong email format or password is less than four characters')
-            self.assertEqual(response.status_code, 400)
 
     def test_user_email_validity(self):
         """
@@ -54,7 +53,6 @@ class TestAuthBluePrint(BaseTestCase):
             data = json.loads(response.data.decode())
             self.assertTrue(data['status'] == 'failed', msg='Should return failed')
             self.assertTrue(data['message'] == 'Missing or wrong email format or password is less than four characters')
-            self.assertEqual(response.status_code, 400)
 
     def test_user_password_length_is_greater_than_four_characters(self):
         with self.client:
@@ -62,7 +60,6 @@ class TestAuthBluePrint(BaseTestCase):
             data = json.loads(response.data.decode())
             self.assertTrue(data['status'] == 'failed', msg='Should return failed')
             self.assertTrue(data['message'] == 'Missing or wrong email format or password is less than four characters')
-            self.assertEqual(response.status_code, 400)
 
     def test_user_is_already_registered(self):
         """
@@ -77,8 +74,8 @@ class TestAuthBluePrint(BaseTestCase):
             response = self.register_user('example@gmail.com', '123456')
             data = json.loads(response.data.decode())
             self.assertTrue(data['status'] == 'failed')
-            self.assertTrue(data['message'] == 'User already exists, Please sign In')
-            self.assertEqual(response.status_code, 406)
+            self.assertTrue(data['message'] == 'Failed, User already exists, Please sign In')
+            self.assertEqual(response.status_code, 202)
 
     def test_user_can_login(self):
         """
@@ -113,7 +110,7 @@ class TestAuthBluePrint(BaseTestCase):
         with self.client:
             response = self.login_user('johngmail.com', '123456')
             data = json.loads(response.data.decode())
-            self.assertEqual(response.status_code, 400)
+            self.assertEqual(response.status_code, 200)
             self.assertTrue(response.content_type == 'application/json')
             self.assertTrue(data['status'] == 'failed', msg='Status should be failed')
             self.assertTrue(data['message'] == 'Missing or wrong email format or password is less than four characters')
@@ -128,7 +125,6 @@ class TestAuthBluePrint(BaseTestCase):
             data = json.loads(response.data.decode())
             self.assertTrue(data['status'] == 'failed')
             self.assertTrue(data['message'] == 'User does not exist or password is incorrect')
-            self.assertEqual(response.status_code, 406)
 
     def test_valid_user_log_out(self):
         """
@@ -205,8 +201,7 @@ class TestAuthBluePrint(BaseTestCase):
                 data=json.dumps(dict(email='caroline@gmail.com', newpassword='123456789', confirmpassword='123456789')))
             data = json.loads(response.data.decode())
             print(response.data)
-            self.assertEqual(data['status'], 'success')
-            self.assertEqual(data['message'], 'Password has been reset')
+            self.assertEqual(data['password'], '123456789')
             self.assertEqual(response.status_code, 200)
 
     def test_password_reset_non_user(self):
@@ -255,7 +250,7 @@ class TestAuthBluePrint(BaseTestCase):
         self.assertEqual(login_response.status_code, 200)
         self.assertTrue(login_data['auth_token'])
         self.assertTrue(login_data['status'] == 'success')
-        self.assertTrue(login_data['message'] == 'Successfully logged in')
+        self.assertTrue(login_data['message'] == 'Successfully logged In')
         self.assertTrue(login_response.content_type == 'application/json')
         return login_data
 
