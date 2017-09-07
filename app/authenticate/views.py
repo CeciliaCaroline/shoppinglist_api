@@ -1,5 +1,5 @@
 from app import db, bcrypt
-from flask import Blueprint, request, make_response, jsonify
+from flask import Blueprint, request
 from flask.views import MethodView
 from app.models import User, BlackListToken
 from app.helper_functions import response, user_response
@@ -46,7 +46,7 @@ class LoginUser(MethodView):
                 user = User.query.filter_by(email=email).first()
                 if user and bcrypt.check_password_hash(user.password, password):
                     auth_token = user.encode_auth_token(user.id)
-                    return user_response('success', 'Successfully registered', auth_token.decode(), 200)
+                    return user_response('success', 'Successfully logged in', auth_token.decode(), 200)
 
                 return response('failed', 'User does not exist or password is incorrect', 406)
             return response('failed', 'Missing or wrong email format or password is less than four characters', 400)

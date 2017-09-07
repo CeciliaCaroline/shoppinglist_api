@@ -84,7 +84,7 @@ class ItemsTestCase(BaseTestCase):
             self.create_list('Travel', 'Visit places', token)
             response = self.create_item('', '5000', token)
 
-            self.assertEqual(response.status_code, 202)
+            self.assertEqual(response.status_code, 400)
             self.assertIn('No name has been input', response.data.decode())
 
     def test_create_item_with_invalid_name_format(self):
@@ -97,7 +97,7 @@ class ItemsTestCase(BaseTestCase):
             self.create_list('Travel', 'Visit places', token)
             response = self.create_item('Go to Nairobi', '5000', token)
 
-            self.assertEqual(response.status_code, 200)
+            self.assertEqual(response.status_code, 406)
             self.assertIn('Wrong name format. Name can only contain letters and numbers', response.data.decode())
 
     def test_create_item_with_string_price(self):

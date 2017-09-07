@@ -44,14 +44,14 @@ class TestShoppingList(BaseTestCase):
 
         with self.client:
             res = self.create_list('travel!!!', 'Go to Kenya', self.token())
-            self.assertEqual(res.status_code, 400)
+            self.assertEqual(res.status_code, 406)
 
     def test_create_shoppinglist_with_empty_name_or_description(self):
         """Test API can create a shoppinglist """
 
         with self.client:
             res = self.create_list(' ', 'Go to Kenya', self.token())
-            self.assertEqual(res.status_code, 400)
+            self.assertEqual(res.status_code, 406)
 
     def test_create_list_with_wrong_content_type(self):
         """"
