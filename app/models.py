@@ -10,8 +10,8 @@ class User(db.Model):
 
     __tablename__ = "users"
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    email = db.Column(db.String(250), unique=True, nullable=False)
-    password = db.Column(db.String(250), nullable=False)
+    email = db.Column(db.String(255), unique=True, nullable=False)
+    password = db.Column(db.String(255), nullable=False)
     registered_on = db.Column(db.DateTime, nullable=False)
     shoppinglists = db.relationship(
         'Shoppinglist', order_by='Shoppinglist.id', lazy='dynamic')
@@ -95,7 +95,7 @@ class Shoppinglist(db.Model):
 
     # define the columns of the table, starting with its primary key
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(250))
+    name = db.Column(db.String(255))
     description = db.Column(db.String(250))
     user_id = db.Column(db.Integer, db.ForeignKey(User.id))
     items = db.relationship('Items',  order_by='Items.item_id',  lazy='dynamic')
@@ -124,9 +124,10 @@ class Items(db.Model):
 
     # define the columns of the table, starting with its primary key
     item_id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(250))
+    name = db.Column(db.String(255))
     price = db.Column(db.String(250))
     list_id = db.Column(db.Integer, db.ForeignKey(Shoppinglist.id))
+
 
     def __init__(self, name, price, list_id):
         """Initialize the item with a name and description."""
