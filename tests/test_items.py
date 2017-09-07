@@ -260,7 +260,7 @@ class ItemsTestCase(BaseTestCase):
             response = self.edit_item('Travelling_bag', '5000', token)
 
             self.assertEqual(response.status_code, 200)
-            self.assertIn('Shopping list item has been updated', response.data.decode())
+            self.assertIn('Shopping list item has been edited', response.data.decode())
 
     def test_edit_non_existent_item(self):
         """Should return 200 for success"""
@@ -306,7 +306,7 @@ class ItemsTestCase(BaseTestCase):
             self.create_item('Go_to_Nairobi', '5000', token)
             response = self.edit_item('', '5000', token)
             self.assertEqual(response.status_code, 400)
-            self.assertIn('No input. Try again', response.data.decode())
+            self.assertIn('No name input. Try again', response.data.decode())
 
     def test_edit_item_with_string_price(self):
         """Should return 200 for success"""

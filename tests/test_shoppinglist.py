@@ -181,7 +181,7 @@ class TestShoppingList(BaseTestCase):
 
             self.assertEqual(rv.status_code, 404)
             data = json.loads(rv.data.decode())
-            self.assertEqual(data['message'], 'List not found')
+            self.assertEqual(data['message'], 'Shopping list not found')
 
     def test_shoppinglist_can_be_edited(self):
         """Test API can edit an existing shoppinglist. (PUT request)"""
