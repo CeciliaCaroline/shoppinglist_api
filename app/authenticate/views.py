@@ -1,8 +1,8 @@
 from app import db, bcrypt
-from flask import Blueprint, request, make_response, jsonify
+from flask import Blueprint, request
 from flask.views import MethodView
 from app.models import User, BlackListToken
-
+from app.helper_functions import response, user_response
 import re
 
 auth = Blueprint('auth', __name__)
@@ -25,23 +25,11 @@ class RegisterUser(MethodView):
                     db.session.add(user)
                     db.session.commit()
                     auth_token = user.encode_auth_token(user_id=user.id)
-                    response = {
-                        'status': 'success',
-                        'message': 'Successfully registered',
-                        'auth_token': auth_token.decode("utf-8")
-                    }
-                    return make_response(jsonify(response)), 201
+                    return user_response('success', 'Successfully registered', auth_token.decode("utf-8"), 201)
 
-                else:
-                    response = {
-                        'status': 'failed',
-                        'message': 'Failed, User already exists, Please sign In'
-                    }
-                    return make_response(jsonify(response)), 202
-            return make_response(
-                jsonify({'status': 'failed',
-                         'message': 'Missing or wrong email format or password is less than four characters'})), 202
-        return make_response(jsonify({'status': 'failed', 'message': 'Content-type must be json'})), 202
+                return response('failed', 'User already exists, Please sign In', 406)
+            return response('failed', 'Missing or wrong email format or password is less than four characters', 400)
+        return response('failed', 'Content-type must be json', 202)
 
 
 class LoginUser(MethodView):
@@ -58,18 +46,11 @@ class LoginUser(MethodView):
                 user = User.query.filter_by(email=email).first()
                 if user and bcrypt.check_password_hash(user.password, password):
                     auth_token = user.encode_auth_token(user.id)
-                    return make_response(jsonify({
-                        'status': 'success',
-                        'auth_token': auth_token.decode(),
-                        'message': 'Successfully logged In'
-                    }))
-                return make_response(
-                    jsonify({'status': 'failed', 'message': 'User does not exist or password is incorrect'})), 200
-            return make_response(
-                jsonify({'status': 'failed',
-                         'message': 'Missing or wrong email format or password is less than four characters'})), 200
-        return make_response(
-            jsonify({'status': 'failed', 'message': 'Content-type must be json'})), 202
+                    return user_response('success', 'Successfully logged in', auth_token.decode(), 200)
+
+                return response('failed', 'User does not exist or password is incorrect', 406)
+            return response('failed', 'Missing or wrong email format or password is less than four characters', 400)
+        return response('failed', 'Content-type must be json', 202)
 
 
 class LogOutUser(MethodView):
@@ -83,10 +64,7 @@ class LogOutUser(MethodView):
             try:
                 auth_token = auth_header.split(" ")[1]
             except IndexError:
-                return make_response(jsonify({
-                    'status': 'failed',
-                    'message': 'Provide a valid auth token'
-                })), 403
+                return response('failed', 'Provide a valid auth token', 403)
             else:
                 decoded_token_response = User.decode_auth_token(auth_token)
                 if not isinstance(decoded_token_response, str):
@@ -94,23 +72,11 @@ class LogOutUser(MethodView):
                     try:
                         db.session.add(blacklist)
                         db.session.commit()
-                        return make_response(jsonify({
-                            'status': 'success',
-                            'message': 'Successfully logged out'
-                        })), 200
+                        return response('success', 'Successfully logged out', 200)
                     except Exception as e:
-                        return make_response(jsonify({
-                            'status': 'failed',
-                            'message': e
-                        })), 200
-                return make_response(jsonify({
-                    'status': 'failed',
-                    'message': decoded_token_response
-                })), 401
-        return make_response(jsonify({
-            'status': 'failed',
-            'message': 'Provide an authorization header'
-        })), 403
+                        return response('failed', e, 400)
+                return response('failed', decoded_token_response, 401)
+        return response('failed', 'Provide an authorization header', 403)
 
 
 class Reset(MethodView):
@@ -130,26 +96,12 @@ class Reset(MethodView):
                     if new_password == confirm_password:
                         user.password = new_password
                         db.session.commit()
-                        return make_response(jsonify({
-                            'email': user.email,
-                            'password': user.password,
-                            'message': 'Password has been reset'
+                        return response('success', 'Password has been reset', 200)
+                    return response('failed', 'Password confirm does not match password. Please try again', 400)
+                return response('failed', 'User does not exist. Please login or register', 404)
 
-                        })), 200
-                    return make_response(jsonify({
-                        'status': 'failed',
-                        'message': 'Password confirm does not match password. Please try again'
-                    })), 400
-                return make_response(jsonify({
-                    'status': 'failed',
-                    'message': 'User does not exist. Please login or register'
-                })), 404
-
-            return make_response(
-                jsonify({'status': 'failed',
-                         'message': 'Missing or wrong email format or password is less than four characters'})), 400
-        return make_response(
-            jsonify({'status': 'failed', 'message': 'Content-type must be json'})), 202
+            return response('failed', 'Missing or wrong email format or password is less than four characters', 406)
+        return response('failed', 'Content-type must be json', 202)
 
 
 # Register classes as views
