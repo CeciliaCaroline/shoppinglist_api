@@ -5,7 +5,7 @@ from flask_migrate import Migrate
 import os
 
 # Initialize application
-app = Flask(__name__)
+app = Flask(__name__, static_folder=None)
 
 # app configuration
 app_settings = os.getenv(
@@ -27,7 +27,9 @@ bcrypt = Bcrypt(app)
 from app.authenticate.views import auth
 from app.shoppinglists.shop_list import shop_list
 from app.items.items import items
+from app.apiary.views import apiary
 
 app.register_blueprint(auth)
 app.register_blueprint(shop_list)
 app.register_blueprint(items)
+app.register_blueprint(apiary)
