@@ -49,50 +49,49 @@ class ShoppingLists(MethodView):
         Method to view all shopping lists belonging to the specified user
         User can limit the number of results returned and can also do a search on all their lists
         """
-        if request.content_type == 'application/json':
-            limit = request.args.get('limit', 10)
-            q = request.args.get('q', None)
-            page = int(request.args.get('page', 1))
 
-            if q is not None:
+        limit = request.args.get('limit', 10)
+        q = request.args.get('q', None)
+        page = int(request.args.get('page', 1))
+
+        if q is not None:
+            results = []
+            shoplists = Shoppinglist.query.filter(
+                Shoppinglist.name.like("%" + q.strip() + "%")).filter_by(
+                user_id=current_user.id).all()
+            if shoplists:
+                for shoplist in shoplists:
+                    results.append(shoplist.json())
+
+                return get_response('Shoppinglists', results)
+            return response('failed', 'Shopping list not found', 404)
+
+        elif limit:
+            results = []
+            try:
+                if int(limit):
+                    limit_list = Shoppinglist.query.filter_by(
+                        user_id=current_user.id).paginate(page=page,
+                                                          per_page=int(
+                                                              limit), error_out=False).items
+
+                    if limit_list:
+                        for shoplist in limit_list:
+                            results.append(shoplist.json())
+                        return get_response('Shoppinglists', results)
+                    return response('failed', 'Shopping list not found', 404)
+
+            except ValueError:
+                return response('failed', 'Limit should be an integer', 400)
+
+        else:
+            all_shoplists = Shoppinglist.query.filter_by(user_id=current_user.id)
+            if all_shoplists:
                 results = []
-                shoplists = Shoppinglist.query.filter(
-                    Shoppinglist.name.like("%" + q.strip() + "%")).filter_by(
-                    user_id=current_user.id).all()
-                if shoplists:
-                    for shoplist in shoplists:
-                        results.append(shoplist.json())
-
-                    return get_response('Shoppinglists', results)
-                return response('failed', 'Shopping list not found', 404)
-
-            elif limit:
-                results = []
-                try:
-                    if int(limit):
-                        limit_list = Shoppinglist.query.filter_by(
-                            user_id=current_user.id).paginate(page=page,
-                                                              per_page=int(
-                                                                  limit), error_out=False).items
-
-                        if limit_list:
-                            for shoplist in limit_list:
-                                results.append(shoplist.json())
-                            return get_response('Shoppinglists', results)
-                        return response('failed', 'Shopping list not found', 404)
-
-                except ValueError:
-                    return response('failed', 'Limit should be an integer', 400)
-
-            else:
-                all_shoplists = Shoppinglist.query.filter_by(user_id=current_user.id)
-                if all_shoplists:
-                    results = []
-                    for shoplist in all_shoplists:
-                        results.append(shoplist.json())
-                    return get_response('Shoppinglists', results)
-                return response('failed', 'Shopping list not found', 404)
-        return response('failed', 'Content-type must be json', 202)
+                for shoplist in all_shoplists:
+                    results.append(shoplist.json())
+                return get_response('Shoppinglists', results)
+            return response('failed', 'Shopping list not found', 404)
 
 
 class ListMethods(MethodView):
@@ -171,6 +170,6 @@ shoppinglist_view = ShoppingLists.as_view('shop_list')
 list_view = ListMethods.as_view('list_methods')
 
 # Add rules for the api Endpoints
-shop_list.add_url_rule('/shoppinglist', view_func=shoppinglist_view, methods=['POST', 'GET'])
+shop_list.add_url_rule('/shoppinglist/', view_func=shoppinglist_view, methods=['POST', 'GET'])
 # shop_list.add_url_rule('/shoppinglist/limit/<int:limit>', view_func=shoppinglist_view, methods=['POST', 'GET'])
 shop_list.add_url_rule('/shoppinglist/<id>', view_func=list_view, methods=['GET', 'PUT', 'DELETE'])

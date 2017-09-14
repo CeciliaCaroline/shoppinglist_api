@@ -1,10 +1,10 @@
 var embed = new Apiary.Embed({
-  "subdomain": "shoppinglist9",
+  "subdomain": "cecilia5",
   "preferences": {
     "element": "#documentation"
   },
   "theme": {
-    "fontFamily": "Ubuntu",
+    "fontFamily": "Ubuntu"
 
   },
   "customFonts": {
