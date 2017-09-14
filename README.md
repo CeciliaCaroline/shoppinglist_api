@@ -4,151 +4,73 @@
 [![Build Status](https://travis-ci.org/CeciliaCaroline/shoppinglist_api.svg?branch=master)](https://travis-ci.org/CeciliaCaroline/shoppinglist_api)
 [![BCH compliance](https://bettercodehub.com/edge/badge/CeciliaCaroline/shoppinglist_api?branch=master)](https://bettercodehub.com/)
 
+This API enables the user to keep track their shopping lists. This api has end points that allow the user to create, update, delete and get their shopping lists. Also, users can also add, edit, delete and get items for particular shopping lists.
+
+## Requirements
+
+Shopping list api is an application that utilises the flask framework. The app has been tested for python 3.6 and uses the PostgreSQL database
+
+## Setup
+Clone this repository as shown below;
+```
+https://github.com/CeciliaCaroline/shoppinglist_api.git
+```
+ Create the virtual environment and activate it
+ 
+ ```
+ virtualenv env
+ source env/bin/activate
+```
+
+Then install all the required dependencies
+
+```
+pip install -r requirements.txt
+```
+Create the database and run migrations
+```
+$ python manage.py db init
+```
+
+```
+$ python manage.py db migrate
+```
+```
+$ python manage.py db upgrade
+```
+
+All done! Now, start your server by running ```python run.py```. For best experience, use a GUI platform like postman to make requests to the api.
+
+
 This API enables the user to keep track their shopping lists
 ## Features
-- Register / Login
-- Create shopping list
-- View shopping list
-- Update shopping list
-- Delete shopping list
+Endpoint | Functionality
+------------ | -------------
+POST /auth/login |Logs a user in
+POST /auth/register | Registers a user
+POST /shoppinglists/ | Creates a new shopping list
+GET /shoppinglists/ | Lists all created shopping lists
+GET /shoppinglists/id | Gets a single shopping list with the suppled id 
+PUT /shoppinglists/id | Updates a shopping list with the suppled id
+DELETE /shoppinglists/id | Deletes a shopping list with the suppled id
+POST /shoppinglists/id/items/ | Creates a new item in a shopping list whose id is supplied
+GET /shoppinglists/id/items/item_id | Get a single shopping list item
+PUT /shoppinglists/id/items/item_id | Updates a shopping list item
+DELETE /shoppinglists/id/items/item_id | Deletes an item in a shopping list
 
-## Usage
+### Pagination
 
-#### Registration
-#### Log in
-#### CRUD for shopping list
-#### CRUD for shopping list items
+The api supports pagination so users can specify the number of results they would
+like to have via a GET parameter ```limit```. By default, the application displays a maximum of 10 lists/items on page 1.
 
-This API enables the user to keep track their shopping lists
-## Features
-- User Register / Login
-- CRUD for shopping list
-- CRUD for shopping list items
+`GET http://localhost:/shoppinglists?limit=15`
 
+This returns 15 shopping lists for the logged in user.
 
-## Usage
+### Searching
 
-#### Registration
-Returns json data about a user that has been registered.
+It is possible to search shoppinglists using the parameter `q` in the GET request. 
 
--  URL: ```/auth/register```
-- Method: ```POST```
-- Params
-````
-Content :{'email': 'caroline@gmail.com', }
-````
-- Success Response:
-```Code: 201 
-Content: { 'status' : 'success', 'message' : 'Successfully registered', 'token':'qawscghfhfhjhgjlljjnljjdo' }
-```
-- Error Response:
-```
-Code: 202 
-Content: { message : 'Failed, User already exists, Please try again' }
-```
-or
-```
-Code: 202  
-Content: { message : 'Missing or wrong email format or password is less than four characters' }
-```
-#### Log In
+`GET http://localhost:/shoppinglists?q=clothes`
 
-- URL: ```/auth/login```
-- Method: ```POST```
-- Params
-````
-Content :{'email': 'caroline@gmail.com', }
-````
-- Success Response:
-```Code: 201 
-Content: { 'status' : 'success', 'message' : 'Successfully logged in', 'token':'qawscghfhfhjhgjlljjnljjdo' }
-```
-- Error Response:
-```
-Code: 202 
-Content: { 'status' : 'success', message : 'Failed, User does not exists, Please try again' }
-```
-or
-```
-Code: 202  
-Content: { 'status' : 'success', message : 'Missing or wrong email format or password is less than four characters' }
-```
-
-#### CRUD for shopping list
-##### Create list
-- URL: ```/shoppinglist```
-- Method: ```POST```
-- Params
-````
-Content :{'name': 'food', 'description': 'Buy food stuff' }
-````
-- Success Response:
-```Code: 201 
-Content: { 'id' : '1', 'name': 'food', 'description': 'Buy food stuff','message' : 'Shopping list has been created'}
-```
-##### View lists
-- URL: ```/shoppinglist```
-- Method: ```GET```
-- Success Response:
-```Code: 200 
-Content: { 'id' : '1', 'name': 'food', 'description': 'Buy food stuff','status' : 'success'}
-```
-##### Update list
-- URL: ```/shoppinglist/1```
-- Method: ```PUT```
-- Params
-````
-Content :{'name': 'food', 'description': 'Buy chicken' }
-````
-- Success Response:
-```Code: 200 
-Content: { 'id' : '1', 'name': 'food', 'description': 'Buy chicken','message' : 'Shopping list has been updated'}
-```
-##### Delete list
-- URL: ```/shoppinglist/1```
-- Method: ```DELETE```
-
-- Success Response:
-```Code: 200 
-Content: {'message': 'Shopping list has been deleted'}
-```
-
-#### CRUD for shopping list items
-##### Create item
-- URL: ```/shoppinglist/1/item```
-- Method: ```POST```
-- Params
-````
-Content :{'name': 'food', 'price': '25 dollars' }
-````
-- Success Response:
-```Code: 201 
-Content: { 'id' : '1', 'name': 'food', 'price': '25 dollars','message' : 'Shopping list item has been created'}
-```
-##### View item
-- URL: ```/shoppinglist/1/items```
-- Method: ```GET```
-
-- Success Response:
-```Code: 200 
-Content: { 'id' : '1', 'name': 'food', 'price': '25 dollars','status' : 'success'}
-```
-##### Update item
-- URL: ```/shoppinglist/1/items/1```
-- Method: ```PUT```
-- Params
-````
-Content :{'name': chicken', 'price': '12 dollars' }
-````
-- Success Response:
-```Code: 200 
-Content: { 'id' : '1', 'name': 'food', 'price': '12 dollars','message' : 'Shopping list item has been updated'}
-```
-##### Delete list
-- URL: ```/shoppinglist/1/items/1```
-- Method: ```DELETE```
-
-- Success Response:
-```Code: 200 
-Content: {'message': 'Shopping list item has been deleted'}
-```
+This request will return all shoppinglists with `clothes` in their name
