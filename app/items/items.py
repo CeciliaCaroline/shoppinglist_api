@@ -179,5 +179,5 @@ new_item_view = NewItems.as_view('new_items')
 items_view = ItemMethods.as_view('items')
 
 # Add rules for the api Endpoints
-items.add_url_rule('/shoppinglist/<list_id>/items', view_func=new_item_view, methods=['POST', 'GET'])
+items.add_url_rule('/shoppinglist/<list_id>/items/', view_func=new_item_view, methods=['POST', 'GET'])
 items.add_url_rule('/shoppinglist/<list_id>/items/<item_id>', view_func=items_view, methods=['GET', 'PUT', 'DELETE'])

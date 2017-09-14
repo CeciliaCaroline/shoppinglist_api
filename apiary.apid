@@ -412,6 +412,9 @@ Optionally, the user can specifiy the number of results to be returned, the page
 + page (optional, number, `1`)
 + q (optional, string)
 
++ Parameters
+    + id (number) - ID of the Shoppinglist in the form of an integer
+
 + Request (application/json)
 
     + Headers
@@ -454,6 +457,8 @@ Optionally, the user can specifiy the number of results to be returned, the page
 You may create a new shopping list item.
 The request must have an Authorization header containing the auth token, otherwise the user will not be able to carry out any operations on thier shopping list items.
 
++ Parameters
+    + id (number) - ID of the Shoppinglist in the form of an integer
 
 + Request (application/json)
 
