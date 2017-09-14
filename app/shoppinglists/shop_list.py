@@ -38,9 +38,9 @@ class ShoppingLists(MethodView):
                         'user_id': current_user.id,
                         'message': 'Shopping list has been created'
                     })), 201
-                return response('failed', 'Wrong name format. Name can only contain letters and numbers', 406)
+                return response('failed', 'Wrong name format. Name can only contain letters and numbers', 400)
 
-            return response('failed', 'No name or description input. Try again', 400)
+            return response('failed', 'No name or description input. Try again', 406)
 
         return response('failed', 'Content-type must be json', 202)
 
@@ -144,8 +144,7 @@ class ListMethods(MethodView):
                             'message': 'Shopping list has been updated'
 
                         })), 200
-                    return response('failed', 'Wrong name format. Name can only contain letters and numbers',
-                                    200)
+                    return response('failed', 'Wrong name format. Name can only contain letters and numbers', 200)
                 return response('failed', 'No name input. Try again', 400)
             return response('failed', 'Shopping list does not exist. Please try again', 404)
         return response('failed', 'Content-type must be json', 202)

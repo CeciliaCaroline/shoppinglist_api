@@ -353,7 +353,7 @@ class ItemsTestCase(BaseTestCase):
             self.create_list('Travel', 'Visit places', token)
             self.create_item('Go_to_Nairobi', '5000', token)
             response = self.edit_item('Going to Mombasa', '5000', token)
-            self.assertEqual(response.status_code, 400)
+            self.assertEqual(response.status_code, 406)
             data = json.loads(response.data.decode())
             self.assertTrue(data['status'], 'failed')
             self.assertIn('Wrong name format. Name can only contain letters and numbers', response.data.decode())
