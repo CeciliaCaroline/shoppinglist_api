@@ -10,7 +10,7 @@ class TestShoppingList(BaseTestCase):
         :return:
         """
         return self.client.post(
-            '/shoppinglist',
+            '/shoppinglist/',
             headers=dict(Authorization='Bearer ' + token),
             content_type='application/json',
             data=json.dumps(dict(name=name, description=description)))
@@ -23,7 +23,7 @@ class TestShoppingList(BaseTestCase):
         :return:
         """
         return self.client.post(
-            '/shoppinglist',
+            '/shoppinglist/',
             content_type='application/javascript',
             data=json.dumps(dict(name=name, description=description)))
 
@@ -79,7 +79,7 @@ class TestShoppingList(BaseTestCase):
             token = self.token()
             self.create_list('travel', 'Go to Kenya', token)
             response = self.client.get(
-                '/shoppinglist',
+                '/shoppinglist/',
                 content_type='application/json',
                 headers=dict(Authorization="Bearer " + token),
             )
@@ -87,18 +87,24 @@ class TestShoppingList(BaseTestCase):
             self.assertEqual(response.status_code, 200)
             self.assertEqual(data['status'], 'success')
 
-    def test_get_shopping_lists_with_wrong_content_type(self):
+    def test_edit_list_with_wrong_content_type(self):
         """"
         Test API can get all shopping lists
         """
         with self.client:
             token = self.token()
-            self.create_list('travel', 'Go to Kenya', token)
-            response = self.client.get(
-                '/shoppinglist',
-                content_type='application/javascript',
+            res = self.create_list('eat', 'eatpraylove', token)
+            self.assertEqual(res.status_code, 201)
+            # get the json with the shoppinglist
+            results = json.loads(res.data.decode())
+
+            # then, we edit the created shoppinglist by making a PUT request
+            response = self.client.put(
+                '/shoppinglist/{}'.format(results['id']),
                 headers=dict(Authorization="Bearer " + token),
-            )
+                content_type='application/javascript',
+                data=json.dumps(dict(name='traveling', description='traveling to different places')))
+
             data = json.loads(response.data.decode())
             self.assertEqual(response.status_code, 202)
             self.assertEqual(data['status'], 'failed')
@@ -113,7 +119,7 @@ class TestShoppingList(BaseTestCase):
 
             self.create_list('Travel', 'Visit places', token)
 
-            response = self.client.get('/shoppinglist?q=Travel',
+            response = self.client.get('/shoppinglist/?q=Travel',
                                        content_type='application/json',
                                        headers=dict(Authorization='Bearer ' + token))
 
@@ -130,7 +136,7 @@ class TestShoppingList(BaseTestCase):
             self.create_list('Travel', 'Visit places', token)
             self.create_list('Health', 'Excercises', token)
 
-            response = self.client.get('/shoppinglist?limit=1',
+            response = self.client.get('/shoppinglist/?limit=1',
                                        content_type='application/json',
                                        headers=dict(Authorization='Bearer ' + token))
 
@@ -147,7 +153,7 @@ class TestShoppingList(BaseTestCase):
             self.create_list('Travel', 'Visit places', token)
             self.create_list('Health', 'Excercises', token)
 
-            response = self.client.get('/shoppinglist?limit=one',
+            response = self.client.get('/shoppinglist/?limit=one',
                                        content_type='application/json',
                                        headers=dict(Authorization='Bearer ' + token))
 

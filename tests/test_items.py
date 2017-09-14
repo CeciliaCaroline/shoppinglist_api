@@ -10,7 +10,7 @@ class ItemsTestCase(BaseTestCase):
         :return:
         """
         return self.client.post(
-            '/shoppinglist',
+            '/shoppinglist/',
             headers=dict(Authorization='Bearer ' + token),
             content_type='application/json',
             data=json.dumps(dict(name=name, description=description)))
@@ -21,7 +21,7 @@ class ItemsTestCase(BaseTestCase):
         :return:
         """
         return self.client.post(
-            '/shoppinglist/1/items',
+            '/shoppinglist/1/items/',
             headers=dict(Authorization='Bearer ' + token),
             content_type='application/json',
             data=json.dumps(dict(name=name, price=price)))
@@ -32,7 +32,7 @@ class ItemsTestCase(BaseTestCase):
         :return:
         """
         return self.client.post(
-            '/shoppinglist/1/items',
+            '/shoppinglist/1/items/',
             headers=dict(Authorization='Bearer ' + token),
             content_type='application/javascript',
             data=json.dumps(dict(name=name, price=price)))
@@ -128,7 +128,7 @@ class ItemsTestCase(BaseTestCase):
             self.create_list('Travel', 'Visit places', token)
             self.create_item('Go_to_Nairobi', '5000', token)
 
-            response = self.client.get('/shoppinglist/1/items',
+            response = self.client.get('/shoppinglist/1/items/',
                                        content_type='application/json',
                                        headers=dict(Authorization='Bearer ' + token))
             data = json.loads(response.data.decode())
@@ -145,7 +145,7 @@ class ItemsTestCase(BaseTestCase):
             self.create_list('Travel', 'Visit places', token)
             self.create_item('Go_to_Nairobi', '5000', token)
 
-            response = self.client.get('/shoppinglist/1/items?q=Go_to_Nairobi',
+            response = self.client.get('/shoppinglist/1/items/?q=Go_to_Nairobi',
                                        content_type='application/json',
                                        headers=dict(Authorization='Bearer ' + token))
 
@@ -163,7 +163,7 @@ class ItemsTestCase(BaseTestCase):
             self.create_item('Go_to_Nairobi', '5000', token)
             self.create_item('Shoes', '5000', token)
 
-            response = self.client.get('/shoppinglist/1/items?limit=1',
+            response = self.client.get('/shoppinglist/1/items/?limit=1',
                                        content_type='application/json',
                                        headers=dict(Authorization='Bearer ' + token))
 
@@ -180,7 +180,7 @@ class ItemsTestCase(BaseTestCase):
             self.create_list('Travel', 'Visit places', token)
             self.create_item('Go_to_Nairobi', '5000', token)
 
-            response = self.client.get('/shoppinglist/1/items?limit=one',
+            response = self.client.get('/shoppinglist/1/items/?limit=one',
                                        content_type='application/json',
                                        headers=dict(Authorization='Bearer ' + token))
 
