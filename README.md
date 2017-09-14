@@ -39,7 +39,7 @@ $ python manage.py db migrate
 $ python manage.py db upgrade
 ```
 
-All done! Now, start your server by running ```python run.py```. For best experience, use a GUI platform like postman to make requests to the api.
+All done! Now, start your server by running ```python run.py```. Use postman to test the api requests.
 
 
 This API enables the user to keep track their shopping lists
