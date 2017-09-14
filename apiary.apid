@@ -249,13 +249,6 @@ Optionally, the user can specificy the number of results to be returned, the pag
             'message': 'Shopping list not found'
         }
 
-+ Response 202 (application/json)
-
-
-        {
-            'status': 'failed',
-            'message': 'Content-type must be json'
-        }
 
 
 ### Create a New Shopping List [POST]
