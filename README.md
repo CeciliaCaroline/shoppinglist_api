@@ -50,10 +50,10 @@ POST /auth/login |Logs a user in
 POST /auth/register | Registers a user
 POST /shoppinglists/ | Creates a new shopping list
 GET /shoppinglists/ | Lists all created shopping lists
-GET /shoppinglists/id | Gets a single shopping list with the suppled id 
-PUT /shoppinglists/id | Updates a shopping list with the suppled id
-DELETE /shoppinglists/id | Deletes a shopping list with the suppled id
-POST /shoppinglists/id/items/ | Creates a new item in a shopping list whose id is supplied
+GET /shoppinglists/id | Gets a single shopping list with the specified id 
+PUT /shoppinglists/id | Updates a shopping list with the specified id
+DELETE /shoppinglists/id | Deletes a shopping list with the specified id
+POST /shoppinglists/id/items/ | Creates a new item in a shopping list whose id is specified
 GET /shoppinglists/id/items/item_id | Get a single shopping list item
 PUT /shoppinglists/id/items/item_id | Updates a shopping list item
 DELETE /shoppinglists/id/items/item_id | Deletes an item in a shopping list
