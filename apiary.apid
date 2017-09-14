@@ -457,13 +457,6 @@ The request must have an Authorization header containing the auth token, otherwi
 
 + Request (application/json)
 
-        {
-            "name":"Devotional",
-            "price":"15000"
-        }
-
-+ Response 201 (application/json)
-
     + Headers
 
             Authorization: Bearer jwt token
@@ -471,12 +464,19 @@ The request must have an Authorization header containing the auth token, otherwi
     + Body
 
             {
-                "description": "Getting closer to God",
-                "id": 5,
-                "message": "Shopping list has been created",
-                "name": "Spiritual",
-                "user_id": 1
+                "name":"Devotional",
+                "price":"15000"
             }
+
++ Response 201 (application/json)
+
+        {
+            "description": "Getting closer to God",
+            "id": 5,
+            "message": "Shopping list has been created",
+            "name": "Spiritual",
+            "user_id": 1
+        }
 
 + Response 406 (application/json)
 
