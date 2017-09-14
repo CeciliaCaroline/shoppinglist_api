@@ -153,7 +153,7 @@ class ItemMethods(MethodView):
                         except ValueError:
                             return response('failed', 'Item price should be an integer', 400)
                     return response('failed', 'Wrong name format. Name can only contain letters and numbers',
-                                    200)
+                                    406)
                 return response('failed', 'No name input. Try again', 400)
             return response('failed', 'Shopping list item does not exist. Please try again', 404)
         return response('failed', 'Content-type must be json', 202)

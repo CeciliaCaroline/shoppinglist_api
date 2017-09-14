@@ -40,11 +40,21 @@ class TestShoppingList(BaseTestCase):
             self.assertIn('Go to Kenya', str(res.data))
             # return data
 
-    def test_create_shoppinglist_with_invalid_name(self):
+    def test_create_shoppinglist_with_name_containing_special_characters(self):
         """Test API can create a shoppinglist """
 
         with self.client:
             res = self.create_list('travel!!!', 'Go to Kenya', self.token())
+            data = json.loads(res.data.decode())
+            self.assertTrue(data['message'], 'Wrong name format. Name can only contain letters and numbers')
+            self.assertTrue(data['status'], 'failed')
+            self.assertEqual(res.status_code, 406)
+
+    def test_create_shoppinglist_with_name_containing_spaces(self):
+        """Test API can create a shoppinglist """
+
+        with self.client:
+            res = self.create_list('travel the world', 'Go to Kenya', self.token())
             data = json.loads(res.data.decode())
             self.assertTrue(data['message'], 'Wrong name format. Name can only contain letters and numbers')
             self.assertTrue(data['status'], 'failed')
@@ -261,6 +271,27 @@ class TestShoppingList(BaseTestCase):
             self.assertEqual(rv.status_code, 200)
             data = json.loads(rv.data.decode())
             self.assertEqual(data['message'], 'Shopping list has been deleted')
+
+    def test_shoppinglist_delete_with_wrong_content_type(self):
+        """"
+        Test API can delete shopping list using a DELETE request
+        """
+        with self.client:
+            token = self.token()
+            res = self.create_list('eat', 'eatpraylove', token)
+            self.assertEqual(res.status_code, 201)
+            # get the json with the shoppinglist
+            results = json.loads(res.data.decode())
+
+            # then, we delete the created shoppinglist by making a DELETE request
+            rv = self.client.delete(
+                '/shoppinglist/{}'.format(results['id']),
+                headers=dict(Authorization="Bearer " + token),
+                content_type='application/javascript')
+            self.assertEqual(rv.status_code, 202)
+            data = json.loads(rv.data.decode())
+            self.assertEqual(data['message'], 'Content-type must be json')
+            self.assertEqual(data['status'], 'failed')
 
 
 if __name__ == '__main__':
