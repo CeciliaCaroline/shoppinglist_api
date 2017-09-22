@@ -10,7 +10,7 @@ class ItemsTestCase(BaseTestCase):
         :return:
         """
         return self.client.post(
-            '/shoppinglist',
+            '/shoppinglist/',
             headers=dict(Authorization='Bearer ' + token),
             content_type='application/json',
             data=json.dumps(dict(name=name, description=description)))
@@ -21,7 +21,7 @@ class ItemsTestCase(BaseTestCase):
         :return:
         """
         return self.client.post(
-            '/shoppinglist/1/items',
+            '/shoppinglist/1/items/',
             headers=dict(Authorization='Bearer ' + token),
             content_type='application/json',
             data=json.dumps(dict(name=name, price=price)))
@@ -32,7 +32,7 @@ class ItemsTestCase(BaseTestCase):
         :return:
         """
         return self.client.post(
-            '/shoppinglist/1/items',
+            '/shoppinglist/1/items/',
             headers=dict(Authorization='Bearer ' + token),
             content_type='application/javascript',
             data=json.dumps(dict(name=name, price=price)))
@@ -90,7 +90,7 @@ class ItemsTestCase(BaseTestCase):
             self.assertEqual(response.status_code, 400)
             self.assertIn('No name has been input', response.data.decode())
 
-    def test_create_item_with_invalid_name_format(self):
+    def test_create_item_with_name_containing_spaces(self):
         """"
         test item cant be created with invalid item name format
         """
@@ -99,6 +99,20 @@ class ItemsTestCase(BaseTestCase):
 
             self.create_list('Travel', 'Visit places', token)
             response = self.create_item('Go to Nairobi', '5000', token)
+            data = json.loads(response.data.decode())
+            self.assertTrue(data['message'], 'Wrong name format. Name can only contain letters and number')
+            self.assertEqual(response.status_code, 406)
+            self.assertIn('Wrong name format. Name can only contain letters and numbers', response.data.decode())
+
+    def test_create_item_with_name_containing_special_characters(self):
+        """"
+        test item cant be created with invalid item name format
+        """
+        with self.client:
+            token = self.token()
+
+            self.create_list('Travel', 'Visit places', token)
+            response = self.create_item('Nairobi!!!', '5000', token)
             data = json.loads(response.data.decode())
             self.assertTrue(data['message'], 'Wrong name format. Name can only contain letters and number')
             self.assertEqual(response.status_code, 406)
@@ -128,7 +142,7 @@ class ItemsTestCase(BaseTestCase):
             self.create_list('Travel', 'Visit places', token)
             self.create_item('Go_to_Nairobi', '5000', token)
 
-            response = self.client.get('/shoppinglist/1/items',
+            response = self.client.get('/shoppinglist/1/items/',
                                        content_type='application/json',
                                        headers=dict(Authorization='Bearer ' + token))
             data = json.loads(response.data.decode())
@@ -145,7 +159,7 @@ class ItemsTestCase(BaseTestCase):
             self.create_list('Travel', 'Visit places', token)
             self.create_item('Go_to_Nairobi', '5000', token)
 
-            response = self.client.get('/shoppinglist/1/items?q=Go_to_Nairobi',
+            response = self.client.get('/shoppinglist/1/items/?q=Go_to_Nairobi',
                                        content_type='application/json',
                                        headers=dict(Authorization='Bearer ' + token))
 
@@ -163,7 +177,7 @@ class ItemsTestCase(BaseTestCase):
             self.create_item('Go_to_Nairobi', '5000', token)
             self.create_item('Shoes', '5000', token)
 
-            response = self.client.get('/shoppinglist/1/items?limit=1',
+            response = self.client.get('/shoppinglist/1/items/?limit=1',
                                        content_type='application/json',
                                        headers=dict(Authorization='Bearer ' + token))
 
@@ -180,7 +194,7 @@ class ItemsTestCase(BaseTestCase):
             self.create_list('Travel', 'Visit places', token)
             self.create_item('Go_to_Nairobi', '5000', token)
 
-            response = self.client.get('/shoppinglist/1/items?limit=one',
+            response = self.client.get('/shoppinglist/1/items/?limit=one',
                                        content_type='application/json',
                                        headers=dict(Authorization='Bearer ' + token))
 
@@ -263,6 +277,8 @@ class ItemsTestCase(BaseTestCase):
                                           headers=dict(Authorization='Bearer ' + token))
 
             self.assertEqual(response.status_code, 202)
+            data = json.loads(response.data.decode())
+            self.assertTrue(data['status'], 'failed')
             self.assertIn('Content-type must be json', response.data.decode())
 
     def test_edit_item_(self):
@@ -274,6 +290,8 @@ class ItemsTestCase(BaseTestCase):
             response = self.edit_item('Travelling_bag', '5000', token)
 
             self.assertEqual(response.status_code, 200)
+            data = json.loads(response.data.decode())
+            self.assertTrue(data['status'], 'success')
             self.assertIn('Shopping list item has been edited', response.data.decode())
 
     def test_edit_non_existent_item(self):
@@ -292,6 +310,8 @@ class ItemsTestCase(BaseTestCase):
                                        headers=dict(Authorization='Bearer ' + token))
 
             self.assertEqual(response.status_code, 404)
+            data = json.loads(response.data.decode())
+            self.assertTrue(data['status'], 'failed')
             self.assertIn('Shopping list item does not exist. Please try again', response.data.decode())
 
     def test_edit_item_with_wrong_content_type(self):
@@ -310,6 +330,8 @@ class ItemsTestCase(BaseTestCase):
                                        headers=dict(Authorization='Bearer ' + token))
 
             self.assertEqual(response.status_code, 202)
+            data = json.loads(response.data.decode())
+            self.assertTrue(data['status'], 'failed')
             self.assertIn('Content-type must be json', response.data.decode())
 
     def test_edit_item_with_empty_name(self):
@@ -320,7 +342,21 @@ class ItemsTestCase(BaseTestCase):
             self.create_item('Go_to_Nairobi', '5000', token)
             response = self.edit_item('', '5000', token)
             self.assertEqual(response.status_code, 400)
+            data = json.loads(response.data.decode())
+            self.assertTrue(data['status'], 'failed')
             self.assertIn('No name input. Try again', response.data.decode())
+
+    def test_edit_item_with_name_containing_spaces(self):
+        """Should return 200 for success"""
+        with self.client:
+            token = self.token()
+            self.create_list('Travel', 'Visit places', token)
+            self.create_item('Go_to_Nairobi', '5000', token)
+            response = self.edit_item('Going to Mombasa', '5000', token)
+            self.assertEqual(response.status_code, 406)
+            data = json.loads(response.data.decode())
+            self.assertTrue(data['status'], 'failed')
+            self.assertIn('Wrong name format. Name can only contain letters and numbers', response.data.decode())
 
     def test_edit_item_with_string_price(self):
         """Should return 200 for success"""
@@ -330,6 +366,8 @@ class ItemsTestCase(BaseTestCase):
             self.create_item('Go_to_Nairobi', '5000', token)
             response = self.edit_item('Travelling_bag', '5000ugx', token)
             self.assertEqual(response.status_code, 400)
+            data = json.loads(response.data.decode())
+            self.assertTrue(data['status'], 'failed')
             self.assertIn('Item price should be an integer', response.data.decode())
 
 

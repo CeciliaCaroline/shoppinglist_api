@@ -1,0 +1,585 @@
+FORMAT: 1A
+HOST: https://infinite-hollows-73486.herokuapp.com/
+
+# Shopping List API
+
+Shopping list is a Flask based API built to help users keep track of their shopping lists
+This api has end points that allow the user to create, update, delete and get their shopping lists.
+Also, users can also add, edit, delete and get items for particular shopping lists.
+
+## User Registration [/auth/register]
+
+### Register [POST]
+As a new user, you are required to register with an email and password in order to access application.
+The email value must be a valid email format and the password must be four characters and above.
+If the user is successfully registered, the response below is returned with an auth token
+
++ email (required, string)
++ password (required, string)
+
++ Request (application/json)
+
+    + Body
+
+            {
+                "email":"caroline@gmail.com",
+                "password":"12345"
+            }
+
++ Response 201 (application/json)
+
+
+        {
+            'status': 'success',
+            'message': 'Successfully registered',
+            'auth_token': auth_token.decode("utf-8")
+        }
+
++ Response 406 (application/json)
+
+
+        {
+            'status': 'failed',
+            'message': 'User already exists, Please sign In'
+        }
+
++ Response 400 (application/json)
+
+
+        {
+            'status': 'failed',
+            'message': 'Missing or wrong email format or password is less than four characters'
+        }
+
++ Response 202 (application/json)
+
+
+        {
+           'status': 'failed',
+           'message': 'Content-type must be json'
+        }
+
+
+## User Login [/auth/login]
+
+### Login [POST]
+In order to access the application, a registered user is required to login with their registered email and password.
+
++ email (required, string)
++ password (required, string)
+
++ Request (application/json)
+
+    + Body
+
+            {
+                "email":"caroline@gmail.com",
+                "password":"12345"
+            }
+
++ Response 200 (application/json)
+
+
+        {
+            'status': 'success',
+            'auth_token': auth_token.decode(),
+            'message': 'Successfully logged In'
+        }
+
++ Response 406 (application/json)
+
+
+        {
+            'status': 'failed',
+            'message': 'User does not exist or password is incorrect'
+        }
+
++ Response 400 (application/json)
+
+
+        {
+            'status': 'failed',
+            'message': 'Missing or wrong email format or password is less than four characters'
+        }
+
++ Response 202 (application/json)
+
+
+        {
+           'status': 'failed',
+           'message': 'Content-type must be json'
+        }
+
+
+## Log Out [/auth/logout]
+
+### Logout [POST]
+User can easily log out of the application.
+The request must have an Authorization header containing the auth token, otherwise the user wont be logged out.
+
++ Request (application/json)
+
+    + Headers
+
+            Authorization: Bearer jwt token
+
++ Response 200 (application/json)
+
+
+        {
+            'status': 'success',
+            'message': 'Successfully logged out'
+        }
+
++ Response 403 (application/json)
+
+
+        {
+            'status': 'failed',
+            'message': 'Provide a valid auth token
+        }
+
+
+## Password Reset [/auth/reset]
+### Reset [POST]
+User can easily reset their passwoed as long as they are already logged in / registered of the application
++ email (required, string)
++ newpassword (required, string)
++ confirmpassword(required, string)
+
+
++ Request (application/json)
+    + Body
+
+            {
+                "email":"caroline@gmail.com",
+                "newpassword":"carol",
+                "confirmpassword":"carol"
+            }
+
+
++ Response 200 (application/json)
+
+
+        {
+            'email': 'caroline@gmail.com',
+            'password': 'carol',
+            'message': 'Password has been reset'
+        }
+
++ Response 400 (application/json)
+
+
+        {
+            'status': 'failed',
+            'message': 'Password confirm does not match password. Please try again'
+        }
+
++ Response 404 (application/json)
+
+
+        {
+            'status': 'failed',
+            'message': 'User does not exist. Please login or register'
+        }
+
++ Response 406 (application/json)
+
+
+        {
+            'status': 'failed',
+            'message': 'Missing or wrong email format or password is less than four characters'
+        }
+
++ Response 202 (application/json)
+
+
+        {
+           'status': 'failed',
+           'message': 'Content-type must be json'
+        }
+
+## Shoppinglists [/shoppinglist/{?limit}{?page}{?q}]
+
+### List All Shopping lists [GET]
+The user can view all the shopping lists that they have created.
+The request must have an Authorization header containing the auth token, otherwise the user will not be able to view thier shopping lists.
+Optionally, the user can specificy the number of results to be returned, the page and do a search operation on thier lists
+
++ limit (optional, number, `10`)
++ page (optional, number, `1`)
++ q (optional, string)
+
++ Request (application/json)
+
+    + Headers
+
+            Authorization: Bearer jwt token
+
++ Response 200 (application/json)
+
+        {
+            "Shoppinglists": [
+                {
+                    "description": "I want some warm gloves",
+                    "id": 2,
+                    "name": "gloves"
+                }, {
+                    "description": "I want some warm boots",
+                    "id": 3,
+                    "name": "boots"
+                }, {
+                    "description": "In case it rains",
+                    "id": 4,
+                    "name": "umbrella"
+                },{
+                    "description": "Getting closer to God",
+                    "id": 5,
+                    "name": "Spiritual"
+                }
+            ],
+            "status": "success"
+        }
+
++ Response 404 (application/json)
+
+
+        {
+            'status': 'failed',
+            'message': 'Shopping list not found'
+        }
+
+
+
+### Create a New Shopping List [POST]
+The api enables a user to create a new class.
+The request must have an Authorization header containing the auth token, otherwise the user will not be able to create new shopping lists.
+
++ Request (application/json)
+
+    + Headers
+
+            Authorization: Bearer jwt token
+
+    + Body
+
+            {
+                "name": "Spiritual",
+                "description": "Getting closer to God"
+            }
+
++ Response 201 (application/json)
+
+
+        {
+            "description": "Getting closer to God",
+            "id": 5,
+            "message": "Shopping list has been created",
+            "name": "Spiritual",
+            "user_id": 1
+        }
+
++ Response 406 (application/json)
+
+
+        {
+            'status': 'failed',
+            'message': 'Wrong name format. Name can only contain letters and numbers'
+        }
+
++ Response 400 (application/json)
+
+
+        {
+            'status': 'failed',
+            'message': 'No name input. Try again'
+        }
+
++ Response 202 (application/json)
+
+
+        {
+            'status': 'failed',
+            'message': 'Content-type must be json'
+        }
+
+## Shoppinglist Methods [/shoppinglist/{id}]
+User can create, view, edit and delete any of their shopping lists.
+In order to carry out these operations, the user is required to specify the id for the list on which the operation is to be carried out on
+The request must have an Authorization header containing the auth token, otherwise the user will not be able to carry out any operations on thier shopping lists.
+
+
++ Parameters
+    + id (number) - ID of the Shoppinglist in the form of an integer
+
+### View a single Shoppinglist [GET]
+The user can view any of the shopping lists that have been created by specifying the id of that list
+
++ Request (application/json)
+
+    + Headers
+
+            Authorization: Bearer jwt token
+
++ Response 200 (application/json)
+
+
+        {
+            "description": "Getting closer to God",
+            "id": 5,
+            "name": "Spiritual",
+            "status": "success",
+            "user_id": 1
+        }
+
+### Edit a Shoppinglist [PUT]
+The user can edit any of the shopping lists that have been created by specifying the id of that list
+
+
++ Request (application/json)
+    + Headers
+
+            Authorization: Bearer jwt token
+
+    + Body
+
+            {
+                "name": "Spiritual activities",
+                "description": "Getting closer to God"
+            }
+
++ Response 200 (application/json)
+
+
+        {
+            "description": "Getting closer to God",
+            "id": 5,
+            "message": "Shopping list has been created",
+            "name": "Spiritual activities",
+            "user_id": 1
+        }
+
+### Delete a Shoppinglist [DELETE]
+The user can delete any of the shopping lists that have been created by specifying the id of that list
+
++ Request (application/json)
+
+    + Headers
+
+            Authorization: Bearer jwt token
+
++ Response 200 (application/json)
+
+
+        {
+            'status': 'success',
+            'message': 'Shopping list has been deleted'
+        }
+
++ Response 404 (application/json)
+
+
+        {
+            'status': 'failed',
+            'message': 'Shopping list not found'
+        }
+
++ Response 202 (application/json)
+
+
+        {
+            'status': 'failed',
+            'message': 'Content-type must be json'
+        }
+
+
+## Shoppinglist Items [/shoppinglist/{id}/items/{?limit}{?page}{?q}]
+
+### List All Shopping list Items [GET]
+The user can view all the shopping lists items that they have created.
+The request must have an Authorization header containing the auth token, otherwise the user will not be able to carry out any operations on thier shopping list items.
+Optionally, the user can specifiy the number of results to be returned, the page and do a search operation on thier lists
+
+
++ limit (optional, number, `10`)
++ page (optional, number, `1`)
++ q (optional, string)
+
++ Parameters
+    + id (number) - ID of the Shoppinglist in the form of an integer
+
++ Request (application/json)
+
+    + Headers
+
+            Authorization: Bearer jwt token
+
++ Response 200 (application/json)
+
+        {
+            "shoppinglist_items": [
+                {
+                    "id": 1,
+                    "list_id": 5,
+                    "name": "Buy_Bible",
+                    "price": "5000",
+                    "status": "success"
+                },
+                {
+                    "id": 2,
+                    "list_id": 5,
+                    "name": "Devotional",
+                    "price": "15000",
+                    "status": "success"
+                }
+            ],
+            "status": "success"
+        }
+
++ Response 404 (application/json)
+
+
+        {
+            'status': 'failed',
+            'message': 'Items not found'
+        }
+
+
+
+### Create a New Shopping List Item [POST]
+You may create a new shopping list item.
+The request must have an Authorization header containing the auth token, otherwise the user will not be able to carry out any operations on thier shopping list items.
+
++ Parameters
+    + id (number) - ID of the Shoppinglist in the form of an integer
+
++ Request (application/json)
+
+    + Headers
+
+            Authorization: Bearer jwt token
+
+    + Body
+
+            {
+                "name":"Devotional",
+                "price":"15000"
+            }
+
++ Response 201 (application/json)
+
+        {
+            "description": "Getting closer to God",
+            "id": 5,
+            "message": "Shopping list has been created",
+            "name": "Spiritual",
+            "user_id": 1
+        }
+
++ Response 406 (application/json)
+
+
+        {
+            'status': 'failed',
+            'message': 'Wrong name format. Name can only contain letters and numbers'
+        }
+
++ Response 400 (application/json)
+
+
+        {
+            'status': 'failed',
+            'message': 'No name input. Try again'
+        }
+
++ Response 202 (application/json)
+
+
+        {
+            'status': 'failed',
+            'message': 'Content-type must be json'
+        }
+
+## Shoppinglist Items Methods [/shoppinglist/{id}/items/{item_id}]
+User can create, view, edit and delete any of their shopping list items.
+In order to carry out these operations, the user is required to specify the id for the list on which the operation is to be carried out on and the item id as well
+The request must have an Authorization header containing the auth token, otherwise the user will not be able to carry out any operations on thier shopping list items.
+
++ Parameters
+    + id (number) - ID of the Shoppinglist in the form of an integer
+    + item_id (number) - ID of the Shoppinglist item in the form of an integer
+
+### View a single Shoppinglist item [GET]
+The user can view any of the shopping list items that have been created by specifying the id of that item.
+
++ Request (application/json)
+
+    + Headers
+
+            Authorization: Bearer jwt token
+
++ Response 200 (application/json)
+
+        {
+            "id": 1,
+            "list_id": "5",
+            "name": "Buy_Bible",
+            "price": "5000",
+            "user_id": 1
+        }
+
+### Edit a Shoppinglist item [PUT]
+The user can edit any of the shopping list items that have been created by specifying the id of that item.
+
+
++ Request (application/json)
+    + Headers
+
+            Authorization: Bearer jwt token
+
+    + Body
+
+            {
+                "name":"Buy_NIV_Bible",
+                "price":"5000"
+            }
+
++ Response 200 (application/json)
+
+        {
+            "message": "Shopping list item has been edited",
+            "status": "success"
+        }
+
+### Delete a Shoppinglist item [DELETE]
+The user can delete any of the shopping list items that have been created by specifying the id of that item
+
++ Request (application/json)
+
+    + Headers
+
+            Authorization: Bearer jwt token
+
++ Response 200 (application/json)
+
+
+        {
+            'status': 'success',
+            'message': 'Shopping list item has been deleted'
+        }
+
++ Response 404 (application/json)
+
+
+        {
+            'status': 'failed',
+            'message': 'Item not found'
+        }
+
++ Response 202 (application/json)
+
+
+        {
+            'status': 'failed',
+            'message': 'Content-type must be json'
+        }

@@ -10,7 +10,7 @@ class TestShoppingList(BaseTestCase):
         :return:
         """
         return self.client.post(
-            '/shoppinglist',
+            '/shoppinglist/',
             headers=dict(Authorization='Bearer ' + token),
             content_type='application/json',
             data=json.dumps(dict(name=name, description=description)))
@@ -23,7 +23,7 @@ class TestShoppingList(BaseTestCase):
         :return:
         """
         return self.client.post(
-            '/shoppinglist',
+            '/shoppinglist/',
             content_type='application/javascript',
             data=json.dumps(dict(name=name, description=description)))
 
@@ -40,7 +40,7 @@ class TestShoppingList(BaseTestCase):
             self.assertIn('Go to Kenya', str(res.data))
             # return data
 
-    def test_create_shoppinglist_with_invalid_name(self):
+    def test_create_shoppinglist_with_name_containing_special_characters(self):
         """Test API can create a shoppinglist """
 
         with self.client:
@@ -48,13 +48,23 @@ class TestShoppingList(BaseTestCase):
             data = json.loads(res.data.decode())
             self.assertTrue(data['message'], 'Wrong name format. Name can only contain letters and numbers')
             self.assertTrue(data['status'], 'failed')
-            self.assertEqual(res.status_code, 406)
+            self.assertEqual(res.status_code, 400)
+
+    def test_create_shoppinglist_with_name_containing_spaces(self):
+        """Test API can create a shoppinglist """
+
+        with self.client:
+            res = self.create_list('travel the world', 'Go to Kenya', self.token())
+            data = json.loads(res.data.decode())
+            self.assertTrue(data['message'], 'Wrong name format. Name can only contain letters and numbers')
+            self.assertTrue(data['status'], 'failed')
+            self.assertEqual(res.status_code, 400)
 
     def test_create_shoppinglist_with_empty_name_or_description(self):
         """Test API can create a shoppinglist """
 
         with self.client:
-            res = self.create_list(' ', 'Go to Kenya', self.token())
+            res = self.create_list('', '', self.token())
             data = json.loads(res.data.decode())
             self.assertTrue(data['message'], 'No name or description input. Try again')
             self.assertTrue(data['status'], 'failed')
@@ -79,26 +89,33 @@ class TestShoppingList(BaseTestCase):
             token = self.token()
             self.create_list('travel', 'Go to Kenya', token)
             response = self.client.get(
-                '/shoppinglist',
+                '/shoppinglist/',
                 content_type='application/json',
                 headers=dict(Authorization="Bearer " + token),
             )
             data = json.loads(response.data.decode())
             self.assertEqual(response.status_code, 200)
             self.assertEqual(data['status'], 'success')
+            self.assertIn('Shoppinglists', response.data.decode())
 
-    def test_get_shopping_lists_with_wrong_content_type(self):
+    def test_edit_list_with_wrong_content_type(self):
         """"
         Test API can get all shopping lists
         """
         with self.client:
             token = self.token()
-            self.create_list('travel', 'Go to Kenya', token)
-            response = self.client.get(
-                '/shoppinglist',
-                content_type='application/javascript',
+            res = self.create_list('eat', 'eatpraylove', token)
+            self.assertEqual(res.status_code, 201)
+            # get the json with the shoppinglist
+            results = json.loads(res.data.decode())
+
+            # then, we edit the created shoppinglist by making a PUT request
+            response = self.client.put(
+                '/shoppinglist/{}'.format(results['id']),
                 headers=dict(Authorization="Bearer " + token),
-            )
+                content_type='application/javascript',
+                data=json.dumps(dict(name='traveling', description='traveling to different places')))
+
             data = json.loads(response.data.decode())
             self.assertEqual(response.status_code, 202)
             self.assertEqual(data['status'], 'failed')
@@ -113,12 +130,30 @@ class TestShoppingList(BaseTestCase):
 
             self.create_list('Travel', 'Visit places', token)
 
-            response = self.client.get('/shoppinglist?q=Travel',
+            response = self.client.get('/shoppinglist/?q=Travel',
                                        content_type='application/json',
                                        headers=dict(Authorization='Bearer ' + token))
 
             self.assertEqual(response.status_code, 200)
             self.assertIn('Travel', response.data.decode())
+
+    def test_search_nonexistent_list(self):
+        """"
+        test API can search lists
+        """
+        with self.client:
+            token = self.token()
+
+            self.create_list('Travel', 'Visit places', token)
+
+            response = self.client.get('/shoppinglist/?q=Travelling',
+                                       content_type='application/json',
+                                       headers=dict(Authorization='Bearer ' + token))
+
+            self.assertEqual(response.status_code, 404)
+            data = json.loads(response.data.decode())
+            self.assertEqual(data['status'], 'failed')
+            self.assertTrue(data['message'], 'Shopping list not found')
 
     def test_pagination(self):
         """"
@@ -130,7 +165,7 @@ class TestShoppingList(BaseTestCase):
             self.create_list('Travel', 'Visit places', token)
             self.create_list('Health', 'Excercises', token)
 
-            response = self.client.get('/shoppinglist?limit=1',
+            response = self.client.get('/shoppinglist/?limit=1',
                                        content_type='application/json',
                                        headers=dict(Authorization='Bearer ' + token))
 
@@ -147,7 +182,7 @@ class TestShoppingList(BaseTestCase):
             self.create_list('Travel', 'Visit places', token)
             self.create_list('Health', 'Excercises', token)
 
-            response = self.client.get('/shoppinglist?limit=one',
+            response = self.client.get('/shoppinglist/?limit=one',
                                        content_type='application/json',
                                        headers=dict(Authorization='Bearer ' + token))
 
@@ -168,6 +203,22 @@ class TestShoppingList(BaseTestCase):
             data = json.loads(response.data.decode())
             self.assertEqual(response.status_code, 200)
             self.assertEqual(data['status'], 'success')
+
+    def test_get_single_shopping_list_with_wrong_content_type(self):
+        with self.client:
+            token = self.token()
+            res = self.create_list('travel', 'Go to Kenya', token)
+            results = json.loads(res.data.decode())
+
+            response = self.client.get(
+                '/shoppinglist/{}'.format(results['id']),
+                content_type='application/java',
+                headers=dict(Authorization="Bearer " + token)
+            )
+            data = json.loads(response.data.decode())
+            self.assertEqual(response.status_code, 202)
+            self.assertEqual(data['message'], 'Content-type must be json')
+            self.assertEqual(data['status'], 'failed')
 
     def test_get_list_doesnt_exist(self):
         with self.client:
@@ -236,6 +287,27 @@ class TestShoppingList(BaseTestCase):
 
             self.assertIn('traveling to different places', str(results.data))
 
+    def test_edit_shoppinglist_with_no_name(self):
+        """Test API can edit an existing shoppinglist. (PUT request)"""
+        with self.client:
+            token = self.token()
+            res = self.create_list('eat', 'eatpraylove', token)
+            self.assertEqual(res.status_code, 201)
+            # get the json with the shoppinglist
+            results = json.loads(res.data.decode())
+
+            # then, we edit the created shoppinglist by making a PUT request
+            rv = self.client.put(
+                '/shoppinglist/{}'.format(results['id']),
+                headers=dict(Authorization="Bearer " + token),
+                content_type='application/json',
+                data=json.dumps(dict(name='', description='traveling to different places')))
+            # print(rv.data)
+            data = json.loads(rv.data.decode())
+            self.assertEqual(rv.status_code, 400)
+            self.assertEqual(data['message'], 'No name input. Try again')
+            self.assertEqual(data['status'], 'failed')
+
     def test_shoppinglist_delete(self):
         """"
         Test API can delete shopping list using a DELETE request
@@ -255,6 +327,27 @@ class TestShoppingList(BaseTestCase):
             self.assertEqual(rv.status_code, 200)
             data = json.loads(rv.data.decode())
             self.assertEqual(data['message'], 'Shopping list has been deleted')
+
+    def test_shoppinglist_delete_with_wrong_content_type(self):
+        """"
+        Test API can delete shopping list using a DELETE request
+        """
+        with self.client:
+            token = self.token()
+            res = self.create_list('eat', 'eatpraylove', token)
+            self.assertEqual(res.status_code, 201)
+            # get the json with the shoppinglist
+            results = json.loads(res.data.decode())
+
+            # then, we delete the created shoppinglist by making a DELETE request
+            rv = self.client.delete(
+                '/shoppinglist/{}'.format(results['id']),
+                headers=dict(Authorization="Bearer " + token),
+                content_type='application/javascript')
+            self.assertEqual(rv.status_code, 202)
+            data = json.loads(rv.data.decode())
+            self.assertEqual(data['message'], 'Content-type must be json')
+            self.assertEqual(data['status'], 'failed')
 
 
 if __name__ == '__main__':

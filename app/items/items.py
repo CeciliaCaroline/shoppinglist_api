@@ -46,8 +46,7 @@ class NewItems(MethodView):
                     except ValueError:
                         return response('failed', 'Item price should be an integer', 400)
 
-                return response('failed', 'Wrong name format. Name can only contain letters and numbers',
-                                406)
+                return response('failed', 'Wrong name format. Name can only contain letters and numbers', 406)
             return response('failed', 'No name has been input', 400)
 
         return response('failed', 'Content-type must be json', 202)
@@ -152,8 +151,7 @@ class ItemMethods(MethodView):
 
                         except ValueError:
                             return response('failed', 'Item price should be an integer', 400)
-                    return response('failed', 'Wrong name format. Name can only contain letters and numbers',
-                                    200)
+                    return response('failed', 'Wrong name format. Name can only contain letters and numbers', 406)
                 return response('failed', 'No name input. Try again', 400)
             return response('failed', 'Shopping list item does not exist. Please try again', 404)
         return response('failed', 'Content-type must be json', 202)
@@ -179,5 +177,5 @@ new_item_view = NewItems.as_view('new_items')
 items_view = ItemMethods.as_view('items')
 
 # Add rules for the api Endpoints
-items.add_url_rule('/shoppinglist/<list_id>/items', view_func=new_item_view, methods=['POST', 'GET'])
+items.add_url_rule('/shoppinglist/<list_id>/items/', view_func=new_item_view, methods=['POST', 'GET'])
 items.add_url_rule('/shoppinglist/<list_id>/items/<item_id>', view_func=items_view, methods=['GET', 'PUT', 'DELETE'])
