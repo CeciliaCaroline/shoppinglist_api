@@ -10,7 +10,7 @@ class TestShoppingList(BaseTestCase):
         :return:
         """
         return self.client.post(
-            '/shoppinglist/',
+            '/shoppinglist',
             headers=dict(Authorization='Bearer ' + token),
             content_type='application/json',
             data=json.dumps(dict(name=name, description=description)))
@@ -23,7 +23,7 @@ class TestShoppingList(BaseTestCase):
         :return:
         """
         return self.client.post(
-            '/shoppinglist/',
+            '/shoppinglist',
             content_type='application/javascript',
             data=json.dumps(dict(name=name, description=description)))
 
