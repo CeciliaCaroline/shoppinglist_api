@@ -16,7 +16,6 @@ def add_shoppinglists(current_user):
     """
     if request.content_type == 'application/json':
 
-        # Go ahead and handle the request, the user is authenticated
         data = request.get_json()
         name = data.get('name')
         description = data.get('description')
