@@ -1,6 +1,5 @@
 from app import db, bcrypt
 from flask import Blueprint, request
-from flask.views import MethodView
 from app.models import User, BlackListToken
 from app.helper_functions import response, user_response
 import re
