@@ -10,7 +10,7 @@ class ItemsTestCase(BaseTestCase):
         :return:
         """
         return self.client.post(
-            '/shoppinglist',
+            '/shoppinglist/',
             headers=dict(Authorization='Bearer ' + token),
             content_type='application/json',
             data=json.dumps(dict(name=name, description=description)))
@@ -20,11 +20,8 @@ class ItemsTestCase(BaseTestCase):
         Helper method for creating an item with dummy data
         :return:
         """
-        res = self.create_list('travel', 'Go to Kenya', token)
-        results = json.loads(res.data.decode())
-
         return self.client.post(
-            '/shoppinglist/{}/items/'.format(results['id']),
+            '/shoppinglist/1/items/',
             headers=dict(Authorization='Bearer ' + token),
             content_type='application/json',
             data=json.dumps(dict(name=name, price=price)))
@@ -34,10 +31,8 @@ class ItemsTestCase(BaseTestCase):
         Helper method for creating an item with wrong content type with dummy data
         :return:
         """
-        res = self.create_list('travel', 'Go to Kenya', token)
-        results = json.loads(res.data.decode())
         return self.client.post(
-            '/shoppinglist/{}/items/'.format(results['id']),
+            '/shoppinglist/1/items/',
             headers=dict(Authorization='Bearer ' + token),
             content_type='application/javascript',
             data=json.dumps(dict(name=name, price=price)))
@@ -47,12 +42,8 @@ class ItemsTestCase(BaseTestCase):
         Helper method for creating an item with dummy data
         :return:
         """
-        res = self.create_list('travel', 'Go to Kenya', token)
-        results = json.loads(res.data.decode())
-        rv = self.create_item('Go_to_Nairobi', '5000', token)
-        response = json.loads(rv.data.decode())
         return self.client.put(
-            '/shoppinglist/{}/items/{}'.format(results['id'], response['id']),
+            '/shoppinglist/1/items/1',
             headers=dict(Authorization='Bearer ' + token),
             content_type='application/json',
             data=json.dumps(dict(name=name, price=price)))
@@ -148,11 +139,10 @@ class ItemsTestCase(BaseTestCase):
         with self.client:
             token = self.token()
 
-            res = self.create_list('travel', 'Go to Kenya', token)
-            results = json.loads(res.data.decode())
+            self.create_list('Travel', 'Visit places', token)
             self.create_item('Go_to_Nairobi', '5000', token)
 
-            response = self.client.get('/shoppinglist/{}/items/'.format(results['id']),
+            response = self.client.get('/shoppinglist/1/items/',
                                        content_type='application/json',
                                        headers=dict(Authorization='Bearer ' + token))
             data = json.loads(response.data.decode())
@@ -166,11 +156,10 @@ class ItemsTestCase(BaseTestCase):
         with self.client:
             token = self.token()
 
-            res = self.create_list('travel', 'Go to Kenya', token)
-            results = json.loads(res.data.decode())
+            self.create_list('Travel', 'Visit places', token)
             self.create_item('Go_to_Nairobi', '5000', token)
 
-            response = self.client.get('/shoppinglist/{}/items/?q=Go_to_Nairobi'.format(results['id']),
+            response = self.client.get('/shoppinglist/1/items/?q=Go_to_Nairobi',
                                        content_type='application/json',
                                        headers=dict(Authorization='Bearer ' + token))
 
@@ -184,12 +173,11 @@ class ItemsTestCase(BaseTestCase):
         with self.client:
             token = self.token()
 
-            res = self.create_list('travel', 'Go to Kenya', token)
-            results = json.loads(res.data.decode())
+            self.create_list('Travel', 'Visit places', token)
             self.create_item('Go_to_Nairobi', '5000', token)
             self.create_item('Shoes', '5000', token)
 
-            response = self.client.get('/shoppinglist/{}/items/?limit=1'.format(results['id']),
+            response = self.client.get('/shoppinglist/1/items/?limit=1',
                                        content_type='application/json',
                                        headers=dict(Authorization='Bearer ' + token))
 
@@ -203,11 +191,10 @@ class ItemsTestCase(BaseTestCase):
         with self.client:
             token = self.token()
 
-            res = self.create_list('travel', 'Go to Kenya', token)
-            results = json.loads(res.data.decode())
+            self.create_list('Travel', 'Visit places', token)
             self.create_item('Go_to_Nairobi', '5000', token)
 
-            response = self.client.get('/shoppinglist/{}/items/?limit=one'.format(results['id']),
+            response = self.client.get('/shoppinglist/1/items/?limit=one',
                                        content_type='application/json',
                                        headers=dict(Authorization='Bearer ' + token))
 
@@ -221,14 +208,12 @@ class ItemsTestCase(BaseTestCase):
         with self.client:
             token = self.token()
 
-            res = self.create_list('travel', 'Go to Kenya', token)
-            results = json.loads(res.data.decode())
-            rv = self.create_item('Go_to_Nairobi', '5000', token)
-            r = json.loads(rv.data.decode())
-            response = self.client.get(
-                '/shoppinglist/{}/items/{}'.format(results['id'], r['id']),
-                content_type='application/json',
-                headers=dict(Authorization='Bearer ' + token))
+            self.create_list('Travel', 'Visit places', token)
+            self.create_item('Go_to_Nairobi', '5000', token)
+
+            response = self.client.get('/shoppinglist/1/items/1',
+                                       content_type='application/json',
+                                       headers=dict(Authorization='Bearer ' + token))
 
             self.assertEqual(response.status_code, 200)
 
@@ -239,10 +224,9 @@ class ItemsTestCase(BaseTestCase):
         with self.client:
             token = self.token()
 
-            res = self.create_list('travel', 'Go to Kenya', token)
-            results = json.loads(res.data.decode())
+            self.create_list('Travel', 'Visit places', token)
             # self.create_item('Go_to_Nairobi', '5000', token)
-            response = self.client.get('/shoppinglist/{}/items/45'.format(results['id']),
+            response = self.client.get('/shoppinglist/1/items/45',
                                        content_type='application/json',
                                        headers=dict(Authorization='Bearer ' + token))
 
@@ -255,9 +239,7 @@ class ItemsTestCase(BaseTestCase):
         """Should return 404 for missing item"""
         with self.client:
             token = self.token()
-            res = self.create_list('travel', 'Go to Kenya', token)
-            results = json.loads(res.data.decode())
-            response = self.client.delete('/shoppinglist/{}/items/47'.format(results['id']),
+            response = self.client.delete('/shoppinglist/1/items/47',
                                           content_type='application/json',
                                           headers=dict(Authorization='Bearer ' + token))
             self.assertEqual(response.status_code, 404)
@@ -270,14 +252,12 @@ class ItemsTestCase(BaseTestCase):
         """Should return 200 for success"""
         with self.client:
             token = self.token()
-            res = self.create_list('travel', 'Go to Kenya', token)
-            results = json.loads(res.data.decode())
-            rv = self.create_item('Go_to_Nairobi', '5000', token)
-            r = json.loads(rv.data.decode())
-            response = self.client.get(
-                '/shoppinglist/{}/items/{}'.format(results['id'], r['id']),
-                content_type='application/json',
-                headers=dict(Authorization='Bearer ' + token))
+            self.create_list('Travel', 'Visit places', token)
+            self.create_item('Go_to_Nairobi', '5000', token)
+
+            response = self.client.delete('/shoppinglist/1/items/1',
+                                          content_type='application/json',
+                                          headers=dict(Authorization='Bearer ' + token))
 
             self.assertEqual(response.status_code, 200)
             data = json.loads(response.data.decode())
@@ -289,14 +269,12 @@ class ItemsTestCase(BaseTestCase):
         """Should return 200 for success"""
         with self.client:
             token = self.token()
-            res = self.create_list('travel', 'Go to Kenya', token)
-            results = json.loads(res.data.decode())
-            rv = self.create_item('Go_to_Nairobi', '5000', token)
-            r = json.loads(rv.data.decode())
-            response = self.client.get(
-                '/shoppinglist/{}/items/{}'.format(results['id'], r['id']),
-                content_type='application/javascript',
-                headers=dict(Authorization='Bearer ' + token))
+            self.create_list('Travel', 'Visit places', token)
+            self.create_item('Go_to_Nairobi', '5000', token)
+
+            response = self.client.delete('/shoppinglist/1/items/1',
+                                          content_type='application/javascript',
+                                          headers=dict(Authorization='Bearer ' + token))
 
             self.assertEqual(response.status_code, 202)
             data = json.loads(response.data.decode())
@@ -320,15 +298,14 @@ class ItemsTestCase(BaseTestCase):
         """Should return 200 for success"""
         with self.client:
             token = self.token()
-            res = self.create_list('travel', 'Go to Kenya', token)
-            results = json.loads(res.data.decode())
+            self.create_list('Travel', 'Visit places', token)
             self.create_item('Go_to_Nairobi', '5000', token)
             new_item = json.dumps({
                 'name': 'Travelling_bag',
                 'price': '5000'
             })
 
-            response = self.client.put('/shoppinglist/{}/items/56'.format(results['id']), data=new_item,
+            response = self.client.put('/shoppinglist/1/items/56', data=new_item,
                                        content_type='application/json',
                                        headers=dict(Authorization='Bearer ' + token))
 
@@ -341,16 +318,14 @@ class ItemsTestCase(BaseTestCase):
         """Should return 200 for success"""
         with self.client:
             token = self.token()
-            res = self.create_list('travel', 'Go to Kenya', token)
-            results = json.loads(res.data.decode())
-            rv = self.create_item('Go_to_Nairobi', '5000', token)
-            r = json.loads(rv.data.decode())
+            self.create_list('Travel', 'Visit places', token)
+            self.create_item('Go_to_Nairobi', '5000', token)
             new_item = json.dumps({
                 'name': 'Travelling_bag',
                 'price': '5000'
             })
 
-            response = self.client.put('/shoppinglist/{}/items/{}'.format(results['id'], r['id']), data=new_item,
+            response = self.client.put('/shoppinglist/1/items/1', data=new_item,
                                        content_type='application/javascript',
                                        headers=dict(Authorization='Bearer ' + token))
 

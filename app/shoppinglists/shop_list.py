@@ -9,7 +9,7 @@ from app.helper_functions import response, get_response
 shop_list = Blueprint('shop_list', __name__)
 
 
-@shop_list.route('/shoppinglist', methods=['POST'])
+@shop_list.route('/shoppinglist/', methods=['POST'])
 @token_required
 def add_shoppinglists(current_user):
     """"
