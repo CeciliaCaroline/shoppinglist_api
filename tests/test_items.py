@@ -235,6 +235,40 @@ class ItemsTestCase(BaseTestCase):
             self.assertTrue(data['message'], 'Item not found')
             self.assertIn('Item not found', response.data.decode())
 
+    def test_get_item_with_invalid_id(self):
+        """"
+        test API cant get non existent item from a list
+        """
+        with self.client:
+            token = self.token()
+
+            self.create_list('Travel', 'Visit places', token)
+            response = self.client.get('/shoppinglist/1/items/45asd',
+                                       content_type='application/json',
+                                       headers=dict(Authorization='Bearer ' + token))
+
+            self.assertEqual(response.status_code, 400)
+            data = json.loads(response.data.decode())
+            self.assertTrue(data['message'], 'Please provide a valid item Id')
+            self.assertIn('Please provide a valid item Id', response.data.decode())
+
+    def test_edit_item_with_invalid_id(self):
+        """"
+        test API cant get non existent item from a list
+        """
+        with self.client:
+            token = self.token()
+
+            self.create_list('Travel', 'Visit places', token)
+            response = self.client.put('/shoppinglist/1/items/45asd',
+                                       content_type='application/json',
+                                       headers=dict(Authorization='Bearer ' + token))
+
+            self.assertEqual(response.status_code, 400)
+            data = json.loads(response.data.decode())
+            self.assertTrue(data['message'], 'Please provide a valid item Id')
+            self.assertIn('Please provide a valid item Id', response.data.decode())
+
     def test_delete_item_that_doesnt_exist(self):
         """Should return 404 for missing item"""
         with self.client:
@@ -264,6 +298,23 @@ class ItemsTestCase(BaseTestCase):
             self.assertTrue(data['message'], 'Shopping list item has been deleted')
             self.assertTrue(data['status'], 'success')
             self.assertIn('Shopping list item has been deleted', response.data.decode())
+
+    def test_delete_item_with_invalid_id(self):
+        """Should return 200 for success"""
+        with self.client:
+            token = self.token()
+            self.create_list('Travel', 'Visit places', token)
+            self.create_item('Go_to_Nairobi', '5000', token)
+
+            response = self.client.delete('/shoppinglist/1/items/sadf',
+                                          content_type='application/json',
+                                          headers=dict(Authorization='Bearer ' + token))
+
+            self.assertEqual(response.status_code, 400)
+            data = json.loads(response.data.decode())
+            self.assertTrue(data['message'], 'Please provide a valid item Id')
+            self.assertTrue(data['status'], 'failed')
+            self.assertIn('Please provide a valid item Id', response.data.decode())
 
     def test_delete_item_with_wrong_content_type(self):
         """Should return 200 for success"""

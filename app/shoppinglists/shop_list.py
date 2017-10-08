@@ -51,44 +51,38 @@ def view_shoppinglists(current_user):
     q = request.args.get('q', None)
     page = int(request.args.get('page', 1))
 
+    results = []
+    shoplists = Shoppinglist.query.filter_by(
+        user_id=current_user.id)
+
     if q is not None:
-        results = []
-        shoplists = Shoppinglist.query.filter(
-            Shoppinglist.name.like("%" + q.strip() + "%")).filter_by(
-            user_id=current_user.id).all()
-        if shoplists:
-            for shoplist in shoplists:
-                results.append(shoplist.json())
+        shoplists = shoplists.filter(
+            Shoppinglist.name.like("%" + q.strip() + "%"))
 
-            return get_response('Shoppinglists', results)
-        return response('failed', 'Shopping list not found', 404)
-
-    elif limit:
-        results = []
+    if limit:
         try:
             if int(limit):
-                limit_list = Shoppinglist.query.filter_by(
+                shoplists = shoplists.filter_by(
                     user_id=current_user.id).paginate(page=page,
                                                       per_page=int(
                                                           limit), error_out=False).items
 
-                if limit_list:
-                    for shoplist in limit_list:
-                        results.append(shoplist.json())
-                    return get_response('Shoppinglists', results)
-                return response('failed', 'Shopping list not found', 404)
+                for shoplist in shoplists:
+                    results.append(shoplist.json())
+
+                if len(results) == 0:
+                    return response('failed', 'Shopping list not found', 404)
+                return get_response('Shoppinglists', results)
 
         except ValueError:
             return response('failed', 'Limit should be an integer', 400)
 
-    else:
-        all_shoplists = Shoppinglist.query.filter_by(user_id=current_user.id)
-        if all_shoplists:
-            results = []
-            for shoplist in all_shoplists:
-                results.append(shoplist.json())
-            return get_response('Shoppinglists', results)
+    for shoplist in shoplists.all():
+        results.append(shoplist.json())
+
+    if len(results) == 0:
         return response('failed', 'Shopping list not found', 404)
+    return get_response('Shoppinglists', results)
 
 
 @shop_list.route('/shoppinglist/<id>', methods=['GET'])
@@ -98,20 +92,24 @@ def get_single_list(current_user, id):
     Method to view a single shopping list
     """
     if request.content_type == 'application/json':
-        shoplist = Shoppinglist.query.filter_by(user_id=current_user.id, id=id).first()
+        try:
+            int(id)
+        except ValueError:
+            return response('failed', 'Please provide a valid Shoppinglist Id', 400)
+        else:
+            shoplist = Shoppinglist.query.filter_by(user_id=current_user.id, id=id).first()
 
-        if shoplist is not None:
-            return make_response(jsonify({
-                'id': shoplist.id,
-                'name': shoplist.name,
-                'description': shoplist.description,
-                'user_id': current_user.id,
-                'status': 'success'
-            }
+            if shoplist is not None:
+                return make_response(jsonify({
+                    'id': shoplist.id,
+                    'name': shoplist.name,
+                    'description': shoplist.description,
+                    'user_id': current_user.id,
+                    'status': 'success'
+                }
 
-            )), 200
-        return response('failed', 'Shopping list not found', 404)
-
+                )), 200
+            return response('failed', 'Shopping list not found', 404)
     return response('failed', 'Content-type must be json', 202)
 
 
@@ -122,26 +120,31 @@ def edit_single_list(current_user, id):
     Method to update a single shopping list
     """
     if request.content_type == 'application/json':
+        try:
+            int(id)
+        except ValueError:
+            return response('failed', 'Please provide a valid Shoppinglist Id', 400)
+        else:
 
-        shoplist = Shoppinglist.query.filter_by(user_id=current_user.id, id=id).first()
-        if shoplist is not None:
-            data = request.get_json()
-            name = data.get('name')
-            description = data.get('description')
-            if name and description:
-                if re.match("^([a-zA-Z0-9]+[_-])*[a-zA-Z0-9]+$", name):
-                    shoplist.name = name
-                    shoplist.description = description
-                    db.session.commit()
-                    return make_response(jsonify({
-                        'name': shoplist.name,
-                        'description': shoplist.description,
-                        'message': 'Shopping list has been updated'
+            shoplist = Shoppinglist.query.filter_by(user_id=current_user.id, id=id).first()
+            if shoplist is not None:
+                data = request.get_json()
+                name = data.get('name')
+                description = data.get('description')
+                if name and description:
+                    if re.match("^([a-zA-Z0-9]+[_-])*[a-zA-Z0-9]+$", name):
+                        shoplist.name = name
+                        shoplist.description = description
+                        db.session.commit()
+                        return make_response(jsonify({
+                            'name': shoplist.name,
+                            'description': shoplist.description,
+                            'message': 'Shopping list has been updated'
 
-                    })), 200
-                return response('failed', 'Wrong name format. Name can only contain letters and numbers', 200)
-            return response('failed', 'No name input. Try again', 400)
-        return response('failed', 'Shopping list does not exist. Please try again', 404)
+                        })), 200
+                    return response('failed', 'Wrong name format. Name can only contain letters and numbers', 200)
+                return response('failed', 'No name input. Try again', 400)
+            return response('failed', 'Shopping list does not exist. Please try again', 404)
     return response('failed', 'Content-type must be json', 202)
 
 
@@ -152,11 +155,31 @@ def delete_single_list(current_user, id):
     Method to delete a shopping list
     """
     if request.content_type == 'application/json':
-
-        shoplist = Shoppinglist.query.filter_by(user_id=current_user.id, id=id).first()
-        if shoplist is not None:
-            db.session.delete(shoplist)
-            db.session.commit()
-            return response('success', 'Shopping list has been deleted', 200)
-        return response('failed', 'Shopping list not found', 404)
+        try:
+            int(id)
+        except ValueError:
+            return response('failed', 'Please provide a valid Shoppinglist Id', 400)
+        else:
+            shoplist = Shoppinglist.query.filter_by(user_id=current_user.id, id=id).first()
+            if shoplist is not None:
+                db.session.delete(shoplist)
+                db.session.commit()
+                return response('success', 'Shopping list has been deleted', 200)
+            return response('failed', 'Shopping list not found', 404)
     return response('failed', 'Content-type must be json', 202)
+
+
+# decorator used to allow cross origin requests
+# @shop_list.after_request
+# def apply_cross_origin_header(response):
+#     response.headers['Access-Control-Allow-Origin'] = '*'
+#
+#     response.headers["Access-Control-Allow-Credentials"] = "true"
+#     response.headers["Access-Control-Allow-Methods"] = " GET,HEAD,OPTIONS," \
+#                                                        "POST,PUT,DELETE"
+#     response.headers["Access-Control-Allow-Headers"] = "Access-Control-Allow-" \
+#                                                        "Headers, Origin,Accept, X-Requested-With, Content-Type, " \
+#                                                        "Access-Control-Request-Method, Access-Control-Request-Headers," \
+#                                                        "Access-Control-Allow-Origin, Authorization"
+#
+#     return response
