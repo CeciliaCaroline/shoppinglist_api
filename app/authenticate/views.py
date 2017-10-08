@@ -1,4 +1,4 @@
-from app import db, bcrypt
+from app import db, bcrypt, app
 from flask import Blueprint, request
 from app.models import User, BlackListToken
 from app.helper_functions import response, user_response
@@ -93,7 +93,8 @@ def reset():
             user = User.query.filter_by(email=email).first()
             if user:
                 if new_password == confirm_password:
-                    user.password = new_password
+                    user.password = bcrypt.generate_password_hash(new_password, app.config.get('BCRYPT_LOG_ROUNDS')) \
+                        .decode('utf-8')
                     db.session.commit()
                     return response('success', 'Password has been reset', 200)
                 return response('failed', 'Password confirm does not match password. Please try again', 400)
@@ -101,3 +102,18 @@ def reset():
 
         return response('failed', 'Missing or wrong email format or password is less than four characters', 406)
     return response('failed', 'Content-type must be json', 202)
+
+    # decorator used to allow cross origin requests
+    # @auth.after_request
+    # def apply_cross_origin_header(response):
+    #     response.headers['Access-Control-Allow-Origin'] = '*'
+    #
+    #     response.headers["Access-Control-Allow-Credentials"] = "true"
+    #     response.headers["Access-Control-Allow-Methods"] = "GET,HEAD,OPTIONS," \
+    #                                                        "POST,PUT,DELETE"
+    #     response.headers["Access-Control-Allow-Headers"] = "Access-Control-Allow-" \
+    #         "Headers, Origin,Accept, X-Requested-With, Content-Type, " \
+    #         "Access-Control-Request-Method, Access-Control-Request-Headers," \
+    #         "Access-Control-Allow-Origin, Authorization"
+    #
+    #     return response
