@@ -170,7 +170,7 @@ def delete_item(current_user, list_id, item_id):
         else:
             user = User.query.filter_by(id=current_user.id).first()
             shoppinglist = user.shoppinglists.filter_by(id=list_id).first()
-            item = Items.query.filter_by(list_id=shoppinglist.id, item_id=item_id).first()
+            item = Items.query.filter_by(list_id=list_id, item_id=item_id).first()
             if item is not None:
                 db.session.delete(item)
                 db.session.commit()
