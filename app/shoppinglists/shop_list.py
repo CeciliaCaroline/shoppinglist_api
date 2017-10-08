@@ -51,44 +51,42 @@ def view_shoppinglists(current_user):
     q = request.args.get('q', None)
     page = int(request.args.get('page', 1))
 
+    results = []
+    shoplists = Shoppinglist.query.filter_by(
+        user_id=current_user.id)
+
     if q is not None:
-        results = []
-        shoplists = Shoppinglist.query.filter(
-            Shoppinglist.name.like("%" + q.strip() + "%")).filter_by(
-            user_id=current_user.id).all()
-        if shoplists:
-            for shoplist in shoplists:
-                results.append(shoplist.json())
+        shoplists = shoplists.filter(
+        Shoppinglist.name.like("%" + q.strip() + "%"))
 
-            return get_response('Shoppinglists', results)
-        return response('failed', 'Shopping list not found', 404)
-
-    elif limit:
-        results = []
+    if limit:
         try:
             if int(limit):
-                limit_list = Shoppinglist.query.filter_by(
+                shoplists = shoplists.filter_by(
                     user_id=current_user.id).paginate(page=page,
                                                       per_page=int(
                                                           limit), error_out=False).items
 
-                if limit_list:
-                    for shoplist in limit_list:
-                        results.append(shoplist.json())
-                    return get_response('Shoppinglists', results)
-                return response('failed', 'Shopping list not found', 404)
+                for shoplist in shoplists:
+                    results.append(shoplist.json())
+
+                if len(results) == 0:
+                    return response('failed', 'Shopping list not found', 404)
+
+                return make_response(jsonify(results)), 200
+
 
         except ValueError:
             return response('failed', 'Limit should be an integer', 400)
 
-    else:
-        all_shoplists = Shoppinglist.query.filter_by(user_id=current_user.id)
-        if all_shoplists:
-            results = []
-            for shoplist in all_shoplists:
-                results.append(shoplist.json())
-            return get_response('Shoppinglists', results)
+
+    for shoplist in shoplists.all():
+        results.append(shoplist.json())
+
+    if len(results) == 0:
         return response('failed', 'Shopping list not found', 404)
+    
+    return make_response(jsonify(results)), 200
 
 
 @shop_list.route('/shoppinglist/<id>', methods=['GET'])
