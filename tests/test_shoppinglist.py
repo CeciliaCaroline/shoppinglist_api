@@ -233,6 +233,45 @@ class TestShoppingList(BaseTestCase):
             self.assertEqual(data['status'], 'failed')
             self.assertEqual(data['message'], 'Shopping list not found')
 
+    def test_get_list_with_invalid_id(self):
+        with self.client:
+            token = self.token()
+            response = self.client.get(
+                '/shoppinglist/32a',
+                content_type='application/json',
+                headers=dict(Authorization="Bearer " + token)
+            )
+            data = json.loads(response.data.decode())
+            self.assertEqual(response.status_code, 400)
+            self.assertEqual(data['status'], 'failed')
+            self.assertEqual(data['message'], 'Please provide a valid Shoppinglist Id')
+
+    def test_edit_list_with_invalid_id(self):
+        with self.client:
+            token = self.token()
+            response = self.client.put(
+                '/shoppinglist/32a',
+                content_type='application/json',
+                headers=dict(Authorization="Bearer " + token)
+            )
+            data = json.loads(response.data.decode())
+            self.assertEqual(response.status_code, 400)
+            self.assertEqual(data['status'], 'failed')
+            self.assertEqual(data['message'], 'Please provide a valid Shoppinglist Id')
+
+    def test_delete_list_with_invalid_id(self):
+        with self.client:
+            token = self.token()
+            response = self.client.delete(
+                '/shoppinglist/32a',
+                content_type='application/json',
+                headers=dict(Authorization="Bearer " + token)
+            )
+            data = json.loads(response.data.decode())
+            self.assertEqual(response.status_code, 400)
+            self.assertEqual(data['status'], 'failed')
+            self.assertEqual(data['message'], 'Please provide a valid Shoppinglist Id')
+
     def test_edit_list_that_doesnt_exist(self):
         with self.client:
             token = self.token()
