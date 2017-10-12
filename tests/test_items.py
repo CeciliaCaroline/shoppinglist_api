@@ -249,8 +249,8 @@ class ItemsTestCase(BaseTestCase):
 
             self.assertEqual(response.status_code, 400)
             data = json.loads(response.data.decode())
-            self.assertTrue(data['message'], 'Please provide a valid item Id')
-            self.assertIn('Please provide a valid item Id', response.data.decode())
+            self.assertTrue(data['message'],  'Please provide a valid item or list Id')
+            self.assertIn('Please provide a valid item or list Id', response.data.decode())
 
     def test_edit_item_with_invalid_id(self):
         """"
@@ -267,7 +267,7 @@ class ItemsTestCase(BaseTestCase):
             self.assertEqual(response.status_code, 400)
             data = json.loads(response.data.decode())
             self.assertTrue(data['message'], 'Please provide a valid item Id')
-            self.assertIn('Please provide a valid item Id', response.data.decode())
+            self.assertIn('Please provide a valid item or list Id', response.data.decode())
 
     def test_delete_item_that_doesnt_exist(self):
         """Should return 404 for missing item"""
@@ -314,7 +314,7 @@ class ItemsTestCase(BaseTestCase):
             data = json.loads(response.data.decode())
             self.assertTrue(data['message'], 'Please provide a valid item Id')
             self.assertTrue(data['status'], 'failed')
-            self.assertIn('Please provide a valid item Id', response.data.decode())
+            self.assertIn('Please provide a valid item or list Id', response.data.decode())
 
     def test_delete_item_with_wrong_content_type(self):
         """Should return 200 for success"""

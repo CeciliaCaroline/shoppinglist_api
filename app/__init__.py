@@ -20,7 +20,7 @@ db = SQLAlchemy(app)
 # Initialize Flask Migrate
 migrate = Migrate(app, db)
 
-# Inirialize Flask Bcrypt
+# Initialize Flask Bcrypt
 bcrypt = Bcrypt(app)
 
 # Register blue prints

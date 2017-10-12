@@ -194,7 +194,7 @@ class TestAuthBluePrint(BaseTestCase):
             logout_again_data = json.loads(logout_again_response.data.decode())
             self.assertEqual(logout_again_response.status_code, 401)
             self.assertTrue(logout_again_data['status'] == 'failed')
-            self.assertTrue(logout_again_data['message'] == 'Token was Blacklisted, Please login In')
+            self.assertTrue(logout_again_data['message'] == 'Token was Blacklisted, Please login')
 
     def test_password_reset(self):
         with self.client:
@@ -204,7 +204,6 @@ class TestAuthBluePrint(BaseTestCase):
                 content_type='application/json',
                 data=json.dumps(dict(email='caroline@gmail.com', newpassword='123456789', confirmpassword='123456789')))
             data = json.loads(response.data.decode())
-            print(response.data)
             self.assertEqual(data['status'], 'success')
             self.assertEqual(data['message'], 'Password has been reset')
             self.assertEqual(response.status_code, 200)
