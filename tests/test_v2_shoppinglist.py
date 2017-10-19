@@ -46,18 +46,8 @@ class TestShoppingList(BaseTestCase):
 
         with self.client:
             res = self.create_list('travel', 'Go to Kenya', 'qwertyuiop')
-            self.assertIn( 'Invalid token. Please sign in again', str(res.data))
+            self.assertIn('Invalid token. Please sign in again', str(res.data))
             self.assertEqual(res.status_code, 401)
-
-    def test_create_shoppinglist_with_expired_token(self):
-        """Test API can create a shoppinglist """
-
-        with self.client:
-            res = self.create_list('travel', 'Go to Kenya', 'qwertyuiop')
-            # data = json.loads(res.data.decode())
-            self.assertIn( 'Signature expired, Please sign in again', str(res.data))
-            self.assertEqual(res.status_code, 401)
-
 
     def test_create_shoppinglist_with_name_containing_special_characters(self):
         """Test API can create a shoppinglist """
