@@ -42,7 +42,8 @@ def add_items(current_user, list_id):
                 except ValueError:
                     return response('failed', 'Item price should be an integer', 400)
 
-            return response('failed', 'Wrong name format. Name cannot contain special characters or start with a space', 400)
+            return response('failed', 'Wrong name format. Name cannot contain special characters or start with a space',
+                            400)
         return response('failed', 'No name has been input', 403)
 
     return response('failed', 'Content-type must be json', 202)
@@ -84,7 +85,8 @@ def view_items(current_user, list_id):
 
                 if len(new) == 0:
                     return response('failed', ' Search failed! Shopping list item not found', 404)
-                return get_response('Shoppinglists items', new, page=page , limit=limit, count = Items.query.filter_by(list_id=shoppinglist.id).count())
+                return get_response('Shoppinglists items', new, page=page, limit=limit,
+                                    count=Items.query.filter_by(list_id=shoppinglist.id).count())
 
         except ValueError:
             return response('failed', 'Limit should be an integer', 400)
@@ -93,7 +95,8 @@ def view_items(current_user, list_id):
             new.append(item.json())
         if len(new) == 0:
             return response('failed', 'Shopping list item not found', 404)
-        return get_response('Shoppinglists items', new, page=page , limit=limit, count = Items.query.filter_by(list_id=shoppinglist.id).count())
+        return get_response('Shoppinglists items', new, page=page, limit=limit,
+                            count=Items.query.filter_by(list_id=shoppinglist.id).count())
 
 
 @v2_items.route('/v2/shoppinglist/<list_id>/items/<item_id>', methods=['GET'])
@@ -156,7 +159,9 @@ def edit_item(current_user, list_id, item_id):
 
                         except ValueError:
                             return response('failed', 'Item price should be an integer', 400)
-                    return response('failed', 'Wrong name format. Name cannot contain special characters or start with a space', 400)
+                    return response('failed',
+                                    'Wrong name format. Name cannot contain special characters or start with a space',
+                                    400)
                 return response('failed', 'No name input. Try again', 403)
             return response('failed', 'Shopping list item does not exist. Please try again', 404)
     return response('failed', 'Content-type must be json', 202)
@@ -194,8 +199,8 @@ def apply_cross_origin_header(response):
     response.headers["Access-Control-Allow-Methods"] = "GET,HEAD,OPTIONS," \
                                                        "POST,PUT,DELETE"
     response.headers["Access-Control-Allow-Headers"] = "Access-Control-Allow-" \
-        "Headers, Origin,Accept, X-Requested-With, Content-Type, " \
-        "Access-Control-Request-Method, Access-Control-Request-Headers," \
-        "Access-Control-Allow-Origin, Authorization"
+                                                       "Headers, Origin,Accept, X-Requested-With, Content-Type, " \
+                                                       "Access-Control-Request-Method, Access-Control-Request-Headers," \
+                                                       "Access-Control-Allow-Origin, Authorization"
 
     return response

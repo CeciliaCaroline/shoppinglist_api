@@ -169,17 +169,17 @@ def delete_single_list(current_user, id):
     return response('failed', 'Content-type must be json', 202)
 
 
-# decorator used to allow cross origin requests
-# @shop_list.after_request
-# def apply_cross_origin_header(response):
-#     response.headers['Access-Control-Allow-Origin'] = '*'
-#
-#     response.headers["Access-Control-Allow-Credentials"] = "true"
-#     response.headers["Access-Control-Allow-Methods"] = " GET,HEAD,OPTIONS," \
-#                                                        "POST,PUT,DELETE"
-#     response.headers["Access-Control-Allow-Headers"] = "Access-Control-Allow-" \
-#                                                        "Headers, Origin,Accept, X-Requested-With, Content-Type, " \
-#                                                        "Access-Control-Request-Method, Access-Control-Request-Headers," \
-#                                                        "Access-Control-Allow-Origin, Authorization"
-#
-#     return response
+    # decorator used to allow cross origin requests
+    # @shop_list.after_request
+    # def apply_cross_origin_header(response):
+    #     response.headers['Access-Control-Allow-Origin'] = '*'
+    #
+    #     response.headers["Access-Control-Allow-Credentials"] = "true"
+    #     response.headers["Access-Control-Allow-Methods"] = " GET,HEAD,OPTIONS," \
+    #                                                        "POST,PUT,DELETE"
+    #     response.headers["Access-Control-Allow-Headers"] = "Access-Control-Allow-" \
+    #                                                        "Headers, Origin,Accept, X-Requested-With, Content-Type, " \
+    #                                                        "Access-Control-Request-Method, Access-Control-Request-Headers," \
+    #                                                        "Access-Control-Allow-Origin, Authorization"
+    #
+    #     return response

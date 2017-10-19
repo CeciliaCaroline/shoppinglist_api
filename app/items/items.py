@@ -81,8 +81,8 @@ def view_items(current_user, list_id):
                 if int(limit):
                     limit_items = shop_items.filter_by(
                         list_id=list_id).paginate(page=page,
-                                                          per_page=int(
-                                                              limit), error_out=False).items
+                                                  per_page=int(
+                                                      limit), error_out=False).items
 
                     for limit_item in limit_items:
                         new.append(limit_item.json())
@@ -192,17 +192,17 @@ def delete_item(current_user, list_id, item_id):
     return response('failed', 'Content-type must be json', 202)
 
 
-# decorator used to allow cross origin requests
-# @items.after_request
-# def apply_cross_origin_header(response):
-#     response.headers['Access-Control-Allow-Origin'] = '*'
-#
-#     response.headers["Access-Control-Allow-Credentials"] = "true"
-#     response.headers["Access-Control-Allow-Methods"] = "GET,HEAD,OPTIONS," \
-#                                                        "POST,PUT,DELETE"
-#     response.headers["Access-Control-Allow-Headers"] = "Access-Control-Allow-" \
-#         "Headers, Origin,Accept, X-Requested-With, Content-Type, " \
-#         "Access-Control-Request-Method, Access-Control-Request-Headers," \
-#         "Access-Control-Allow-Origin, Authorization"
-#
-#     return response
+    # decorator used to allow cross origin requests
+    # @items.after_request
+    # def apply_cross_origin_header(response):
+    #     response.headers['Access-Control-Allow-Origin'] = '*'
+    #
+    #     response.headers["Access-Control-Allow-Credentials"] = "true"
+    #     response.headers["Access-Control-Allow-Methods"] = "GET,HEAD,OPTIONS," \
+    #                                                        "POST,PUT,DELETE"
+    #     response.headers["Access-Control-Allow-Headers"] = "Access-Control-Allow-" \
+    #         "Headers, Origin,Accept, X-Requested-With, Content-Type, " \
+    #         "Access-Control-Request-Method, Access-Control-Request-Headers," \
+    #         "Access-Control-Allow-Origin, Authorization"
+    #
+    #     return response

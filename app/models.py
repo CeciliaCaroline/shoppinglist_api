@@ -98,7 +98,7 @@ class Shoppinglist(db.Model):
     name = db.Column(db.String(250))
     description = db.Column(db.String(250))
     user_id = db.Column(db.Integer, db.ForeignKey(User.id))
-    items = db.relationship('Items',  order_by='Items.item_id',  lazy='dynamic')
+    items = db.relationship('Items', order_by='Items.item_id', lazy='dynamic')
 
     def __init__(self, name, description, user_id):
         """Initialize the shoppinglist with a name and description."""

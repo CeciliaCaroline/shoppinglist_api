@@ -52,17 +52,14 @@ def view_shoppinglists(current_user):
     q = request.args.get('q', None)
     page = int(request.args.get('page', 1))
 
-
     results = []
     shoplists = Shoppinglist.query.filter_by(
         user_id=current_user.id)
-
 
     if q is not None:
         q = q.lower()
         shoplists = shoplists.filter(
             Shoppinglist.name.like("%" + q.strip() + "%"))
-
 
     if limit:
         try:
@@ -75,11 +72,10 @@ def view_shoppinglists(current_user):
                 for shoplist in shoplists:
                     results.append(shoplist.json())
 
-
                 if len(results) == 0:
                     return response('failed', 'Shopping list not found', 404)
                 return get_response('Shoppinglists', results, count=Shoppinglist.query.filter_by(
-        user_id=current_user.id).count(), page=page, limit=limit)
+                    user_id=current_user.id).count(), page=page, limit=limit)
 
         except ValueError:
             return response('failed', 'Limit should be an integer', 400)
@@ -180,7 +176,7 @@ def delete_single_list(current_user, id):
     return response('failed', 'Content-type must be json', 202)
 
 
-            # decorator used to allow cross origin requests
+    # decorator used to allow cross origin requests
 
 
 @v2_shop_list.after_request
