@@ -20,8 +20,8 @@ install:
   - pip install flask
   - pip install -r requirements.txt
 
-env:
-  CODECLIMATE_REPO_TOKEN: 51e5a99bea397fbd30ad2ad81a09d8e69499482f2caed901606f1d255d4cdf06
+#env:
+#  CODECLIMATE_REPO_TOKEN: 51e5a99bea397fbd30ad2ad81a09d8e69499482f2caed901606f1d255d4cdf06
 
 
 before_script:
