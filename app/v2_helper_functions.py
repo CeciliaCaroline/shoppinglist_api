@@ -16,12 +16,3 @@ def get_response(title, results, page, limit, count):
         'count': count,
 
     })), 200
-
-
-def user_response(status, message, auth_token, code):
-    return make_response(jsonify({
-        'status': status,
-        'message': message,
-        'auth_token': auth_token
-
-    })), code

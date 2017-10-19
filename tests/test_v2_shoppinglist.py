@@ -41,6 +41,24 @@ class TestShoppingList(BaseTestCase):
             self.assertIn('Go to Kenya', str(res.data))
             # return data
 
+    def test_create_shoppinglist_with_invalid_token(self):
+        """Test API can create a shoppinglist """
+
+        with self.client:
+            res = self.create_list('travel', 'Go to Kenya', 'qwertyuiop')
+            self.assertIn( 'Invalid token. Please sign in again', str(res.data))
+            self.assertEqual(res.status_code, 401)
+
+    def test_create_shoppinglist_with_expired_token(self):
+        """Test API can create a shoppinglist """
+
+        with self.client:
+            res = self.create_list('travel', 'Go to Kenya', 'qwertyuiop')
+            # data = json.loads(res.data.decode())
+            self.assertIn( 'Signature expired, Please sign in again', str(res.data))
+            self.assertEqual(res.status_code, 401)
+
+
     def test_create_shoppinglist_with_name_containing_special_characters(self):
         """Test API can create a shoppinglist """
 
@@ -99,6 +117,9 @@ class TestShoppingList(BaseTestCase):
             data = json.loads(response.data.decode())
             self.assertEqual(response.status_code, 200)
             self.assertEqual(data['status'], 'success')
+            self.assertEqual(data['page'], 1)
+            self.assertEqual(data['limit'], 5)
+            self.assertEqual(data['count'], 1)
             self.assertIn('Shoppinglists', response.data.decode())
 
     def test_edit_list_with_wrong_content_type(self):
@@ -141,6 +162,9 @@ class TestShoppingList(BaseTestCase):
             self.assertEqual(response.status_code, 200)
             data = json.loads(response.data.decode())
             self.assertEqual(data['status'], 'success')
+            self.assertEqual(data['page'], 1)
+            self.assertEqual(data['limit'], 5)
+            self.assertEqual(data['count'], 1)
             self.assertIn('Travel', response.data.decode())
 
     def test_search_nonexistent_list(self):
