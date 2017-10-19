@@ -1,7 +1,7 @@
 from app import db, bcrypt, app
 from flask import Blueprint, request
 from app.models import User, BlackListToken
-from app.helper_functions import response, user_response
+from app.v1_helper_functions import response, user_response
 import re
 
 auth = Blueprint('auth', __name__)
@@ -104,16 +104,16 @@ def reset():
     return response('failed', 'Content-type must be json', 202)
 
     # decorator used to allow cross origin requests
-    # @auth.after_request
-    # def apply_cross_origin_header(response):
-    #     response.headers['Access-Control-Allow-Origin'] = '*'
-    #
-    #     response.headers["Access-Control-Allow-Credentials"] = "true"
-    #     response.headers["Access-Control-Allow-Methods"] = "GET,HEAD,OPTIONS," \
-    #                                                        "POST,PUT,DELETE"
-    #     response.headers["Access-Control-Allow-Headers"] = "Access-Control-Allow-" \
-    #         "Headers, Origin,Accept, X-Requested-With, Content-Type, " \
-    #         "Access-Control-Request-Method, Access-Control-Request-Headers," \
-    #         "Access-Control-Allow-Origin, Authorization"
-    #
-    #     return response
+@auth.after_request
+def apply_cross_origin_header(response):
+    response.headers['Access-Control-Allow-Origin'] = '*'
+
+    response.headers["Access-Control-Allow-Credentials"] = "true"
+    response.headers["Access-Control-Allow-Methods"] = "GET,HEAD,OPTIONS," \
+                                                       "POST,PUT,DELETE"
+    response.headers["Access-Control-Allow-Headers"] = "Access-Control-Allow-" \
+        "Headers, Origin,Accept, X-Requested-With, Content-Type, " \
+        "Access-Control-Request-Method, Access-Control-Request-Headers," \
+        "Access-Control-Allow-Origin, Authorization"
+
+    return response

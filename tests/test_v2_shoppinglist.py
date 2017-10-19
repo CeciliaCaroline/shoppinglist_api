@@ -1,5 +1,4 @@
 import json
-# from app.shoppinglists import shop_list
 import unittest
 
 from tests.base_test import BaseTestCase
@@ -12,7 +11,7 @@ class TestShoppingList(BaseTestCase):
         :return:
         """
         return self.client.post(
-            '/v1/shoppinglist/',
+            '/v2/shoppinglist/',
             headers=dict(Authorization='Bearer ' + token),
             content_type='application/json',
             data=json.dumps(dict(name=name, description=description)))
@@ -25,7 +24,7 @@ class TestShoppingList(BaseTestCase):
         :return:
         """
         return self.client.post(
-            '/v1/shoppinglist/',
+            '/v2/shoppinglist/',
             content_type='application/javascript',
             data=json.dumps(dict(name=name, description=description)))
 
@@ -48,17 +47,19 @@ class TestShoppingList(BaseTestCase):
         with self.client:
             res = self.create_list('travel!!!', 'Go to Kenya', self.token())
             data = json.loads(res.data.decode())
-            self.assertTrue(data['message'], 'Wrong name format. Name can only contain letters and numbers')
+            self.assertTrue(data['message'],
+                            'Wrong name format. Name cannot contain special characters or start with a space')
             self.assertTrue(data['status'], 'failed')
             self.assertEqual(res.status_code, 400)
 
-    def test_create_shoppinglist_with_name_containing_spaces(self):
+    def test_create_shoppinglist_starting_with_spaces(self):
         """Test API can create a shoppinglist """
 
         with self.client:
-            res = self.create_list('travel the world', 'Go to Kenya', self.token())
+            res = self.create_list(' travel the world', 'Go to Kenya', self.token())
             data = json.loads(res.data.decode())
-            self.assertTrue(data['message'], 'Wrong name format. Name can only contain letters and numbers')
+            self.assertTrue(data['message'],
+                            'Wrong name format. Name cannot contain special characters or start with a space')
             self.assertTrue(data['status'], 'failed')
             self.assertEqual(res.status_code, 400)
 
@@ -70,7 +71,7 @@ class TestShoppingList(BaseTestCase):
             data = json.loads(res.data.decode())
             self.assertTrue(data['message'], 'No name or description input. Try again')
             self.assertTrue(data['status'], 'failed')
-            self.assertEqual(res.status_code, 406)
+            self.assertEqual(res.status_code, 403)
 
     def test_create_list_with_wrong_content_type(self):
         """"
@@ -91,7 +92,7 @@ class TestShoppingList(BaseTestCase):
             token = self.token()
             self.create_list('travel', 'Go to Kenya', token)
             response = self.client.get(
-                '/v1/shoppinglist/',
+                '/v2/shoppinglist/',
                 content_type='application/json',
                 headers=dict(Authorization="Bearer " + token),
             )
@@ -113,7 +114,7 @@ class TestShoppingList(BaseTestCase):
 
             # then, we edit the created shoppinglist by making a PUT request
             response = self.client.put(
-                '/v1/shoppinglist/{}'.format(results['id']),
+                '/v2/shoppinglist/{}'.format(results['id']),
                 headers=dict(Authorization="Bearer " + token),
                 content_type='application/javascript',
                 data=json.dumps(dict(name='traveling', description='traveling to different places')))
@@ -132,11 +133,14 @@ class TestShoppingList(BaseTestCase):
 
             self.create_list('Travel', 'Visit places', token)
 
-            response = self.client.get('/v1/shoppinglist/?q=Travel',
+            response = self.client.get('/v2/shoppinglist/?T',
                                        content_type='application/json',
                                        headers=dict(Authorization='Bearer ' + token))
 
+            # print(response.data.decode())
             self.assertEqual(response.status_code, 200)
+            data = json.loads(response.data.decode())
+            self.assertEqual(data['status'], 'success')
             self.assertIn('Travel', response.data.decode())
 
     def test_search_nonexistent_list(self):
@@ -148,7 +152,7 @@ class TestShoppingList(BaseTestCase):
 
             self.create_list('Travel', 'Visit places', token)
 
-            response = self.client.get('/v1/shoppinglist/?q=Travelling',
+            response = self.client.get('/v2/shoppinglist/?q=Travelling',
                                        content_type='application/json',
                                        headers=dict(Authorization='Bearer ' + token))
 
@@ -167,7 +171,7 @@ class TestShoppingList(BaseTestCase):
             self.create_list('Travel', 'Visit places', token)
             self.create_list('Health', 'Excercises', token)
 
-            response = self.client.get('/v1/shoppinglist/?limit=1',
+            response = self.client.get('/v2/shoppinglist/?limit=1',
                                        content_type='application/json',
                                        headers=dict(Authorization='Bearer ' + token))
 
@@ -184,7 +188,7 @@ class TestShoppingList(BaseTestCase):
             self.create_list('Travel', 'Visit places', token)
             self.create_list('Health', 'Excercises', token)
 
-            response = self.client.get('/v1/shoppinglist/?limit=one',
+            response = self.client.get('/v2/shoppinglist/?limit=one',
                                        content_type='application/json',
                                        headers=dict(Authorization='Bearer ' + token))
 
@@ -198,7 +202,7 @@ class TestShoppingList(BaseTestCase):
             results = json.loads(res.data.decode())
 
             response = self.client.get(
-                '/v1/shoppinglist/{}'.format(results['id']),
+                '/v2/shoppinglist/{}'.format(results['id']),
                 content_type='application/json',
                 headers=dict(Authorization="Bearer " + token)
             )
@@ -213,7 +217,7 @@ class TestShoppingList(BaseTestCase):
             results = json.loads(res.data.decode())
 
             response = self.client.get(
-                '/v1/shoppinglist/{}'.format(results['id']),
+                '/v2/shoppinglist/{}'.format(results['id']),
                 content_type='application/java',
                 headers=dict(Authorization="Bearer " + token)
             )
@@ -226,7 +230,7 @@ class TestShoppingList(BaseTestCase):
         with self.client:
             token = self.token()
             response = self.client.get(
-                '/v1/shoppinglist/32',
+                '/v2/shoppinglist/32',
                 content_type='application/json',
                 headers=dict(Authorization="Bearer " + token)
             )
@@ -239,7 +243,7 @@ class TestShoppingList(BaseTestCase):
         with self.client:
             token = self.token()
             response = self.client.get(
-                '/v1/shoppinglist/32a',
+                '/v2/shoppinglist/32a',
                 content_type='application/json',
                 headers=dict(Authorization="Bearer " + token)
             )
@@ -252,7 +256,7 @@ class TestShoppingList(BaseTestCase):
         with self.client:
             token = self.token()
             response = self.client.put(
-                '/v1/shoppinglist/32a',
+                '/v2/shoppinglist/32a',
                 content_type='application/json',
                 headers=dict(Authorization="Bearer " + token)
             )
@@ -265,7 +269,7 @@ class TestShoppingList(BaseTestCase):
         with self.client:
             token = self.token()
             response = self.client.delete(
-                '/v1/shoppinglist/32a',
+                '/v2/shoppinglist/32a',
                 content_type='application/json',
                 headers=dict(Authorization="Bearer " + token)
             )
@@ -278,7 +282,7 @@ class TestShoppingList(BaseTestCase):
         with self.client:
             token = self.token()
             response = self.client.put(
-                '/v1/shoppinglist/32',
+                '/v2/shoppinglist/32',
                 content_type='application/json',
                 headers=dict(Authorization="Bearer " + token),
                 data=json.dumps(dict(name='traveling', description='traveling to different places')))
@@ -292,7 +296,7 @@ class TestShoppingList(BaseTestCase):
         with self.client:
             token = self.token()
             rv = self.client.delete(
-                '/v1/shoppinglist/25',
+                '/v2/shoppinglist/25',
                 headers=dict(Authorization="Bearer " + token),
                 content_type='application/json')
 
@@ -311,7 +315,7 @@ class TestShoppingList(BaseTestCase):
 
             # then, we edit the created shoppinglist by making a PUT request
             rv = self.client.put(
-                '/v1/shoppinglist/{}'.format(results['id']),
+                '/v2/shoppinglist/{}'.format(results['id']),
                 headers=dict(Authorization="Bearer " + token),
                 content_type='application/json',
                 data=json.dumps(dict(name='traveling', description='traveling to different places')))
@@ -322,7 +326,7 @@ class TestShoppingList(BaseTestCase):
 
             # finally, we get the edited shoppinglist to see if it is actually edited.
             results = self.client.get(
-                '/v1/shoppinglist/{}'.format(results['id']),
+                '/v2/shoppinglist/{}'.format(results['id']),
                 content_type='application/json',
                 headers=dict(Authorization="Bearer " + token))
 
@@ -339,14 +343,58 @@ class TestShoppingList(BaseTestCase):
 
             # then, we edit the created shoppinglist by making a PUT request
             rv = self.client.put(
-                '/v1/shoppinglist/{}'.format(results['id']),
+                '/v2/shoppinglist/{}'.format(results['id']),
                 headers=dict(Authorization="Bearer " + token),
                 content_type='application/json',
                 data=json.dumps(dict(name='', description='traveling to different places')))
             # print(rv.data)
             data = json.loads(rv.data.decode())
-            self.assertEqual(rv.status_code, 400)
+            self.assertEqual(rv.status_code, 403)
             self.assertEqual(data['message'], 'No name input. Try again')
+            self.assertEqual(data['status'], 'failed')
+
+    def test_edit_shoppinglist_with_special_characters(self):
+        """Test API can edit an existing shoppinglist. (PUT request)"""
+        with self.client:
+            token = self.token()
+            res = self.create_list('eat', 'eatpraylove', token)
+            self.assertEqual(res.status_code, 201)
+            # get the json with the shoppinglist
+            results = json.loads(res.data.decode())
+
+            # then, we edit the created shoppinglist by making a PUT request
+            rv = self.client.put(
+                '/v2/shoppinglist/{}'.format(results['id']),
+                headers=dict(Authorization="Bearer " + token),
+                content_type='application/json',
+                data=json.dumps(dict(name='@@@@', description='traveling to different places')))
+            # print(rv.data)
+            data = json.loads(rv.data.decode())
+            self.assertEqual(rv.status_code, 400)
+            self.assertEqual(data['message'],
+                             'Wrong name format. Name cannot contain special characters or start with a space')
+            self.assertEqual(data['status'], 'failed')
+
+    def test_edit_shoppinglist_with_name_starting_with_space(self):
+        """Test API can edit an existing shoppinglist. (PUT request)"""
+        with self.client:
+            token = self.token()
+            res = self.create_list('eat', 'eatpraylove', token)
+            self.assertEqual(res.status_code, 201)
+            # get the json with the shoppinglist
+            results = json.loads(res.data.decode())
+
+            # then, we edit the created shoppinglist by making a PUT request
+            rv = self.client.put(
+                '/v2/shoppinglist/{}'.format(results['id']),
+                headers=dict(Authorization="Bearer " + token),
+                content_type='application/json',
+                data=json.dumps(dict(name=' travel', description='traveling to different places')))
+            # print(rv.data)
+            data = json.loads(rv.data.decode())
+            self.assertEqual(rv.status_code, 400)
+            self.assertEqual(data['message'],
+                             'Wrong name format. Name cannot contain special characters or start with a space')
             self.assertEqual(data['status'], 'failed')
 
     def test_shoppinglist_delete(self):
@@ -362,7 +410,7 @@ class TestShoppingList(BaseTestCase):
 
             # then, we delete the created shoppinglist by making a DELETE request
             rv = self.client.delete(
-                '/v1/shoppinglist/{}'.format(results['id']),
+                '/v2/shoppinglist/{}'.format(results['id']),
                 headers=dict(Authorization="Bearer " + token),
                 content_type='application/json')
             self.assertEqual(rv.status_code, 200)
@@ -382,7 +430,7 @@ class TestShoppingList(BaseTestCase):
 
             # then, we delete the created shoppinglist by making a DELETE request
             rv = self.client.delete(
-                '/v1/shoppinglist/{}'.format(results['id']),
+                '/v2/shoppinglist/{}'.format(results['id']),
                 headers=dict(Authorization="Bearer " + token),
                 content_type='application/javascript')
             self.assertEqual(rv.status_code, 202)

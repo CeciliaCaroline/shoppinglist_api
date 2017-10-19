@@ -1,8 +1,9 @@
-from tests.base_test import BaseTestCase
-from app.models import User
-from app import db
-import unittest
 import json
+import unittest
+
+from app import db
+from app.models import User
+from tests.base_test import BaseTestCase
 
 
 class TestAuthBluePrint(BaseTestCase):
