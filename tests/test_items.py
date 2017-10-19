@@ -250,7 +250,7 @@ class ItemsTestCase(BaseTestCase):
 
             self.assertEqual(response.status_code, 400)
             data = json.loads(response.data.decode())
-            self.assertTrue(data['message'],  'Please provide a valid item or list Id')
+            self.assertTrue(data['message'], 'Please provide a valid item or list Id')
             self.assertIn('Please provide a valid item or list Id', response.data.decode())
 
     def test_edit_item_with_invalid_id(self):

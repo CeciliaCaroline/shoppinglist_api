@@ -108,7 +108,8 @@ class TestAuthBluePrint(BaseTestCase):
 
     def test_login_has_correct_email_and_valid_length_password(self):
         """
-        Test the email of the user trying to login is valid and the password length is greater than 4 characters
+        Test the email of the user trying to login is valid
+         and the password length is greater than 4 characters
         :return:
         """
         with self.client:
