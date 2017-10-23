@@ -1,8 +1,9 @@
+import re
 from app import db, bcrypt, app
 from flask import Blueprint, request
 from app.models import User, BlackListToken
 from app.v1_helper_functions import response, user_response
-import re
+
 
 auth = Blueprint('auth', __name__)
 
@@ -108,6 +109,11 @@ def reset():
 
 @auth.after_request
 def apply_cross_origin_header(response):
+    """
+    decorator ro handle cors
+    :param response:
+    :return:
+    """
     response.headers['Access-Control-Allow-Origin'] = '*'
 
     response.headers["Access-Control-Allow-Credentials"] = "true"
