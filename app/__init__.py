@@ -1,8 +1,12 @@
+import os
 from flask import Flask
 from flask_bcrypt import Bcrypt
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
-import os
+from flask_mail import Mail
+
+
+
 
 # Initialize application
 app = Flask(__name__, static_folder=None)
@@ -14,6 +18,8 @@ app_settings = os.getenv(
 )
 app.config.from_object(app_settings)
 
+
+
 # Initialize Flask Sql Alchemy
 db = SQLAlchemy(app)
 
@@ -22,6 +28,18 @@ migrate = Migrate(app, db)
 
 # Inirialize Flask Bcrypt
 bcrypt = Bcrypt(app)
+
+app.config.update(dict(
+    DEBUG = True,
+    MAIL_SERVER = 'smtp.gmail.com',
+    MAIL_PORT = 587,
+    MAIL_USE_TLS = True,
+    MAIL_USE_SSL = False,
+    MAIL_USERNAME = 'nalubegac58@gmail.com',
+    MAIL_PASSWORD = 'cabethcabe',
+))
+
+mail = Mail(app)
 
 # Register blue prints
 from app.authenticate.views import auth

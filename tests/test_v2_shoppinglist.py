@@ -108,9 +108,9 @@ class TestShoppingList(BaseTestCase):
             self.assertEqual(response.status_code, 200)
             self.assertEqual(data['status'], 'success')
             self.assertEqual(data['page'], 1)
-            self.assertEqual(data['limit'], 5)
+            self.assertEqual(data['limit'], 10)
             self.assertEqual(data['count'], 1)
-            self.assertIn('Shoppinglists', response.data.decode())
+            self.assertIn('shoppingLists', response.data.decode())
 
     def test_edit_list_with_wrong_content_type(self):
         """"
@@ -153,7 +153,7 @@ class TestShoppingList(BaseTestCase):
             data = json.loads(response.data.decode())
             self.assertEqual(data['status'], 'success')
             self.assertEqual(data['page'], 1)
-            self.assertEqual(data['limit'], 5)
+            self.assertEqual(data['limit'], 10)
             self.assertEqual(data['count'], 1)
             self.assertIn('Travel', response.data.decode())
 
@@ -264,7 +264,7 @@ class TestShoppingList(BaseTestCase):
             data = json.loads(response.data.decode())
             self.assertEqual(response.status_code, 400)
             self.assertEqual(data['status'], 'failed')
-            self.assertEqual(data['message'], 'Please provide a valid Shoppinglist Id')
+            self.assertEqual(data['message'], 'Please provide a valid ShoppingList Id')
 
     def test_edit_list_with_invalid_id(self):
         with self.client:
@@ -277,7 +277,7 @@ class TestShoppingList(BaseTestCase):
             data = json.loads(response.data.decode())
             self.assertEqual(response.status_code, 400)
             self.assertEqual(data['status'], 'failed')
-            self.assertEqual(data['message'], 'Please provide a valid Shoppinglist Id')
+            self.assertEqual(data['message'], 'Please provide a valid ShoppingList Id')
 
     def test_delete_list_with_invalid_id(self):
         with self.client:
@@ -290,7 +290,7 @@ class TestShoppingList(BaseTestCase):
             data = json.loads(response.data.decode())
             self.assertEqual(response.status_code, 400)
             self.assertEqual(data['status'], 'failed')
-            self.assertEqual(data['message'], 'Please provide a valid Shoppinglist Id')
+            self.assertEqual(data['message'], 'Please provide a valid ShoppingList Id')
 
     def test_edit_list_that_doesnt_exist(self):
         with self.client:
@@ -431,26 +431,7 @@ class TestShoppingList(BaseTestCase):
             data = json.loads(rv.data.decode())
             self.assertEqual(data['message'], 'Shopping list has been deleted')
 
-    def test_shoppinglist_delete_with_wrong_content_type(self):
-        """"
-        Test API can delete shopping list using a DELETE request
-        """
-        with self.client:
-            token = self.token()
-            res = self.create_list('eat', 'eatpraylove', token)
-            self.assertEqual(res.status_code, 201)
-            # get the json with the shoppinglist
-            results = json.loads(res.data.decode())
 
-            # then, we delete the created shoppinglist by making a DELETE request
-            rv = self.client.delete(
-                '/v2/shoppinglist/{}'.format(results['id']),
-                headers=dict(Authorization="Bearer " + token),
-                content_type='application/javascript')
-            self.assertEqual(rv.status_code, 202)
-            data = json.loads(rv.data.decode())
-            self.assertEqual(data['message'], 'Content-type must be json')
-            self.assertEqual(data['status'], 'failed')
 
 
 if __name__ == '__main__':

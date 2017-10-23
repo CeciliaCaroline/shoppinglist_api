@@ -324,22 +324,6 @@ class ItemsTestCase(BaseTestCase):
             self.assertTrue(data['status'], 'failed')
             self.assertIn('Please provide a valid item Id', response.data.decode())
 
-    def test_delete_item_with_wrong_content_type(self):
-        """Should return 200 for success"""
-        with self.client:
-            token = self.token()
-            self.create_list('Travel', 'Visit places', token)
-            self.create_item('Go to Nairobi', '5000', token)
-
-            response = self.client.delete('/v2/shoppinglist/1/items/1',
-                                          content_type='application/javascript',
-                                          headers=dict(Authorization='Bearer ' + token))
-
-            self.assertEqual(response.status_code, 202)
-            data = json.loads(response.data.decode())
-            self.assertTrue(data['status'], 'failed')
-            self.assertIn('Content-type must be json', response.data.decode())
-
     def test_edit_item_(self):
         """Should return 200 for success"""
         with self.client:

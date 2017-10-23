@@ -17,6 +17,7 @@ class BaseConfig:
     AUTH_TOKEN_EXPIRY_SECONDS = 4000
 
 
+
 class DevelopmentConfig(BaseConfig):
     """
     Development application configuration
