@@ -85,7 +85,7 @@ def view_items(current_user, list_id):
 
                 if len(new) == 0:
                     return response('failed', ' Search failed! Shopping list item not found', 404)
-                return get_response('Shoppinglists items', new, page=page, limit=limit,
+                return get_response('shoppinglists_Items', new, page=page, limit=limit,
                                     count=Items.query.filter_by(list_id=shoppinglist.id).count())
 
         except ValueError:
@@ -95,7 +95,7 @@ def view_items(current_user, list_id):
             new.append(item.json())
         if len(new) == 0:
             return response('failed', 'Shopping list item not found', 404)
-        return get_response('Shoppinglists items', new, page=page, limit=limit,
+        return get_response('shoppinglists_Items', new, page=page, limit=limit,
                             count=Items.query.filter_by(list_id=shoppinglist.id).count())
 
 
@@ -173,24 +173,20 @@ def delete_item(current_user, list_id, item_id):
     """"
     Method to delete a shopping list item
     """
-    if request.content_type == 'application/json':
-        try:
-            int(item_id)
-        except ValueError:
-            return response('failed', 'Please provide a valid item Id', 400)
-        else:
-            user = User.query.filter_by(id=current_user.id).first()
-            shoppinglist = user.shoppinglists.filter_by(id=list_id).first()
-            item = Items.query.filter_by(list_id=list_id, item_id=item_id).first()
-            if item is not None:
-                db.session.delete(item)
-                db.session.commit()
-                return response('success', 'Shopping list item has been deleted', 200)
-            return response('failed', 'Item not found', 404)
-    return response('failed', 'Content-type must be json', 202)
 
-
-# decorator used to allow cross origin requests
+    try:
+        int(item_id)
+    except ValueError:
+        return response('failed', 'Please provide a valid item Id', 400)
+    else:
+        user = User.query.filter_by(id=current_user.id).first()
+        shoppinglist = user.shoppinglists.filter_by(id=list_id).first()
+        item = Items.query.filter_by(list_id=list_id, item_id=item_id).first()
+        if item is not None:
+            db.session.delete(item)
+            db.session.commit()
+            return response('success', 'Shopping list item has been deleted', 200)
+        return response('failed', 'Item not found', 404)  # decorator used to allow cross origin requests
 @v2_items.after_request
 def apply_cross_origin_header(response):
     response.headers['Access-Control-Allow-Origin'] = '*'

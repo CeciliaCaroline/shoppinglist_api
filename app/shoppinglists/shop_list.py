@@ -1,6 +1,6 @@
 from app import db
 from flask import Blueprint, request, make_response, jsonify
-from app.models import Shoppinglist
+from app.models import ShoppingList
 from app.authenticate.token import token_required
 import re
 from app.v1_helper_functions import response, get_response
@@ -22,7 +22,7 @@ def add_shoppinglists(current_user):
 
         if name and description:
             if re.match("^([a-zA-Z0-9]+[_-])*[a-zA-Z0-9]+$", name):
-                shoplist = Shoppinglist(name=name, description=description, user_id=current_user.id)
+                shoplist = ShoppingList(name=name, description=description, user_id=current_user.id)
                 db.session.add(shoplist)
                 db.session.commit()
                 return make_response(jsonify({
@@ -52,12 +52,12 @@ def view_shoppinglists(current_user):
     page = int(request.args.get('page', 1))
 
     results = []
-    shoplists = Shoppinglist.query.filter_by(
+    shoplists = ShoppingList.query.filter_by(
         user_id=current_user.id)
 
     if q is not None:
         shoplists = shoplists.filter(
-            Shoppinglist.name.like("%" + q.strip() + "%"))
+            ShoppingList.name.like("%" + q.strip() + "%"))
 
     if limit:
         try:
@@ -95,9 +95,9 @@ def get_single_list(current_user, id):
         try:
             int(id)
         except ValueError:
-            return response('failed', 'Please provide a valid Shoppinglist Id', 400)
+            return response('failed', 'Please provide a valid ShoppingList Id', 400)
         else:
-            shoplist = Shoppinglist.query.filter_by(user_id=current_user.id, id=id).first()
+            shoplist = ShoppingList.query.filter_by(user_id=current_user.id, id=id).first()
 
             if shoplist is not None:
                 return make_response(jsonify({
@@ -123,10 +123,10 @@ def edit_single_list(current_user, id):
         try:
             int(id)
         except ValueError:
-            return response('failed', 'Please provide a valid Shoppinglist Id', 400)
+            return response('failed', 'Please provide a valid ShoppingList Id', 400)
         else:
 
-            shoplist = Shoppinglist.query.filter_by(user_id=current_user.id, id=id).first()
+            shoplist = ShoppingList.query.filter_by(user_id=current_user.id, id=id).first()
             if shoplist is not None:
                 data = request.get_json()
                 name = data.get('name')
@@ -158,9 +158,9 @@ def delete_single_list(current_user, id):
         try:
             int(id)
         except ValueError:
-            return response('failed', 'Please provide a valid Shoppinglist Id', 400)
+            return response('failed', 'Please provide a valid ShoppingList Id', 400)
         else:
-            shoplist = Shoppinglist.query.filter_by(user_id=current_user.id, id=id).first()
+            shoplist = ShoppingList.query.filter_by(user_id=current_user.id, id=id).first()
             if shoplist is not None:
                 db.session.delete(shoplist)
                 db.session.commit()
