@@ -60,10 +60,10 @@ def view_shoppinglists(current_user):
         q = q.lower()
         shoplists = shoplists.filter(
             ShoppingList.name.like("%" + q.strip() + "%"))
-        search_count = ShoppingList.query.filter_by(
-            user_id=current_user.id).filter(
-            ShoppingList.name.like("%" + q.strip() + "%")).count()
-        # print('search: '+search_count)
+        # search_count = ShoppingList.query.filter_by(
+        #     user_id=current_user.id).filter(
+        #     ShoppingList.name.like("%" + q.strip() + "%")).count()
+        # # print('search: '+search_count)
 
 
     if limit:
@@ -79,7 +79,7 @@ def view_shoppinglists(current_user):
 
                 if len(results) == 0:
                     return response('failed', 'Shopping list not found', 404)
-                return get_response('shoppingLists', results, count=ShoppingList.query.filter_by(
+                return get_response('ShoppingLists', results, count=ShoppingList.query.filter_by(
                     user_id=current_user.id).count(), page=page, limit=limit)
 
         except ValueError:
@@ -91,7 +91,7 @@ def view_shoppinglists(current_user):
     if len(results) == 0:
         print(len(results))
         return response('failed', 'Shopping list not found', 404)
-    return get_response('shoppingLists', results, count=ShoppingList.query.filter_by(
+    return get_response('ShoppingLists', results, count=ShoppingList.query.filter_by(
         user_id=current_user.id).count, page=page, limit=limit)
 
 

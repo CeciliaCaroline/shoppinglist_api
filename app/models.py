@@ -144,5 +144,5 @@ class Items(db.Model):
             'name': self.name,
             'price': self.price,
             'list_id': self.list_id,
-            'status': 'success'
+            # 'status': 'success'
         }

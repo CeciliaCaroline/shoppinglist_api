@@ -85,7 +85,7 @@ def view_items(current_user, list_id):
 
                 if len(new) == 0:
                     return response('failed', ' Search failed! Shopping list item not found', 404)
-                return get_response('shoppinglists_Items', new, page=page, limit=limit,
+                return get_response('Shoppinglists_Items', new, page=page, limit=limit,
                                     count=Items.query.filter_by(list_id=shoppinglist.id).count())
 
         except ValueError:
@@ -95,7 +95,7 @@ def view_items(current_user, list_id):
             new.append(item.json())
         if len(new) == 0:
             return response('failed', 'Shopping list item not found', 404)
-        return get_response('shoppinglists_Items', new, page=page, limit=limit,
+        return get_response('Shoppinglists_Items', new, page=page, limit=limit,
                             count=Items.query.filter_by(list_id=shoppinglist.id).count())
 
 

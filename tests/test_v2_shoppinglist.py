@@ -110,7 +110,7 @@ class TestShoppingList(BaseTestCase):
             self.assertEqual(data['page'], 1)
             self.assertEqual(data['limit'], 10)
             self.assertEqual(data['count'], 1)
-            self.assertIn('shoppingLists', response.data.decode())
+            self.assertIn('ShoppingLists', response.data.decode())
 
     def test_edit_list_with_wrong_content_type(self):
         """"

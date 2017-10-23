@@ -1,6 +1,6 @@
 from flask import make_response, jsonify
-from flask_mail import Message
-from app import  mail
+
+
 
 def response(status, message, code):
     """
@@ -36,10 +36,3 @@ def get_response(title, results, page, limit, count):
         'count': count,
 
     })), 200
-
-def send_email(subject, recipients, text_body, html_body=None):
-    msg = Message(subject, recipients=recipients)
-    msg.body = text_body
-    msg.html = html_body
-    mail.send(msg)
-
