@@ -1,6 +1,7 @@
+import datetime
 from app import app, db, bcrypt
 import jwt
-import datetime
+
 
 
 class User(db.Model):
@@ -14,7 +15,7 @@ class User(db.Model):
     password = db.Column(db.String(250), nullable=False)
     registered_on = db.Column(db.DateTime, nullable=False)
     shoppinglists = db.relationship(
-        'Shoppinglist', order_by='Shoppinglist.id', lazy='dynamic')
+        'ShoppingList', order_by='ShoppingList.id', lazy='dynamic')
 
     def __init__(self, email, password):
         self.email = email
@@ -88,7 +89,7 @@ class BlackListToken(db.Model):
         return False
 
 
-class Shoppinglist(db.Model):
+class ShoppingList(db.Model):
     """This class defines the shoppinglist table."""
 
     __tablename__ = 'shoppinglists'
@@ -98,7 +99,7 @@ class Shoppinglist(db.Model):
     name = db.Column(db.String(250))
     description = db.Column(db.String(250))
     user_id = db.Column(db.Integer, db.ForeignKey(User.id))
-    items = db.relationship('Items',  order_by='Items.item_id',  lazy='dynamic')
+    items = db.relationship('Items', order_by='Items.item_id', lazy='dynamic')
 
     def __init__(self, name, description, user_id):
         """Initialize the shoppinglist with a name and description."""
@@ -126,7 +127,7 @@ class Items(db.Model):
     item_id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(250))
     price = db.Column(db.String(250))
-    list_id = db.Column(db.Integer, db.ForeignKey(Shoppinglist.id))
+    list_id = db.Column(db.Integer, db.ForeignKey(ShoppingList.id))
 
     def __init__(self, name, price, list_id):
         """Initialize the item with a name and description."""
@@ -143,5 +144,5 @@ class Items(db.Model):
             'name': self.name,
             'price': self.price,
             'list_id': self.list_id,
-            'status': 'success'
+            # 'status': 'success'
         }

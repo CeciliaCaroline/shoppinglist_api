@@ -74,3 +74,28 @@ It is possible to search shoppinglists using the parameter `q` in the GET reques
 `GET http://localhost:/shoppinglists?q=clothes`
 
 This request will return all shoppinglists with `clothes` in their name
+
+## Live Application and documentation
+This API is hosted [here](https://infinite-hollows-73486.herokuapp.com/) with the documentation hosted as the homepage
+of the application.
+
+## Running tests
+Before running the application tests, update your env variables
+```
+export  APP_SETTINGS=app.config.TestingConfig
+export DATABASE_URL_TEST=<postgres database url>
+```
+
+### Running tests without coverage
+You can now run the unittests from the terminal
+```
+python -m unittest discover -s tests
+
+```
+
+### Running tests with coverage
+You can also run tests with coverage by running this command in the terminal
+```
+nosetests --with-coverage --cover-package=app
+```
+

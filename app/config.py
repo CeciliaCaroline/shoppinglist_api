@@ -1,7 +1,7 @@
 import os
 
 base_dir = os.path.abspath(os.path.dirname(__file__))
-postgres_local_base = 'postgresql://postgres:ceciliacaroline20@localhost/'
+postgres_local_base = 'postgresql://ceciliacaroline:ceciliacaroline20@localhost/'
 database_name = 'shop_list'
 
 
@@ -15,6 +15,7 @@ class BaseConfig:
     BCRYPT_HASH_PREFIX = 13
     AUTH_TOKEN_EXPIRY_DAYS = 25
     AUTH_TOKEN_EXPIRY_SECONDS = 4000
+
 
 
 class DevelopmentConfig(BaseConfig):

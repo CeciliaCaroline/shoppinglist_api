@@ -1,7 +1,8 @@
-from app import db
-from tests.base_test import BaseTestCase
-from app.models import User
 import unittest
+
+from app import db
+from app.models import User
+from tests.base_test import BaseTestCase
 
 
 class TestUserModel(BaseTestCase):

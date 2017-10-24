@@ -1,8 +1,9 @@
-from tests.base_test import BaseTestCase
-from app.models import User
-from app import db
-import unittest
 import json
+import unittest
+
+from app import db
+from app.models import User
+from tests.base_test import BaseTestCase
 
 
 class TestAuthBluePrint(BaseTestCase):
@@ -107,7 +108,8 @@ class TestAuthBluePrint(BaseTestCase):
 
     def test_login_has_correct_email_and_valid_length_password(self):
         """
-        Test the email of the user trying to login is valid and the password length is greater than 4 characters
+        Test the email of the user trying to login is valid
+         and the password length is greater than 4 characters
         :return:
         """
         with self.client:
@@ -204,7 +206,6 @@ class TestAuthBluePrint(BaseTestCase):
                 content_type='application/json',
                 data=json.dumps(dict(email='caroline@gmail.com', newpassword='123456789', confirmpassword='123456789')))
             data = json.loads(response.data.decode())
-            print(response.data)
             self.assertEqual(data['status'], 'success')
             self.assertEqual(data['message'], 'Password has been reset')
             self.assertEqual(response.status_code, 200)
