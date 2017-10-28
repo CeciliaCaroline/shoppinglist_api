@@ -14,7 +14,7 @@ class TestUserModel(BaseTestCase):
         """"
         Method to create a user and add them to the database
         """
-        user = User(email='example@gmail.com', password='123456')
+        user = User(email='example@gmail.com', password='123456', username='example1')
         db.session.add(user)
         db.session.commit()
         return user

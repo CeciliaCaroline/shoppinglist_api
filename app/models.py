@@ -107,7 +107,7 @@ class ShoppingList(db.Model):
         """Initialize the shoppinglist with a name and description."""
         self.name = name
         self.description = description
-        self.created_on = datetime.date.today()
+        self.created_on = datetime.datetime.now()
         self.user_id = user_id
 
     def json(self):
@@ -118,7 +118,7 @@ class ShoppingList(db.Model):
             'id': self.id,
             'name': self.name,
             'description': self.description,
-            'Created_on': self.created_on
+            'created_on': self.created_on
         }
 
 
@@ -138,7 +138,7 @@ class Items(db.Model):
         """Initialize the item with a name and description."""
         self.name = name
         self.price = price
-        self.created_on = datetime.date.today()
+        self.created_on = datetime.datetime.now()
         self.list_id = list_id
 
     def json(self):
@@ -150,5 +150,5 @@ class Items(db.Model):
             'name': self.name,
             'price': self.price,
             'list_id': self.list_id,
-            'Created_on': self.created_on,
+            'created_on': self.created_on,
         }
