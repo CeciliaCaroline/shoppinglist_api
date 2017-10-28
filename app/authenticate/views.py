@@ -16,12 +16,14 @@ def signup():
 
     if request.content_type == 'application/json':
         post_data = request.get_json()
+        username = post_data.get('username')
         email = post_data.get('email')
         password = post_data.get('password')
-        if re.match(r"[^@]+@[^@]+\.[^@]+", email) and len(password) > 4:
+
+        if re.match(r"[^@]+@[^@]+\.[^@]+", email) and len(password) > 4 and username:
             user = User.query.filter_by(email=email).first()
             if not user:
-                user = User(email=email, password=password)
+                user = User(email=email, password=password, username=username)
                 db.session.add(user)
                 db.session.commit()
                 auth_token = user.encode_auth_token(user_id=user.id)
