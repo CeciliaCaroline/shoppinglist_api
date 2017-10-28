@@ -30,7 +30,7 @@ def add_shoppinglists(current_user):
                     'name': shoplist.name,
                     'description': shoplist.description,
                     'user_id': current_user.id,
-                    'Created_on': shoplist.created_on.date(),
+                    'Created_on': shoplist.created_on,
                     'message': 'Shopping list has been created'
                 })), 201
             return response('failed', 'Wrong name format. Name can only contain letters and numbers', 400)

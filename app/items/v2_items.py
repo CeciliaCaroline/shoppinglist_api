@@ -35,6 +35,7 @@ def add_items(current_user, list_id):
                             'price': item.price,
                             'user_id': current_user.id,
                             'list_id': list_id,
+                            'Created_on': item.created_on,
                             'message': 'Shopping list item has been created'
 
                         })), 201

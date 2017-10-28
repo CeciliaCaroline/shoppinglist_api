@@ -4,7 +4,6 @@ from flask import Blueprint, request
 from app.models import User, BlackListToken
 from app.v1_helper_functions import response, user_response
 
-
 auth = Blueprint('auth', __name__)
 
 
