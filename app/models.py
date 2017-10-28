@@ -12,12 +12,14 @@ class User(db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     email = db.Column(db.String(250), unique=True, nullable=False)
     password = db.Column(db.String(250), nullable=False)
+    username = db.Column(db.String(250), nullable=False)
     registered_on = db.Column(db.DateTime, nullable=False)
     shoppinglists = db.relationship(
         'ShoppingList', order_by='ShoppingList.id', lazy='dynamic')
 
-    def __init__(self, email, password):
+    def __init__(self, email, password, username):
         self.email = email
+        self.username = username
         self.password = bcrypt.generate_password_hash(password, app.config.get('BCRYPT_LOG_ROUNDS')) \
             .decode('utf-8')
         self.registered_on = datetime.datetime.now()
@@ -98,12 +100,14 @@ class ShoppingList(db.Model):
     name = db.Column(db.String(250))
     description = db.Column(db.String(250))
     user_id = db.Column(db.Integer, db.ForeignKey(User.id))
+    created_on = db.Column(db.DateTime, nullable=False)
     items = db.relationship('Items', order_by='Items.item_id', lazy='dynamic')
 
     def __init__(self, name, description, user_id):
         """Initialize the shoppinglist with a name and description."""
         self.name = name
         self.description = description
+        self.created_on = datetime.date.today()
         self.user_id = user_id
 
     def json(self):
@@ -113,7 +117,8 @@ class ShoppingList(db.Model):
         return {
             'id': self.id,
             'name': self.name,
-            'description': self.description
+            'description': self.description,
+            'Created_on': self.created_on
         }
 
 
@@ -126,12 +131,14 @@ class Items(db.Model):
     item_id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(250))
     price = db.Column(db.String(250))
+    created_on = db.Column(db.DateTime, nullable=False)
     list_id = db.Column(db.Integer, db.ForeignKey(ShoppingList.id))
 
     def __init__(self, name, price, list_id):
         """Initialize the item with a name and description."""
         self.name = name
         self.price = price
+        self.created_on = datetime.date.today()
         self.list_id = list_id
 
     def json(self):
@@ -143,4 +150,5 @@ class Items(db.Model):
             'name': self.name,
             'price': self.price,
             'list_id': self.list_id,
+            'Created_on': self.created_on,
         }
