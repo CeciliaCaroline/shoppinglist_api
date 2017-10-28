@@ -46,7 +46,7 @@ def add_items(current_user, list_id):
                     except ValueError:
                         return response('failed', 'Item price should be an integer', 400)
 
-                return response('failed', 'Wrong name format. Name can only contain letters and numbers', 406)
+                return response('failed', 'Wrong name format. Name can only contain letters and numbers', 403)
             return response('failed', 'No name has been input', 400)
 
     return response('failed', 'Content-type must be json', 202)
@@ -164,7 +164,7 @@ def edit_item(current_user, list_id, item_id):
 
                         except ValueError:
                             return response('failed', 'Item price should be an integer', 400)
-                    return response('failed', 'Wrong name format. Name can only contain letters and numbers', 406)
+                    return response('failed', 'Wrong name format. Name can only contain letters and numbers', 403)
                 return response('failed', 'No name input. Try again', 400)
             return response('failed', 'Shopping list item does not exist. Please try again', 404)
     return response('failed', 'Content-type must be json', 202)

@@ -79,7 +79,7 @@ class TestAuthBluePrint(BaseTestCase):
             data = json.loads(response.data.decode())
             self.assertTrue(data['status'] == 'failed')
             self.assertTrue(data['message'] == 'User already exists, Please sign In')
-            self.assertEqual(response.status_code, 406)
+            self.assertEqual(response.status_code, 403)
 
     def test_user_can_login(self):
         """
@@ -130,7 +130,7 @@ class TestAuthBluePrint(BaseTestCase):
             data = json.loads(response.data.decode())
             self.assertTrue(data['status'] == 'failed')
             self.assertTrue(data['message'] == 'User does not exist or password is incorrect')
-            self.assertEqual(response.status_code, 406)
+            self.assertEqual(response.status_code, 403)
 
     def test_valid_user_log_out(self):
         """

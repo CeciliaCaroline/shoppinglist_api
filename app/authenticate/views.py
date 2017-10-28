@@ -28,7 +28,7 @@ def signup():
                 auth_token = user.encode_auth_token(user_id=user.id)
                 return user_response('success', 'Successfully registered', auth_token.decode("utf-8"), 201)
 
-            return response('failed', 'User already exists, Please sign In', 406)
+            return response('failed', 'User already exists, Please sign In', 403)
         return response('failed', 'Missing or wrong email format or password is less than four characters', 400)
     return response('failed', 'Content-type must be json', 202)
 
@@ -49,7 +49,7 @@ def login():
                 auth_token = user.encode_auth_token(user.id)
                 return user_response('success', 'Successfully logged in', auth_token.decode(), 200)
 
-            return response('failed', 'User does not exist or password is incorrect', 406)
+            return response('failed', 'User does not exist or password is incorrect', 403)
         return response('failed', 'Missing or wrong email format or password is less than four characters', 400)
     return response('failed', 'Content-type must be json', 202)
 
@@ -102,7 +102,7 @@ def reset():
                 return response('failed', 'Password confirm does not match password. Please try again', 400)
             return response('failed', 'User does not exist. Please login or register', 404)
 
-        return response('failed', 'Missing or wrong email format or password is less than four characters', 406)
+        return response('failed', 'Missing or wrong email format or password is less than four characters', 403)
     return response('failed', 'Content-type must be json', 202)
 
     # decorator used to allow cross origin requests

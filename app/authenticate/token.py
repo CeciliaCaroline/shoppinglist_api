@@ -3,7 +3,6 @@ from flask import request, make_response, jsonify
 from app.models import User
 
 
-
 def token_required(f):
     """
     Decorator function to ensure that a resource is access by only authenticated users`
