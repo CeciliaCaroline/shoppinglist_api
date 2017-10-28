@@ -30,7 +30,7 @@ def add_shoppinglists(current_user):
                     'name': shoplist.name,
                     'description': shoplist.description,
                     'user_id': current_user.id,
-                    'Created_on': shoplist.created_on,
+                    'created_on': shoplist.created_on,
                     'message': 'Shopping list has been created'
                 })), 201
             return response('failed', 'Wrong name format. Name cannot contain special characters or start with a space',
@@ -111,7 +111,8 @@ def get_single_list(current_user, id):
                     'name': shoplist.name,
                     'description': shoplist.description,
                     'user_id': current_user.id,
-                    'status': 'success'
+                    'created_on': shoplist.created_on,
+
                 }
 
                 )), 200
@@ -176,10 +177,7 @@ def delete_single_list(current_user, id):
         return response('failed', 'Shopping list not found', 404)
 
 
-
-        # decorator used to allow cross origin requests
-
-
+# decorator used to allow cross origin requests
 @v2_shop_list.after_request
 def apply_cross_origin_header(response):
     response.headers['Access-Control-Allow-Origin'] = '*'

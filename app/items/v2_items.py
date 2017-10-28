@@ -119,6 +119,8 @@ def get_single_item(current_user, list_id, item_id):
                 'price': item.price,
                 'user_id': current_user.id,
                 'list_id': list_id,
+                'created_on': item.created_on,
+
 
             })), 200
         return response('failed', 'Item not found', 404)
