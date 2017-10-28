@@ -3,7 +3,6 @@ from app import app, db, bcrypt
 import jwt
 
 
-
 class User(db.Model):
     """
     Users table
@@ -144,5 +143,4 @@ class Items(db.Model):
             'name': self.name,
             'price': self.price,
             'list_id': self.list_id,
-            # 'status': 'success'
         }

@@ -60,10 +60,7 @@ def view_shoppinglists(current_user):
         q = q.lower()
         shoplists = shoplists.filter(
             ShoppingList.name.like("%" + q.strip() + "%"))
-        # search_count = ShoppingList.query.filter_by(
-        #     user_id=current_user.id).filter(
-        #     ShoppingList.name.like("%" + q.strip() + "%")).count()
-        # # print('search: '+search_count)
+
 
 
     if limit:

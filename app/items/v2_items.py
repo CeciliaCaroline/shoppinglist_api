@@ -80,11 +80,8 @@ def view_items(current_user, list_id):
                 for limit_item in limit_items:
                     new.append(limit_item.json())
 
-                # print(len(new))
-                # print(new)
-
                 if len(new) == 0:
-                    return response('failed', ' Search failed! Shopping list item not found', 404)
+                    return response('failed', 'Shopping list item not found', 404)
                 return get_response('Shoppinglists_Items', new, page=page, limit=limit,
                                     count=Items.query.filter_by(list_id=shoppinglist.id).count())
 
@@ -187,6 +184,8 @@ def delete_item(current_user, list_id, item_id):
             db.session.commit()
             return response('success', 'Shopping list item has been deleted', 200)
         return response('failed', 'Item not found', 404)  # decorator used to allow cross origin requests
+
+
 @v2_items.after_request
 def apply_cross_origin_header(response):
     response.headers['Access-Control-Allow-Origin'] = '*'
