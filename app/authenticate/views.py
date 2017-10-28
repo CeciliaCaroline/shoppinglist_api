@@ -26,7 +26,7 @@ def signup():
                 db.session.add(user)
                 db.session.commit()
                 auth_token = user.encode_auth_token(user_id=user.id)
-                return user_response('success', 'Successfully registered', 201)
+                return user_response('success', 'Successfully registered', auth_token.decode("utf-8"), 201)
 
             return response('failed', 'User already exists, Please sign In', 403)
         return response('failed', 'Missing or wrong email format or password is less than four characters', 400)
