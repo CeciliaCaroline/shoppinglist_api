@@ -31,5 +31,8 @@ before_script:
 script:
   - nosetests --with-coverage --cover-package=app
 
+env:
+  - USER='ceciliacaroline' PASSWORD='ceciliacaroline20' HOST='localhost' DB='shop_list' DB_TEST='test_api' SECRET_KEY='my_strong_key' DATABASE_URL="postgresql://${USER}:${PASSWORD}@${HOST}/${DB}" DATABASE_URL_TESTs="postgresql://${USER}:${PASSWORD}@${HOST}/${DB_TEST}"
+
 after_script:
   - coveralls
