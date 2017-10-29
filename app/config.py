@@ -16,6 +16,14 @@ class BaseConfig:
     AUTH_TOKEN_EXPIRY_DAYS = 25
     AUTH_TOKEN_EXPIRY_SECONDS = 4000
 
+    # email server
+    MAIL_SERVER = os.environ['MAIL_SERVER']
+    MAIL_PORT = os.environ['MAIL_PORT']
+    MAIL_USE_TLS = False
+    MAIL_USE_SSL = True
+    MAIL_USERNAME = os.environ['MAIL_USERNAME']
+    MAIL_PASSWORD = os.environ['MAIL_PASSWORD']
+    MAIL_DEFAULT_SENDER = os.environ['MAIL_DEFAULT_SENDER']
 
 
 class DevelopmentConfig(BaseConfig):

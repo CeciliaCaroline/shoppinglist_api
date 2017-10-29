@@ -1,10 +1,17 @@
 import re
-from app import db, bcrypt, app
-from flask import Blueprint, request
+from app import db, bcrypt, app, mail, Message
+from flask import Blueprint, request, jsonify
 from app.models import User, BlackListToken
 from app.v1_helper_functions import response, user_response
 
 auth = Blueprint('auth', __name__)
+
+
+def send_email(subject, recipients, text_body, html_body=""):
+    msg = Message(subject, recipients=recipients)
+    msg.body = text_body
+    msg.html = html_body
+    mail.send(msg)
 
 
 @auth.route('/auth/register', methods=['POST'])
@@ -81,8 +88,8 @@ def logout():
     return response('failed', 'Provide an authorization header', 403)
 
 
-@auth.route('/auth/reset_password', methods=['POST'])
-def reset():
+@auth.route('/auth/reset_password/<token>', methods=['POST'])
+def reset(token=None):
     """
     Method to reset user password
     """
@@ -90,11 +97,12 @@ def reset():
     if request.content_type == 'application/json':
         post_data = request.get_json()
         email = post_data.get('email')
-        new_password = post_data.get('newpassword')
-        confirm_password = post_data.get('confirmpassword')
+        new_password = post_data.get('new_password')
+        confirm_password = post_data.get('confirm_password')
         if re.match(r"[^@]+@[^@]+\.[^@]+", email) and len(new_password) > 4:
             user = User.query.filter_by(email=email).first()
-            if user:
+            user_id = user.decode_auth_token(token)
+            if user_id:
                 if new_password == confirm_password:
                     user.password = bcrypt.generate_password_hash(new_password, app.config.get('BCRYPT_LOG_ROUNDS')) \
                         .decode('utf-8')
@@ -107,6 +115,42 @@ def reset():
     return response('failed', 'Content-type must be json', 202)
 
     # decorator used to allow cross origin requests
+
+
+@auth.route('/auth/reset_password', methods=['POST'])
+def reset_password():
+    """
+    Method to reset user password
+    """
+    post_data = request.get_json()
+    email = post_data.get('email')
+    # retrieve user and check if they exist
+    user = User.query.filter_by(email=email).first()
+
+    # user does not exist
+    if not user:
+        return response('failed', 'User does not exist. Please login or register', 404)
+    token = user.encode_auth_token(user.id)
+
+    # user exists, make a token from the secret key and
+    # a dictionary of the users email
+
+    # create a url and send it in the email
+    password_reset_url = \
+        "https://127.0.0.1/" \
+        "password-reset/" + str(token, 'utf-8')
+
+    email_body = \
+        "Please follow this link to reset your " \
+        "password\n\n" + password_reset_url + "\n\n If you're " \
+                                              "not the one who requested this, please ignore " \
+                                              "this and contact the administrator about this."
+
+    send_email(
+        'Password Reset Requested', ["nalubegac58@gmail.com"], email_body)
+
+    # return a success message
+    return response("success", "An email has been sent to you with a link you can use to reset your password", 200)
 
 
 @auth.after_request

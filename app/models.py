@@ -118,7 +118,7 @@ class ShoppingList(db.Model):
             'id': self.id,
             'name': self.name,
             'description': self.description,
-            'created_on': self.created_on
+            'created_on': self.created_on.strftime("%Y-%m-%d")
         }
 
 
@@ -150,5 +150,5 @@ class Items(db.Model):
             'name': self.name,
             'price': self.price,
             'list_id': self.list_id,
-            'created_on': self.created_on,
+            'created_on': self.created_on.strftime("%Y-%m-%d"),
         }
