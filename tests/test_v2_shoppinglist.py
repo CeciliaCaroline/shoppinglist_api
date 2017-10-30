@@ -220,9 +220,8 @@ class TestShoppingList(BaseTestCase):
                 content_type='application/json',
                 headers=dict(Authorization="Bearer " + token)
             )
-            data = json.loads(response.data.decode())
-            self.assertEqual(response.status_code, 200)
 
+            self.assertEqual(response.status_code, 200)
 
     def test_get_single_shopping_list_with_wrong_content_type(self):
         with self.client:
@@ -430,8 +429,6 @@ class TestShoppingList(BaseTestCase):
             self.assertEqual(rv.status_code, 200)
             data = json.loads(rv.data.decode())
             self.assertEqual(data['message'], 'Shopping list has been deleted')
-
-
 
 
 if __name__ == '__main__':

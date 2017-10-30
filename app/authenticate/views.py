@@ -1,6 +1,6 @@
 import re
 from app import db, bcrypt, app, mail, Message
-from flask import Blueprint, request, jsonify
+from flask import Blueprint, request
 from app.models import User, BlackListToken
 from app.v1_helper_functions import response, user_response
 
