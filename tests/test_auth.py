@@ -104,7 +104,7 @@ class TestAuthBluePrint(BaseTestCase):
                             msg='The content type must be application/json')
             self.assertTrue(response.status_code, 202)
             self.assertTrue(data['status'] == 'failed', msg='failed must be returned')
-            self.assertTrue(data['message'] == 'Content-type must be json', msg='Check the returned message')
+            self.assertTrue(data['message'] == 'Content-type must be json')
 
     def test_login_has_correct_email_and_valid_length_password(self):
         """
@@ -236,6 +236,18 @@ class TestAuthBluePrint(BaseTestCase):
             self.assertEqual(data['status'], 'failed')
             self.assertEqual(data['message'], 'User does not exist. Please login or register')
             self.assertEqual(response.status_code, 404)
+
+    def test_password_reset_with_wrong_content_type(self):
+        with self.client:
+            self.register_user('caroline@gmail.com', '123456', 'example1')
+            response = self.client.post(
+                '/auth/reset_password',
+                content_type='application/java',
+                data=json.dumps(dict(email='caroline12@gmail.com')))
+            data = json.loads(response.data.decode())
+            self.assertEqual(data['status'], 'failed')
+            self.assertEqual(data['message'], 'Content-type must be json')
+            self.assertEqual(response.status_code, 202)
 
     def logout_user(self, token):
         """

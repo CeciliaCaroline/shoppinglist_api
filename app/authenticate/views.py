@@ -122,35 +122,37 @@ def reset_password():
     """
     Method to reset user password
     """
-    post_data = request.get_json()
-    email = post_data.get('email')
-    # retrieve user and check if they exist
-    user = User.query.filter_by(email=email).first()
+    if request.content_type == 'application/json':
+        post_data = request.get_json()
+        email = post_data.get('email')
+        # retrieve user and check if they exist
+        user = User.query.filter_by(email=email).first()
 
-    # user does not exist
-    if not user:
-        return response('failed', 'User does not exist. Please login or register', 404)
-    token = user.encode_auth_token(user.id)
+        # user does not exist
+        if not user:
+            return response('failed', 'User does not exist. Please login or register', 404)
+        token = user.encode_auth_token(user.id)
 
-    # user exists, make a token from the secret key and
-    # a dictionary of the users email
+        # user exists, make a token from the secret key and
+        # a dictionary of the users email
 
-    # create a url and send it in the email
-    password_reset_url = \
-        "https://127.0.0.1/" \
-        "password-reset/" + str(token, 'utf-8')
+        # create a url and send it in the email
+        password_reset_url = \
+            "https://127.0.0.1/" \
+            "password-reset/" + str(token, 'utf-8')
 
-    email_body = \
-        "Please follow this link to reset your " \
-        "password\n\n" + password_reset_url + "\n\n If you're " \
-                                              "not the one who requested this, please ignore " \
-                                              "this and contact the administrator about this."
+        email_body = \
+            "Please follow this link to reset your " \
+            "password\n\n" + password_reset_url + "\n\n If you're " \
+                                                  "not the one who requested this, please ignore " \
+                                                  "this and contact the administrator about this."
 
-    send_email(
-        'Password Reset Requested', ["nalubegac58@gmail.com"], email_body)
+        send_email(
+            'Password Reset Requested', ["nalubegac58@gmail.com"], email_body)
 
-    # return a success message
-    return response("success", "An email has been sent to you with a link you can use to reset your password", 200)
+        # return a success message
+        return response("success", "An email has been sent to you with a link you can use to reset your password", 200)
+    return response('failed', 'Content-type must be json', 202)
 
 
 @auth.after_request
