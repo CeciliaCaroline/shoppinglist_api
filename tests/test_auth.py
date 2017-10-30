@@ -212,6 +212,18 @@ class TestAuthBluePrint(BaseTestCase):
             self.assertEqual(data['message'],
                              "An email has been sent to you with a link you can use to reset your password")
             self.assertEqual(response.status_code, 200)
+            token = self.token()
+            res = self.client.post(
+                '/auth/reset_password/' + token,
+                content_type='application/json',
+                data=json.dumps(
+                    dict(email='caroline@gmail.com', new_password='123456789', confirm_password='123456789')))
+
+            data = json.loads(res.data.decode())
+            self.assertEqual(data['status'], 'success')
+            self.assertEqual(data['message'],
+                             "Password has been reset")
+            self.assertEqual(res.status_code, 200)
 
     def test_password_reset_non_user(self):
         with self.client:
