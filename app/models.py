@@ -105,8 +105,8 @@ class ShoppingList(db.Model):
 
     def __init__(self, name, description, user_id):
         """Initialize the shoppinglist with a name and description."""
-        self.name = name
-        self.description = description
+        self.name = name.capitalize()
+        self.description = description.l
         self.created_on = datetime.datetime.now()
         self.user_id = user_id
 

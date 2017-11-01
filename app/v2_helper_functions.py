@@ -1,7 +1,6 @@
 from flask import make_response, jsonify
 
 
-
 def response(status, message, code):
     """
 
@@ -17,7 +16,7 @@ def response(status, message, code):
         'message': message})), code
 
 
-def get_response(title, results, page, limit, count):
+def get_search_response(title, results, page, limit, count, search_count):
     """
      helper function for get request
 
@@ -34,5 +33,30 @@ def get_response(title, results, page, limit, count):
         'page': page,
         'limit': limit,
         'count': count,
+        'search_count': search_count,
+
+    })), 200
+
+
+def get_response(title, results, page, limit, count):
+
+
+    """
+     helper function for get request
+
+    :param title:
+    :param results:
+    :param page:
+    :param limit:
+    :param count:
+    :return:
+    """
+    return make_response(jsonify({
+        title: results,
+        'status': 'success',
+        'page': page,
+        'limit': limit,
+        'count': count,
+
 
     })), 200

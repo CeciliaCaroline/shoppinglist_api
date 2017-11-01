@@ -148,7 +148,7 @@ def reset_password():
                                                   "this and contact the administrator about this."
 
         send_email(
-            'Password Reset Requested', ["nalubegac58@gmail.com"], email_body)
+            'Password Reset Requested', [email], email_body)
 
         # return a success message
         return response("success", "An email has been sent to you with a link you can use to reset your password", 200)
