@@ -23,25 +23,28 @@ def add_items(current_user, list_id):
         price = data.get('price')
 
         if name:
-            if re.match("^([a-zA-Z0-9]+[ \s])*[a-zA-Z0-9]+$", name) and name.strip(' ')[0]:
+            if re.match("^([a-zA-Z0-9]+[ \s])*[a-zA-Z0-9]+$", name.strip()):
                 try:
-                    if int(price):
+                    if int(price) and int(price) > 0:
                         item = Items(name=name, price=price, list_id=list_id)
-                        db.session.add(item)
-                        db.session.commit()
-                        return make_response(jsonify({
-                            'id': item.item_id,
-                            'name': item.name,
-                            'price': item.price,
-                            'user_id': current_user.id,
-                            'list_id': list_id,
-                            'Created_on': item.created_on.strftime("%Y-%m-%d"),
-                            'message': 'Shopping list item has been created'
+                        try:
+                            db.session.add(item)
+                            db.session.commit()
+                            return make_response(jsonify({
+                                'id': item.item_id,
+                                'name': item.name,
+                                'price': item.price,
+                                'user_id': current_user.id,
+                                'list_id': list_id,
+                                'Created_on': item.created_on.strftime("%Y-%m-%d"),
+                                'message': 'Shopping list item has been created'
 
-                        })), 201
+                            })), 201
+                        except exc.IntegrityError:
+                            return response('failed', 'Item name already exists. Try again', 406)
 
                 except ValueError:
-                    return response('failed', 'Item price should be an integer', 400)
+                    return response('failed', 'Item price should be an integer greater than 0', 400)
 
             return response('failed', 'Wrong name format. Name cannot contain special characters or start with a space',
                             400)
@@ -153,10 +156,10 @@ def edit_item(current_user, list_id, item_id):
                 name = data.get('name')
                 price = data.get('price')
                 if name:
-                    if re.match("^([a-zA-Z0-9]+[ \s])*[a-zA-Z0-9]+$", name) and name.strip(' ')[0]:
+                    if re.match("^([a-zA-Z0-9]+[ \s])*[a-zA-Z0-9]+$", name.strip()):
                         try:
 
-                            if int(price):
+                            if int(price) and int(price) > 0:
                                 item.name = name
                                 item.price = price
                                 db.session.commit()

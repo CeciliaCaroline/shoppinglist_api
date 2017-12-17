@@ -22,19 +22,21 @@ def add_shoppinglists(current_user):
         description = data.get('description')
 
         if name and description:
-            # name = name.lower()
-            if re.match("^([a-zA-Z0-9]+[ \s])*[a-zA-Z0-9]+$", name) and name.strip(' ')[0]:
+            if re.match("^([a-zA-Z0-9]+[ \s])*[a-zA-Z0-9]+$", name.strip()):
                 shoplist = ShoppingList(name=name, description=description, user_id=current_user.id)
-                db.session.add(shoplist)
-                db.session.commit()
-                return make_response(jsonify({
-                    'id': shoplist.id,
-                    'name': shoplist.name,
-                    'description': shoplist.description,
-                    'user_id': current_user.id,
-                    'created_on': shoplist.created_on.strftime("%Y-%m-%d"),
-                    'message': 'Shopping list has been created'
-                })), 201
+                try:
+                    db.session.add(shoplist)
+                    db.session.commit()
+                    return make_response(jsonify({
+                        'id': shoplist.id,
+                        'name': shoplist.name,
+                        'description': shoplist.description,
+                        'user_id': current_user.id,
+                        'created_on': shoplist.created_on.strftime("%Y-%m-%d"),
+                        'message': 'Shopping list has been created'
+                    })), 201
+                except exc.IntegrityError:
+                    return response('failed', 'List name already exists. Try again', 406)
             return response('failed', 'Wrong name format. Name cannot contain special characters or start with a space',
                             400)
 
@@ -151,7 +153,7 @@ def edit_single_list(current_user, id):
                 name = data.get('name')
                 description = data.get('description')
                 if name:
-                    if re.match("^^([a-zA-Z0-9]+[ \s])*[a-zA-Z0-9]+$", name) and name.strip(' ')[0]:
+                    if re.match("^^([a-zA-Z0-9]+[ \s])*[a-zA-Z0-9]+$", name.strip()):
                         shoplist.name = name
                         shoplist.description = description
                         db.session.commit()
