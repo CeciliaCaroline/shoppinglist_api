@@ -1,8 +1,8 @@
 import os
 
 base_dir = os.path.abspath(os.path.dirname(__file__))
-postgres_local_base = 'postgresql://ceciliacaroline:ceciliacaroline20@localhost/'
-database_name = 'shop_list'
+# postgres_local_base = 'postgresql://ceciliacaroline:ceciliacaroline20@localhost/'
+# database_name = 'shop_list'
 
 
 class BaseConfig:
@@ -43,7 +43,7 @@ class TestingConfig(BaseConfig):
     """
     DEBUG = True
     TESTING = True
-    SQLALCHEMY_DATABASE_URI = os.getenv('DATABASE_URL_TEST')
+    SQLALCHEMY_DATABASE_URI = os.getenv('DATABASE_URL_TESTS')
     BCRYPT_HASH_PREFIX = 3
     AUTH_TOKEN_EXPIRY_DAYS = 0
     AUTH_TOKEN_EXPIRY_SECONDS = 2
