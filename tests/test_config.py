@@ -22,7 +22,7 @@ class TestDevelopmentConfig(TestCase):
         self.assertFalse(current_app is None)
         self.assertTrue(
             app.config[
-                'SQLALCHEMY_DATABASE_URI'] == "postgresql://ceciliacaroline:ceciliacaroline20@localhost/shop_list")
+                'SQLALCHEMY_DATABASE_URI'] == "postgresql://postgres:ceciliacaroline20@localhost/shop_list")
         self.assertEqual(app.config['AUTH_TOKEN_EXPIRY_DAYS'], 1)
         self.assertEqual(app.config['AUTH_TOKEN_EXPIRY_SECONDS'], 18)
 
