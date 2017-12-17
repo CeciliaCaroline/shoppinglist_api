@@ -91,22 +91,6 @@ class ItemsTestCase(BaseTestCase):
             self.assertEqual(response.status_code, 403)
             self.assertIn('No name has been input', response.data.decode())
 
-    def test_create_item_with_name_starting_with_space(self):
-        """"
-        test item cant be created with invalid item name format
-        """
-        with self.client:
-            token = self.token()
-
-            self.create_list('Travel', 'Visit places', token)
-            response = self.create_item(' Go to Nairobi', '5000', token)
-            data = json.loads(response.data.decode())
-            self.assertTrue(data['message'],
-                            'Wrong name format. Name cannot contain special characters or start with a space')
-            self.assertEqual(response.status_code, 400)
-            self.assertIn('Wrong name format. Name cannot contain special characters or start with a space',
-                          response.data.decode())
-
     def test_create_item_with_name_containing_special_characters(self):
         """"
         test item cant be created with invalid item name format
@@ -397,20 +381,6 @@ class ItemsTestCase(BaseTestCase):
             self.create_list('Travel', 'Visit places', token)
             self.create_item('Go to Nairobi', '5000', token)
             response = self.edit_item('Going to Mombasa!!@', '5000', token)
-            # print(response.data.decode())
-            self.assertEqual(response.status_code, 400)
-            data = json.loads(response.data.decode())
-            self.assertTrue(data['status'], 'failed')
-            self.assertIn('Wrong name format. Name cannot contain special characters or start with a space',
-                          response.data.decode())
-
-    def test_edit_item_with_name_starting_with_space(self):
-        """Should return 200 for success"""
-        with self.client:
-            token = self.token()
-            self.create_list('Travel', 'Visit places', token)
-            self.create_item('Go to Nairobi', '5000', token)
-            response = self.edit_item(' Going to Mombasa', '5000', token)
             # print(response.data.decode())
             self.assertEqual(response.status_code, 400)
             data = json.loads(response.data.decode())

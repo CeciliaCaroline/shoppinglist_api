@@ -39,7 +39,6 @@ class TestShoppingList(BaseTestCase):
             self.assertTrue(data['message'], 'Shopping list has been created')
             self.assertEqual(res.status_code, 201)
             self.assertIn('Go to Kenya', str(res.data))
-            # return data
 
     def test_create_shoppinglist_with_invalid_token(self):
         """Test API can create a shoppinglist """
@@ -60,16 +59,7 @@ class TestShoppingList(BaseTestCase):
             self.assertTrue(data['status'], 'failed')
             self.assertEqual(res.status_code, 400)
 
-    def test_create_shoppinglist_starting_with_spaces(self):
-        """Test API can create a shoppinglist """
 
-        with self.client:
-            res = self.create_list(' travel the world', 'Go to Kenya', self.token())
-            data = json.loads(res.data.decode())
-            self.assertTrue(data['message'],
-                            'Wrong name format. Name cannot contain special characters or start with a space')
-            self.assertTrue(data['status'], 'failed')
-            self.assertEqual(res.status_code, 400)
 
     def test_create_shoppinglist_with_empty_name_or_description(self):
         """Test API can create a shoppinglist """
@@ -108,7 +98,7 @@ class TestShoppingList(BaseTestCase):
             self.assertEqual(response.status_code, 200)
             self.assertEqual(data['status'], 'success')
             self.assertEqual(data['page'], 1)
-            self.assertEqual(data['limit'], 10)
+            self.assertEqual(data['limit'], 5)
             self.assertEqual(data['count'], 1)
             self.assertIn('ShoppingLists', response.data.decode())
 
@@ -148,12 +138,11 @@ class TestShoppingList(BaseTestCase):
                                        content_type='application/json',
                                        headers=dict(Authorization='Bearer ' + token))
 
-            # print(response.data.decode())
             self.assertEqual(response.status_code, 200)
             data = json.loads(response.data.decode())
             self.assertEqual(data['status'], 'success')
             self.assertEqual(data['page'], 1)
-            self.assertEqual(data['limit'], 10)
+            self.assertEqual(data['limit'], 5)
             self.assertEqual(data['count'], 1)
             self.assertIn('Travel', response.data.decode())
 
@@ -388,27 +377,7 @@ class TestShoppingList(BaseTestCase):
                              'Wrong name format. Name cannot contain special characters or start with a space')
             self.assertEqual(data['status'], 'failed')
 
-    def test_edit_shoppinglist_with_name_starting_with_space(self):
-        """Test API can edit an existing shoppinglist. (PUT request)"""
-        with self.client:
-            token = self.token()
-            res = self.create_list('eat', 'eatpraylove', token)
-            self.assertEqual(res.status_code, 201)
-            # get the json with the shoppinglist
-            results = json.loads(res.data.decode())
 
-            # then, we edit the created shoppinglist by making a PUT request
-            rv = self.client.put(
-                '/v2/shoppinglist/{}'.format(results['id']),
-                headers=dict(Authorization="Bearer " + token),
-                content_type='application/json',
-                data=json.dumps(dict(name=' travel', description='traveling to different places')))
-            # print(rv.data)
-            data = json.loads(rv.data.decode())
-            self.assertEqual(rv.status_code, 400)
-            self.assertEqual(data['message'],
-                             'Wrong name format. Name cannot contain special characters or start with a space')
-            self.assertEqual(data['status'], 'failed')
 
     def test_shoppinglist_delete(self):
         """"
