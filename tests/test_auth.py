@@ -222,8 +222,6 @@ class TestAuthBluePrint(BaseTestCase):
                     dict(email='nalubegac58@gmail.com', new_password='123456789', confirm_password='123456789')))
 
             data = json.loads(res.data.decode())
-            print('data', data)
-
             self.assertEqual(data['status'], 'success')
             self.assertEqual(data['message'],
                              "Password has been reset")
