@@ -4,7 +4,7 @@ from app.models import ShoppingList
 from app.authenticate.token import token_required
 import re
 from app.v2_helper_functions import response, get_response, get_search_response
-from sqlalchemy import func
+from sqlalchemy import func, exc
 
 v2_shop_list = Blueprint('v2_shop_list', __name__)
 
@@ -51,7 +51,7 @@ def view_shoppinglists(current_user):
     User can limit the number of results returned and can also do a search on all their lists
     """
 
-    limit = request.args.get('limit', 10)
+    limit = request.args.get('limit', 5)
     q = request.args.get('q', None)
     page = int(request.args.get('page', 1))
     search_count = 0
@@ -68,7 +68,6 @@ def view_shoppinglists(current_user):
         search_count = ShoppingList.query.filter_by(
             user_id=current_user.id).filter(
             ShoppingList.name.like("%" + q.strip() + "%")).count()
-        print('search', search_count)
 
     if limit:
         try:
@@ -89,7 +88,6 @@ def view_shoppinglists(current_user):
                 return get_response('ShoppingLists', results, count=ShoppingList.query.filter_by(
                     user_id=current_user.id).count(), page=page, limit=limit)
 
-
         except ValueError:
             return response('failed', 'Limit should be an integer', 400)
 
@@ -97,8 +95,10 @@ def view_shoppinglists(current_user):
         results.append(shoplist.json())
 
     if len(results) == 0:
-        print(len(results))
         return response('failed', 'Shopping list not found', 404)
+    if search_count != 0:
+        return get_search_response('ShoppingLists', results, page=page, limit=limit,
+                                   search_count=search_count)
     return get_response('ShoppingLists', results, count=ShoppingList.query.filter_by(
         user_id=current_user.id).count, page=page, limit=limit)
 

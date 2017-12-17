@@ -3,8 +3,8 @@ from flask import Blueprint, request, make_response, jsonify
 from app.models import User, Items
 from app.authenticate.token import token_required
 import re
-from app.v2_helper_functions import response, get_response, get_search_response
-from sqlalchemy import func
+from app.v2_helper_functions import response, get_response, get_search_response, del_response
+from sqlalchemy import func, exc
 
 v2_items = Blueprint('v2_items', __name__)
 
@@ -59,7 +59,7 @@ def view_items(current_user, list_id):
     """
     user = User.query.filter_by(id=current_user.id).first()
     shoppinglist = user.shoppinglists.filter_by(id=list_id).first()
-    limit = request.args.get('limit', 10)
+    limit = request.args.get('limit', 5)
     q = request.args.get('q', None)
     page = int(request.args.get('page', 1))
     search_count = 0
@@ -71,7 +71,6 @@ def view_items(current_user, list_id):
 
         search_count = Items.query.filter_by(
             list_id=shoppinglist.id).filter(func.lower(Items.name).like("%" + q.strip() + "%")).count()
-        print('search', search_count)
 
     if limit:
         try:
@@ -85,12 +84,13 @@ def view_items(current_user, list_id):
                     new.append(limit_item.json())
 
                 if len(new) == 0:
-                    return response('failed', 'Shopping list item not found', 404)
+                    count = Items.query.filter_by(list_id=shoppinglist.id).count()
+                    return del_response('failed', 'Shopping list item not found', count, 404)
                 if search_count != 0:
                     return get_search_response('Shoppinglists_Items', new, page=page, limit=limit,
-                                               search_count=search_count)
+                                               search_count=search_count, name=shoppinglist.name)
                 return get_response('Shoppinglists_Items', new, page=page, limit=limit,
-                                    count=Items.query.filter_by(list_id=shoppinglist.id).count())
+                                    count=Items.query.filter_by(list_id=shoppinglist.id).count(), name=shoppinglist.name)
 
         except ValueError:
             return response('failed', 'Limit should be an integer', 400)
@@ -98,9 +98,10 @@ def view_items(current_user, list_id):
         for item in shop_items.all():
             new.append(item.json())
         if len(new) == 0:
-            return response('failed', 'Shopping list item not found', 404)
+            count = Items.query.filter_by(list_id=shoppinglist.id).count()
+            return del_response('failed', 'Shopping list item not found', count, 404)
         return get_response('Shoppinglists_Items', new, page=page, limit=limit,
-                            count=Items.query.filter_by(list_id=shoppinglist.id).count())
+                            count=Items.query.filter_by(list_id=shoppinglist.id).count(), name=shoppinglist.name)
 
 
 @v2_items.route('/v2/shoppinglist/<list_id>/items/<item_id>', methods=['GET'])
@@ -163,7 +164,7 @@ def edit_item(current_user, list_id, item_id):
                                 return response('success', 'Shopping list item has been edited', 200)
 
                         except ValueError:
-                            return response('failed', 'Item price should be an integer', 400)
+                            return response('failed', 'Item price should be an integer greater than 0', 400)
                     return response('failed',
                                     'Wrong name format. Name cannot contain special characters or start with a space',
                                     400)
@@ -178,24 +179,26 @@ def delete_item(current_user, list_id, item_id):
     """"
     Method to delete a shopping list item
     """
-
+    count = 0
     try:
         int(item_id)
     except ValueError:
         return response('failed', 'Please provide a valid item Id', 400)
     else:
+
         user = User.query.filter_by(id=current_user.id).first()
         shoppinglist = user.shoppinglists.filter_by(id=list_id).first()
         item = Items.query.filter_by(list_id=list_id, item_id=item_id).first()
         if item is not None:
             db.session.delete(item)
             db.session.commit()
-            return response('success', 'Shopping list item has been deleted', 200)
-        count = Items.query.filter_by(list_id=shoppinglist.id).count()
-        print('count', count)
-        return response('failed', 'Item not found', 404)  # decorator used to allow cross origin requests
+            count = Items.query.filter_by(list_id=list_id).count()
+            return del_response('success', 'Shopping list item has been deleted', count, 200)
+
+        return del_response('failed', 'Item not found', count, 404)
 
 
+# decorator used to allow cross origin requests
 @v2_items.after_request
 def apply_cross_origin_header(response):
     response.headers['Access-Control-Allow-Origin'] = '*'
