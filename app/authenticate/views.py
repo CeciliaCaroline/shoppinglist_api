@@ -25,19 +25,22 @@ def signup():
         username = post_data.get('username')
         email = post_data.get('email')
         password = post_data.get('password')
+        confirm_password = post_data.get('confirm_password')
 
-        if re.match(r"[^@]+@[^@]+\.[^@]+", email) and len(password) > 4 and username:
-            user = User.query.filter_by(email=email).first()
-            if not user:
-                user = User(email=email, password=password, username=username)
-                db.session.add(user)
-                db.session.commit()
-                auth_token = user.encode_auth_token(user_id=user.id)
+        if re.match(r"[^@]+@[^@]+\.[^@]+", email) and len(password) >= 4 and username:
+            if password == confirm_password:
+                user = User.query.filter_by(email=email).first()
+                if not user:
+                    user = User(email=email, password=password, username=username)
+                    db.session.add(user)
+                    db.session.commit()
+                    auth_token = user.encode_auth_token(user_id=user.id)
 
-                return user_response('success', 'Successfully registered', str(auth_token, "utf-8"), 201)
+                    return user_response('success', 'Successfully registered', str(auth_token, "utf-8"), 201)
 
-            return response('failed', 'User already exists, Please sign In', 403)
-        return response('failed', 'Missing or wrong email format or password is less than four characters', 400)
+                return response('failed', 'User already exists, Please sign In', 403)
+            return response('failed', 'Password does not match. Please try again', 400)
+        return response('failed', 'Missing or wrong email format or password is less than five characters', 400)
     return response('failed', 'Content-type must be json', 202)
 
 
@@ -51,14 +54,14 @@ def login():
         post_data = request.get_json()
         email = post_data.get('email')
         password = post_data.get('password')
-        if re.match(r"[^@]+@[^@]+\.[^@]+", email) and len(password) > 4:
+        if re.match(r"[^@]+@[^@]+\.[^@]+", email) and len(password) >= 4:
             user = User.query.filter_by(email=email).first()
             if user and bcrypt.check_password_hash(user.password, password):
                 auth_token = user.encode_auth_token(user.id)
                 return user_response('success', 'Successfully logged in', auth_token.decode(), 200)
 
             return response('failed', 'User does not exist or password is incorrect', 403)
-        return response('failed', 'Missing or wrong email format or password is less than four characters', 400)
+        return response('failed', 'Missing or wrong email format or password is less than five characters', 400)
     return response('failed', 'Content-type must be json', 202)
 
 
@@ -102,14 +105,14 @@ def reset(token=None):
         if re.match(r"[^@]+@[^@]+\.[^@]+", email) and len(new_password) > 4:
             user = User.query.filter_by(email=email).first()
             user_id = user.decode_auth_token(token)
-            if user_id:
+            if user_id and user.id == user_id:
                 if new_password == confirm_password:
                     user.password = bcrypt.generate_password_hash(new_password, app.config.get('BCRYPT_LOG_ROUNDS')) \
                         .decode('utf-8')
                     db.session.commit()
                     return response('success', 'Password has been reset', 200)
                 return response('failed', 'Password confirm does not match password. Please try again', 400)
-            return response('failed', 'User does not exist. Please login or register', 404)
+            return response('failed', 'Invalid user. You cant change your password with this token', 404)
 
         return response('failed', 'Missing or wrong email format or password is less than four characters', 403)
     return response('failed', 'Content-type must be json', 202)
@@ -138,8 +141,8 @@ def reset_password():
 
         # create a url and send it in the email
         password_reset_url = \
-            "https://127.0.0.1/" \
-            "password-reset/" + str(token, 'utf-8')
+            "http://localhost:3000/auth/" \
+            "reset_password/" + str(token, 'utf-8')
 
         email_body = \
             "Please follow this link to reset your " \
@@ -158,7 +161,7 @@ def reset_password():
 @auth.after_request
 def apply_cross_origin_header(response):
     """
-    decorator ro handle cors
+    decorator to handle cors
     :param response:
     :return:
     """
@@ -167,9 +170,10 @@ def apply_cross_origin_header(response):
     response.headers["Access-Control-Allow-Credentials"] = "true"
     response.headers["Access-Control-Allow-Methods"] = "GET,HEAD,OPTIONS," \
                                                        "POST,PUT,DELETE"
-    response.headers["Access-Control-Allow-Headers"] = "Access-Control-Allow-" \
-                                                       "Headers, Origin,Accept, X-Requested-With, Content-Type, " \
-                                                       "Access-Control-Request-Method, Access-Control-Request-Headers," \
-                                                       "Access-Control-Allow-Origin, Authorization"
+    response.headers["Access-Control-Allow-Headers"] = \
+        "Access-Control-Allow-" \
+        "Headers, Origin,Accept, X-Requested-With, Content-Type, " \
+        "Access-Control-Request-Method, Access-Control-Request-Headers," \
+        "Access-Control-Allow-Origin, Authorization"
 
     return response

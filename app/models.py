@@ -12,12 +12,12 @@ class User(db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     email = db.Column(db.String(250), unique=True, nullable=False)
     password = db.Column(db.String(250), nullable=False)
-    username = db.Column(db.String(250), nullable=False)
+    username = db.Column(db.String(250),  nullable=False)
     registered_on = db.Column(db.DateTime, nullable=False)
     shoppinglists = db.relationship(
         'ShoppingList', order_by='ShoppingList.id', lazy='dynamic')
 
-    def __init__(self, email, password, username):
+    def __init__(self, email, password,  username):
         self.email = email
         self.username = username
         self.password = bcrypt.generate_password_hash(password, app.config.get('BCRYPT_LOG_ROUNDS')) \
@@ -101,12 +101,14 @@ class ShoppingList(db.Model):
     description = db.Column(db.String(250))
     user_id = db.Column(db.Integer, db.ForeignKey(User.id))
     created_on = db.Column(db.DateTime, nullable=False)
+    __table_args__ = (db.UniqueConstraint(
+        'name', 'user_id', name='_list_user_unique_column'),)
     items = db.relationship('Items', order_by='Items.item_id', lazy='dynamic')
 
     def __init__(self, name, description, user_id):
         """Initialize the shoppinglist with a name and description."""
         self.name = name.capitalize()
-        self.description = description.l
+        self.description = description
         self.created_on = datetime.datetime.now()
         self.user_id = user_id
 
@@ -133,6 +135,8 @@ class Items(db.Model):
     price = db.Column(db.String(250))
     created_on = db.Column(db.DateTime, nullable=False)
     list_id = db.Column(db.Integer, db.ForeignKey(ShoppingList.id))
+    __table_args__ = (db.UniqueConstraint(
+        'name', 'list_id', name='_list_item_unique_column'),)
 
     def __init__(self, name, price, list_id):
         """Initialize the item with a name and description."""

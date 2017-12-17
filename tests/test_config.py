@@ -42,7 +42,7 @@ class TestTestingConfig(TestCase):
         self.assertTrue(app.config['BCRYPT_HASH_PREFIX'] == 3)
         self.assertFalse(current_app is None)
         self.assertTrue(
-            app.config['SQLALCHEMY_DATABASE_URI'] == os.getenv('DATABASE_URL_TEST'))
+            app.config['SQLALCHEMY_DATABASE_URI'] == os.getenv('DATABASE_URL_TESTS'))
 
         self.assertEqual(app.config['AUTH_TOKEN_EXPIRY_SECONDS'], 2)
         self.assertEqual(app.config['AUTH_TOKEN_EXPIRATION_TIME_DURING_TESTS'], 4)

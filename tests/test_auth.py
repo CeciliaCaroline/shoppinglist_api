@@ -13,7 +13,7 @@ class TestAuthBluePrint(BaseTestCase):
         :return:
         """
         with self.client:
-            response = self.register_user('example@gmail.com', '123456', 'example1')
+            response = self.register_user('example@gmail.com', '123456', '123456', 'example1')
             data = json.loads(response.data.decode())
             self.assertTrue(data['status'] == 'success')
             self.assertTrue(data['message'] == 'Successfully registered')
@@ -27,7 +27,8 @@ class TestAuthBluePrint(BaseTestCase):
         :return:
         """
         with self.client:
-            response = self.register_user_with_wrong_request_content_type('example@gmail.com', '123456', 'example1')
+            response = self.register_user_with_wrong_request_content_type('example@gmail.com', '123456', '123456',
+                                                                          'example1')
             data = json.loads(response.data.decode())
             self.assertTrue(data['status'] == 'failed', msg='Should return failed')
             self.assertTrue(data['message'] == 'Content-type must be json')
@@ -39,10 +40,10 @@ class TestAuthBluePrint(BaseTestCase):
         :return:
         """
         with self.client:
-            response = self.register_user("", "", "")
+            response = self.register_user("", "", "", "")
             data = json.loads(response.data.decode())
             self.assertTrue(data['status'] == 'failed', msg='Should return failed')
-            self.assertTrue(data['message'] == 'Missing or wrong email format or password is less than four characters')
+            self.assertTrue(data['message'] == 'Missing or wrong email format or password is less than five characters')
             self.assertEqual(response.status_code, 400)
 
     def test_user_email_validity(self):
@@ -51,18 +52,18 @@ class TestAuthBluePrint(BaseTestCase):
         :return:
         """
         with self.client:
-            response = self.register_user('caroline', '123456', 'example1')
+            response = self.register_user('caroline', '123456', '123456', 'example1')
             data = json.loads(response.data.decode())
             self.assertTrue(data['status'] == 'failed', msg='Should return failed')
-            self.assertTrue(data['message'] == 'Missing or wrong email format or password is less than four characters')
+            self.assertTrue(data['message'] == 'Missing or wrong email format or password is less than five characters')
             self.assertEqual(response.status_code, 400)
 
     def test_user_password_length_is_greater_than_four_characters(self):
         with self.client:
-            response = self.register_user('caroline@gmail.com', '123', 'example1')
+            response = self.register_user('caroline@gmail.com', '123', '123', 'example1')
             data = json.loads(response.data.decode())
             self.assertTrue(data['status'] == 'failed', msg='Should return failed')
-            self.assertTrue(data['message'] == 'Missing or wrong email format or password is less than four characters')
+            self.assertTrue(data['message'] == 'Missing or wrong email format or password is less than five characters')
             self.assertEqual(response.status_code, 400)
 
     def test_user_is_already_registered(self):
@@ -75,7 +76,7 @@ class TestAuthBluePrint(BaseTestCase):
         db.session.commit()
 
         with self.client:
-            response = self.register_user('example@gmail.com', '123456', 'example1')
+            response = self.register_user('example@gmail.com', '123456', '123456', 'example1')
             data = json.loads(response.data.decode())
             self.assertTrue(data['status'] == 'failed')
             self.assertTrue(data['message'] == 'User already exists, Please sign In')
@@ -118,7 +119,7 @@ class TestAuthBluePrint(BaseTestCase):
             self.assertEqual(response.status_code, 400)
             self.assertTrue(response.content_type == 'application/json')
             self.assertTrue(data['status'] == 'failed', msg='Status should be failed')
-            self.assertTrue(data['message'] == 'Missing or wrong email format or password is less than four characters')
+            self.assertTrue(data['message'] == 'Missing or wrong email format or password is less than five characters')
 
     def test_user_trying_to_login_does_not_exist_or_passwords_do_not_much(self):
         """
@@ -200,14 +201,14 @@ class TestAuthBluePrint(BaseTestCase):
 
     def test_password_reset(self):
         with self.client:
-            self.register_user('caroline@gmail.com', '123456', 'example1')
+            self.register_user('nalubegac58@gmail.com', '123456', '123456', 'example1')
             response = self.client.post(
                 '/auth/reset_password',
                 content_type='application/json',
-                data=json.dumps(dict(email='caroline@gmail.com')))
+                data=json.dumps(dict(email='nalubegac58@gmail.com')))
 
             data = json.loads(response.data.decode())
-
+            print('data', data)
             self.assertEqual(data['status'], 'success')
             self.assertEqual(data['message'],
                              "An email has been sent to you with a link you can use to reset your password")
@@ -217,7 +218,7 @@ class TestAuthBluePrint(BaseTestCase):
                 '/auth/reset_password/' + token,
                 content_type='application/json',
                 data=json.dumps(
-                    dict(email='caroline@gmail.com', new_password='123456789', confirm_password='123456789')))
+                    dict(email='nalubegac58@gmail.com', new_password='123456789', confirm_password='123456789')))
 
             data = json.loads(res.data.decode())
             self.assertEqual(data['status'], 'success')
@@ -227,7 +228,7 @@ class TestAuthBluePrint(BaseTestCase):
 
     def test_password_reset_non_user(self):
         with self.client:
-            self.register_user('caroline@gmail.com', '123456', 'example1')
+            self.register_user('caroline@gmail.com', '123456', '123456', 'example1')
             response = self.client.post(
                 '/auth/reset_password',
                 content_type='application/json',
@@ -239,7 +240,7 @@ class TestAuthBluePrint(BaseTestCase):
 
     def test_password_reset_with_wrong_content_type(self):
         with self.client:
-            self.register_user('caroline@gmail.com', '123456', 'example1')
+            self.register_user('caroline@gmail.com', '123456', '12356', 'example1')
             response = self.client.post(
                 '/auth/reset_password',
                 content_type='application/java',
@@ -266,7 +267,7 @@ class TestAuthBluePrint(BaseTestCase):
         Helper method to sign up and login a user
         :return:
         """
-        reg_response = self.register_user('caroline@gmail.com', '123456', 'example1')
+        reg_response = self.register_user('caroline@gmail.com', '123456', '123456', 'example1')
         data = json.loads(reg_response.data.decode())
         self.assertTrue(data['status'] == 'success')
         self.assertTrue(data['message'] == 'Successfully registered')
@@ -287,18 +288,19 @@ class TestAuthBluePrint(BaseTestCase):
         self.assertTrue(login_response.content_type == 'application/json')
         return login_data
 
-    def register_user_with_wrong_request_content_type(self, email, password, username):
+    def register_user_with_wrong_request_content_type(self, email, password, confirm_password, username):
         """
         Helper method to register a user using a wrong content-type
         :param email: Email
         :param username: Username
         :param password: Password
+        :param confirm_password: confirm_password
         :return:
         """
         return self.client.post(
             '/auth/register',
             content_type='application/javascript',
-            data=json.dumps(dict(email=email, password=password, username=username)))
+            data=json.dumps(dict(email=email, password=password, confirm_password=confirm_password, username=username)))
 
     def login_user(self, email, password):
         """
