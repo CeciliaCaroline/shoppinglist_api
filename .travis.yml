@@ -11,6 +11,7 @@ cache: pip
 
 before_install:
   - export DATABASE_URL_TEST="postgresql://ceciliacaroline@localhost/test_api"
+  - export DATABASE_URL="postgresql://ceciliacaroline:ceciliacaroline20@localhost/shop_list"
   - export APP_SETTINGS="app.config.TestingConfig"
 
 
@@ -30,9 +31,6 @@ before_script:
 
 script:
   - nosetests --with-coverage --cover-package=app
-
-env:
-  - USER='postgres' PASSWORD='' HOST='localhost' DB='shop_list' DB_TEST='test_api' SECRET_KEY='my_strong_key'  DATABASE_URL_TESTS="postgresql://postgres:@${HOST}/${DB_TEST}" MAIL_SERVER='smtp.googlemail.com' MAIL_PORT=465 MAIL_USE_TLS=False MAIL_USE_SSL=True MAIL_USERNAME="andelatestmail" MAIL_PASSWORD="andelatestmail1" MAIL_DEFAULT_SENDER="andelatestmail@gmail.com"
 
 after_script:
   - coveralls

@@ -15,8 +15,7 @@ class TestDevelopmentConfig(TestCase):
         return app
 
     def test_app_in_development(self):
-        print(app.config[
-                'SQLALCHEMY_DATABASE_URI'])
+        print(app.config['SQLALCHEMY_DATABASE_URI'])
         self.assertFalse(app.config['SECRET_KEY'] is 'caroline')
         self.assertTrue(app.config['DEBUG'], True)
         self.assertTrue(app.config['BCRYPT_HASH_PREFIX'] == 4)
