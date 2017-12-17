@@ -46,7 +46,7 @@ def add_items(current_user, list_id):
                     except ValueError:
                         return response('failed', 'Item price should be an integer', 400)
 
-                return response('failed', 'Wrong name format. Name can only contain letters and numbers', 406)
+                return response('failed', 'Wrong name format. Name can only contain letters and numbers', 403)
             return response('failed', 'No name has been input', 400)
 
     return response('failed', 'Content-type must be json', 202)
@@ -123,6 +123,8 @@ def get_single_item(current_user, list_id, item_id):
                 'price': item.price,
                 'user_id': current_user.id,
                 'list_id': list_id,
+                'created_on': item.created_on,
+
 
             })), 200
         return response('failed', 'Item not found', 404)
@@ -162,7 +164,7 @@ def edit_item(current_user, list_id, item_id):
 
                         except ValueError:
                             return response('failed', 'Item price should be an integer', 400)
-                    return response('failed', 'Wrong name format. Name can only contain letters and numbers', 406)
+                    return response('failed', 'Wrong name format. Name can only contain letters and numbers', 403)
                 return response('failed', 'No name input. Try again', 400)
             return response('failed', 'Shopping list item does not exist. Please try again', 404)
     return response('failed', 'Content-type must be json', 202)
@@ -192,17 +194,3 @@ def delete_item(current_user, list_id, item_id):
     return response('failed', 'Content-type must be json', 202)
 
 
-    # decorator used to allow cross origin requests
-    # @items.after_request
-    # def apply_cross_origin_header(response):
-    #     response.headers['Access-Control-Allow-Origin'] = '*'
-    #
-    #     response.headers["Access-Control-Allow-Credentials"] = "true"
-    #     response.headers["Access-Control-Allow-Methods"] = "GET,HEAD,OPTIONS," \
-    #                                                        "POST,PUT,DELETE"
-    #     response.headers["Access-Control-Allow-Headers"] = "Access-Control-Allow-" \
-    #         "Headers, Origin,Accept, X-Requested-With, Content-Type, " \
-    #         "Access-Control-Request-Method, Access-Control-Request-Headers," \
-    #         "Access-Control-Allow-Origin, Authorization"
-    #
-    #     return response

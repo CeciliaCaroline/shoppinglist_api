@@ -3,7 +3,8 @@ from flask import Blueprint, request, make_response, jsonify
 from app.models import ShoppingList
 from app.authenticate.token import token_required
 import re
-from app.v2_helper_functions import response, get_response
+from app.v2_helper_functions import response, get_response, get_search_response
+from sqlalchemy import func
 
 v2_shop_list = Blueprint('v2_shop_list', __name__)
 
@@ -21,6 +22,7 @@ def add_shoppinglists(current_user):
         description = data.get('description')
 
         if name and description:
+            # name = name.lower()
             if re.match("^([a-zA-Z0-9]+[ \s])*[a-zA-Z0-9]+$", name) and name.strip(' ')[0]:
                 shoplist = ShoppingList(name=name, description=description, user_id=current_user.id)
                 db.session.add(shoplist)
@@ -30,6 +32,7 @@ def add_shoppinglists(current_user):
                     'name': shoplist.name,
                     'description': shoplist.description,
                     'user_id': current_user.id,
+                    'created_on': shoplist.created_on.strftime("%Y-%m-%d"),
                     'message': 'Shopping list has been created'
                 })), 201
             return response('failed', 'Wrong name format. Name cannot contain special characters or start with a space',
@@ -51,6 +54,7 @@ def view_shoppinglists(current_user):
     limit = request.args.get('limit', 10)
     q = request.args.get('q', None)
     page = int(request.args.get('page', 1))
+    search_count = 0
 
     results = []
     shoplists = ShoppingList.query.filter_by(
@@ -59,12 +63,12 @@ def view_shoppinglists(current_user):
     if q is not None:
         q = q.lower()
         shoplists = shoplists.filter(
-            ShoppingList.name.like("%" + q.strip() + "%"))
-        # search_count = ShoppingList.query.filter_by(
-        #     user_id=current_user.id).filter(
-        #     ShoppingList.name.like("%" + q.strip() + "%")).count()
-        # # print('search: '+search_count)
+            func.lower(ShoppingList.name).like("%" + q.strip() + "%"))
 
+        search_count = ShoppingList.query.filter_by(
+            user_id=current_user.id).filter(
+            ShoppingList.name.like("%" + q.strip() + "%")).count()
+        print('search', search_count)
 
     if limit:
         try:
@@ -79,8 +83,12 @@ def view_shoppinglists(current_user):
 
                 if len(results) == 0:
                     return response('failed', 'Shopping list not found', 404)
+                if search_count != 0:
+                    return get_search_response('ShoppingLists', results, page=page, limit=limit,
+                                               search_count=search_count)
                 return get_response('ShoppingLists', results, count=ShoppingList.query.filter_by(
                     user_id=current_user.id).count(), page=page, limit=limit)
+
 
         except ValueError:
             return response('failed', 'Limit should be an integer', 400)
@@ -115,7 +123,8 @@ def get_single_list(current_user, id):
                     'name': shoplist.name,
                     'description': shoplist.description,
                     'user_id': current_user.id,
-                    'status': 'success'
+                    'created_on': shoplist.created_on,
+
                 }
 
                 )), 200
@@ -180,10 +189,7 @@ def delete_single_list(current_user, id):
         return response('failed', 'Shopping list not found', 404)
 
 
-
-        # decorator used to allow cross origin requests
-
-
+# decorator used to allow cross origin requests
 @v2_shop_list.after_request
 def apply_cross_origin_header(response):
     response.headers['Access-Control-Allow-Origin'] = '*'

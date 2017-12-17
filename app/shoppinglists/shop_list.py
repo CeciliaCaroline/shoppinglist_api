@@ -30,6 +30,7 @@ def add_shoppinglists(current_user):
                     'name': shoplist.name,
                     'description': shoplist.description,
                     'user_id': current_user.id,
+                    'created_on': shoplist.created_on,
                     'message': 'Shopping list has been created'
                 })), 201
             return response('failed', 'Wrong name format. Name can only contain letters and numbers', 400)
@@ -105,7 +106,7 @@ def get_single_list(current_user, id):
                     'name': shoplist.name,
                     'description': shoplist.description,
                     'user_id': current_user.id,
-                    'status': 'success'
+
                 }
 
                 )), 200
@@ -167,19 +168,3 @@ def delete_single_list(current_user, id):
                 return response('success', 'Shopping list has been deleted', 200)
             return response('failed', 'Shopping list not found', 404)
     return response('failed', 'Content-type must be json', 202)
-
-
-    # decorator used to allow cross origin requests
-    # @shop_list.after_request
-    # def apply_cross_origin_header(response):
-    #     response.headers['Access-Control-Allow-Origin'] = '*'
-    #
-    #     response.headers["Access-Control-Allow-Credentials"] = "true"
-    #     response.headers["Access-Control-Allow-Methods"] = " GET,HEAD,OPTIONS," \
-    #                                                        "POST,PUT,DELETE"
-    #     response.headers["Access-Control-Allow-Headers"] = "Access-Control-Allow-" \
-    #                                                        "Headers, Origin,Accept, X-Requested-With, Content-Type, " \
-    #                                                        "Access-Control-Request-Method, Access-Control-Request-Headers," \
-    #                                                        "Access-Control-Allow-Origin, Authorization"
-    #
-    #     return response

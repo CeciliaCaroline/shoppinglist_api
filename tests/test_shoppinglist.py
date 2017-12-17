@@ -202,9 +202,8 @@ class TestShoppingList(BaseTestCase):
                 content_type='application/json',
                 headers=dict(Authorization="Bearer " + token)
             )
-            data = json.loads(response.data.decode())
+
             self.assertEqual(response.status_code, 200)
-            self.assertEqual(data['status'], 'success')
 
     def test_get_single_shopping_list_with_wrong_content_type(self):
         with self.client:
