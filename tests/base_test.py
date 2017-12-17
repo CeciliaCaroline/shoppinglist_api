@@ -43,6 +43,6 @@ class BaseTestCase(TestCase):
         Method to get the user's token
         :return:
         """
-        response = self.register_user('example@gmail.com', '123456','123456', 'example1')
+        response = self.register_user('example@gmail.com', '123456', '123456', 'example1')
         # print(response.data)
         return json.loads(response.data.decode())['auth_token']
